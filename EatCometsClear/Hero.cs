@@ -11,23 +11,69 @@ using SFML.Window;
 
 namespace EatCometsClear
 {
-    class Hero : ICloneable
+    class Hero : Physical_object, ICloneable, Drawable
     {
-        public Vector2f position;
         public CircleShape kolo;
         public CircleShape obwodka;
-        public satelite[] satelite;
+        public CircleShape zasiegacz;
+        List<Satelite> satelite;
+        static System.Collections.ArrayList heromenu;
         private RenderWindow okienko;
         public bool enablemovement;
         private int numberofballs;
         private int numberofsatelites;
         private int status;
-
+        private string type;
+        public int step;
+        public int additionalRange;
+        public bool enableRange;
+        private bool menuStatistic;
+        Button kaczynskiSmiec;
         int sterowanie;
-        const int maxballs = 20000;
 
         public Hero(RenderWindow okienko, float x, float y, Color color, int screenX, int screenY, bool eneblemovementt, int sterowanie)
         {
+
+
+            kaczynskiSmiec = new Button(1, 1, 1, 1, "1", okienko, new Color(Color.Black), 1, 1);
+
+            heromenu = new System.Collections.ArrayList();
+
+
+            uint pomX = okienko.Size.X;
+            uint pomY = okienko.Size.Y;
+
+            uint buttontextsize = (uint)(pomY * 0.040);
+            Color buttonscolor = new Color(69, 69, 0);
+            heromenu = new System.Collections.ArrayList();
+            Text Gamename;
+            Gamename = new Text();
+            Gamename.DisplayedString = "Małe słońce";
+            Gamename.Font = new Font("fonts/arial.ttf");
+            Gamename.Position = new Vector2f((uint)(pomX * 0.03), (uint)(pomY * 0.03));
+            Gamename.Color = new Color(138, 7, 7);
+            Gamename.CharacterSize = (uint)(pomY * 0.15);
+
+            heromenu.Add(new Caption(Gamename, 1, okienko));
+            heromenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.25), (uint)(pomX * 0.15), (uint)(pomY * 0.1), "Awansuj", okienko, buttonscolor, buttontextsize, 0));
+            heromenu.Add(new Button((uint)(pomX * 0.24), (uint)(pomY * 0.25), (uint)(pomX * 0.09), (uint)(pomY * 0.1), "X", okienko, new Color(200, 128, 64), buttontextsize, 1));
+            heromenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "-", okienko, buttonscolor, buttontextsize, 2));
+            heromenu.Add(new Button((uint)(pomX * 0.12), (uint)(pomY * 0.40), (uint)(pomX * 0.17), (uint)(pomY * 0.10), "masa -> planeta", okienko, buttonscolor, buttontextsize, 0));
+            heromenu.Add(new Button((uint)(pomX * 0.30), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "+", okienko, buttonscolor, buttontextsize, 2));
+            heromenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.55), (uint)(pomX * 0.25), (uint)(pomY * 0.1), "przycisk", okienko, buttonscolor, buttontextsize, 0));
+            heromenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.70), (uint)(pomX * 0.25), (uint)(pomY * 0.1), "przycisk", okienko, buttonscolor, buttontextsize, 0));
+
+            this.menuStatistic = false;
+
+            this.additionalRange = 10;
+
+            this.step = (int)okienko.Size.X / 180;
+            gravityStrength = 10;
+
+            type = "small_sun";
+
+            this.mass = 2;
+
             this.sterowanie = sterowanie;
             this.status = 10;
             numberofballs = 0;
@@ -47,7 +93,12 @@ namespace EatCometsClear
             kolo.Radius = 4;
 
 
-            this.satelite = new satelite[1000];
+            zasiegacz = new CircleShape();
+            zasiegacz.FillColor = new Color(10,10,10);
+            zasiegacz.Position = position;
+            zasiegacz.Radius = 4;
+
+            this.satelite = new List<Satelite>();
             this.NewBall(0, 1);
 
 
@@ -56,11 +107,13 @@ namespace EatCometsClear
 
         public void Draw()
         {
-
+            if (!menuStatistic)
+                if (enableRange)
+                    okienko.Draw(this.zasiegacz);
             okienko.Draw(this.obwodka);
             okienko.Draw(this.kolo);
 
-            for (int i = 0; i <= this.numberofsatelites; i++)
+            for (int i = 0; i < this.satelite.Count; i++)
             {
                 if (i != 0)
                 {
@@ -69,23 +122,35 @@ namespace EatCometsClear
 
                 }
             }
+            if (menuStatistic)
+            {
+                foreach (Drawable rysownik in heromenu)
+                    rysownik.Draw(null, new RenderStates());
+            }
         }
 
-        public bool Near(Vector2f position, float poprawka, uint howmanyplanets, int bonusRange)
+        public bool Near(Vector2f position, float poprawka, uint howmanyplanets)
         {
             if (howmanyplanets == 0)
                 howmanyplanets = 1;
 
-            howmanyplanets *= (uint)(bonusRange / 10) + 800;
+            
+            howmanyplanets *= 8;
 
+            if(this.enableGravity)
+            {
+                howmanyplanets = 0;
+            }
 
-            uint distance = (uint)Math.Pow(howmanyplanets + bonusRange, 2);
+            uint distance = (uint)Math.Pow(howmanyplanets + (uint)this.obwodka.Radius + additionalRange, 2);
+            uint distance2 = (uint)Math.Pow(howmanyplanets + (uint)this.obwodka.Radius + additionalRange - poprawka, 2);
+
+            this.zasiegacz.Radius = (float)Math.Sqrt(distance2);
             //this is squared value ( potęgowana wartość )
-
-
-            uint x = (uint)Math.Pow(Math.Abs(this.position.X - position.X - poprawka), 2);
-            uint y = (uint)Math.Pow(Math.Abs(this.position.Y - position.Y - poprawka), 2);
-
+            
+            uint x = (uint)Math.Pow( this.position.X - (position.X + poprawka), 2);
+            uint y = (uint)Math.Pow( this.position.Y - (position.Y + poprawka), 2);
+            
             if ((x + y) <= distance)
                 return true;
 
@@ -131,12 +196,14 @@ namespace EatCometsClear
                 Vector2f newposition = new Vector2f(this.position.X - this.obwodka.Radius, this.position.Y - this.obwodka.Radius);
                 this.obwodka.Position = newposition;
                 this.kolo.Position = new Vector2f(this.position.X - this.kolo.Radius, this.position.Y - this.kolo.Radius);
+                this.zasiegacz.Position = new Vector2f(this.position.X - this.zasiegacz.Radius, this.position.Y - this.zasiegacz.Radius);
             }
         }
 
         public void NewBall(int i, int newspeed)
         {
-            satelite[i] = new satelite(i, this.position.X, this.position.Y, newspeed);
+            satelite.Add(new Satelite(i, this.position.X, this.position.Y, newspeed));
+            //satelite[i] = new satelite(i, this.position.X, this.position.Y, newspeed);
 
         }
 
@@ -147,12 +214,33 @@ namespace EatCometsClear
                 this.kolo.Radius += 5;
                 this.obwodka.Radius += 5;
                 Console.WriteLine("Super słońce !");
+                kolo.FillColor = new Color(255, 180, 60);
+                obwodka.FillColor = new Color(255, 70, 0);
             }
             else if (howmuch == 25)
             {
                 this.kolo.Radius += 5;
                 this.obwodka.Radius += 5;
                 Console.WriteLine("Super słońce !");
+                type = "medium_sun";
+
+                var tmp = heromenu.GetEnumerator();
+                while (tmp.MoveNext())
+                {
+                    Caption element;
+                    element = new Caption();
+                    if (tmp.Current.GetType() == element.GetType())
+                    {
+                        element = null;
+                        element = (Caption)tmp.Current;
+
+                        if (element.id == 1)
+                            element.text.DisplayedString = "Średnie słońce";
+                    }
+                }
+
+                kolo.FillColor = new Color(255, 155, 37);
+                obwodka.FillColor = new Color(255, 53, 0);
 
             }
             else if (howmuch == 50)
@@ -164,6 +252,21 @@ namespace EatCometsClear
                 this.obwodka.FillColor = new Color(255, 0, 255);
 
                 Console.WriteLine("Neutronowy olbrzym !");
+                type = "neutron_star";
+                var tmp = heromenu.GetEnumerator();
+                while (tmp.MoveNext())
+                {
+                    Caption element;
+                    element = new Caption();
+                    if (tmp.Current.GetType() == element.GetType())
+                    {
+                        element = null;
+                        element = (Caption)tmp.Current;
+
+                        if (element.id == 1)
+                            element.text.DisplayedString = "Neutronowy olbrzym";
+                    }
+                }
 
             }
             else if (howmuch == 100)
@@ -173,6 +276,21 @@ namespace EatCometsClear
                 this.kolo.FillColor = new Color(128, 127, 127);
                 this.obwodka.FillColor = new Color(Color.White);
                 Console.WriteLine("Biały niewypał !");
+                type = "white_cancer";
+                var tmp = heromenu.GetEnumerator();
+                while (tmp.MoveNext())
+                {
+                    Caption element;
+                    element = new Caption();
+                    if (tmp.Current.GetType() == element.GetType())
+                    {
+                        element = null;
+                        element = (Caption)tmp.Current;
+
+                        if (element.id == 1)
+                            element.text.DisplayedString = "Biały niewypał";
+                    }
+                }
             }
             else if (howmuch == 150)
             {
@@ -182,6 +300,21 @@ namespace EatCometsClear
                 this.kolo.FillColor = new Color(200, 200, 255);
                 this.obwodka.FillColor = new Color(Color.White);
                 Console.WriteLine("Supernova !!!!");
+                type = "supernova";
+                var tmp = heromenu.GetEnumerator();
+                while (tmp.MoveNext())
+                {
+                    Caption element;
+                    element = new Caption();
+                    if (tmp.Current.GetType() == element.GetType())
+                    {
+                        element = null;
+                        element = (Caption)tmp.Current;
+
+                        if (element.id == 1)
+                            element.text.DisplayedString = "Supernova";
+                    }
+                }
             }
             else if (howmuch == 300)
             {
@@ -193,37 +326,144 @@ namespace EatCometsClear
                 this.obwodka.FillColor = new Color(50, 50, 50);
 
                 Console.WriteLine("Czarna dziura !");
+                type = "black_hole";
+                var tmp = heromenu.GetEnumerator();
+                while (tmp.MoveNext())
+                {
+                    Caption element;
+                    element = new Caption();
+                    if (tmp.Current.GetType() == element.GetType())
+                    {
+                        element = null;
+                        element = (Caption)tmp.Current;
+
+                        if (element.id == 1)
+                            element.text.DisplayedString = "Czarna dziura";
+                    }
+                }
             }
 
 
             this.Go('x', 0, 800, 600);
         }
 
-        public int Tick(bool movement, int numberofframe, Ball ball, int difficulty)
+        private void WhatsGoingOn(int numberofframe)
+        {
+
+            if ( ((numberofsatelites > 0) && Keyboard.IsKeyPressed(Keyboard.Key.Space)) || ((numberofsatelites > 0) && this.type == "black_hole" ))
+            {
+                if (numberofframe % 3 == 0) // Co trzecią klatkę, coby za szybko nie było
+                {
+                    this.RemoveSatelite();
+                }
+            }
+
+            
+            if (sterowanie == 3)
+            {
+
+                this.Go('x', Mouse.GetPosition(okienko).X - (int)this.position.X, (int)okienko.Size.X, (int)okienko.Size.Y);
+                this.Go('y', Mouse.GetPosition(okienko).Y - (int)this.position.Y, (int)okienko.Size.X, (int)okienko.Size.Y);
+            }
+            if (sterowanie == 2)
+            {
+                if (Keyboard.IsKeyPressed(Keyboard.Key.D) || Keyboard.IsKeyPressed(Keyboard.Key.Right))
+                    this.Go('x', step, (int)okienko.Size.X, (int)okienko.Size.Y);
+                if (Keyboard.IsKeyPressed(Keyboard.Key.A) || Keyboard.IsKeyPressed(Keyboard.Key.Left))
+                    this.Go('x', -step, (int)okienko.Size.X, (int)okienko.Size.Y);
+                if (Keyboard.IsKeyPressed(Keyboard.Key.W) || Keyboard.IsKeyPressed(Keyboard.Key.Up))
+                    this.Go('y', -step, (int)okienko.Size.X, (int)okienko.Size.Y);
+                if (Keyboard.IsKeyPressed(Keyboard.Key.S) || Keyboard.IsKeyPressed(Keyboard.Key.Down))
+                    this.Go('y', step, (int)okienko.Size.X, (int)okienko.Size.Y);
+            }
+            else if (sterowanie == 1)
+            {
+                if (Keyboard.IsKeyPressed(Keyboard.Key.D))
+                    this.Go('x', step, (int)okienko.Size.X, (int)okienko.Size.Y);
+                if (Keyboard.IsKeyPressed(Keyboard.Key.A))
+                    this.Go('x', -step, (int)okienko.Size.X, (int)okienko.Size.Y);
+                if (Keyboard.IsKeyPressed(Keyboard.Key.W))
+                    this.Go('y', -step, (int)okienko.Size.X, (int)okienko.Size.Y);
+                if (Keyboard.IsKeyPressed(Keyboard.Key.S))
+                    this.Go('y', step, (int)okienko.Size.X, (int)okienko.Size.Y);
+            }
+            else if (sterowanie == 0)
+            {
+                if (Keyboard.IsKeyPressed(Keyboard.Key.Right))
+                    this.Go('x', step, (int)okienko.Size.X, (int)okienko.Size.Y);
+                if (Keyboard.IsKeyPressed(Keyboard.Key.Left))
+                    this.Go('x', -step, (int)okienko.Size.X, (int)okienko.Size.Y);
+                if (Keyboard.IsKeyPressed(Keyboard.Key.Up))
+                    this.Go('y', -step, (int)okienko.Size.X, (int)okienko.Size.Y);
+                if (Keyboard.IsKeyPressed(Keyboard.Key.Down))
+                    this.Go('y', step, (int)okienko.Size.X, (int)okienko.Size.Y);
+            }
+        }
+
+        private void AddSatelite()
+        {
+            this.mass--;
+            numberofsatelites++;
+            Console.WriteLine("planeta numer " + numberofsatelites);
+            this.NewBall(numberofsatelites, numberofsatelites);
+
+        }
+
+        private void RemoveSatelite()
+        {
+            /*
+                    for (int i = 0; i < numberofsatelites; i++)
+                    {
+                        int j = i;
+                        j++;
+                        this.satelite[i] = null;
+                        this.satelite[i].Add(this.satelite[j]);
+                    }
+                    this.satelite.RemoveAt(numberofsatelites);
+                    */
+            this.satelite.RemoveAt(0);
+            numberofsatelites--;
+
+            this.mass++;
+
+
+            Console.WriteLine("masa = " + mass);
+
+            if (this.type == "small_sun")
+            {
+                this.kolo.Radius = this.mass;
+                this.obwodka.Radius = this.kolo.Radius + 2;
+            }
+            if (this.type == "medium_sun")
+            {
+                this.kolo.Radius = (float)(this.mass * 0.9);
+                this.obwodka.Radius = this.kolo.Radius + 2;
+            }
+            if (this.type == "neutron_star")
+            {
+                this.kolo.Radius = (float)(this.mass * 0.5);
+                this.obwodka.Radius = this.kolo.Radius + 2;
+            }
+        }
+
+        public int Tick(bool movement, int numberofframe, Ball ball )
         {
 
 
-            for (int i = 0; i <= this.numberofsatelites; i++)
+            for (int i = 0; i < this.satelite.Count ; i++)
             {
                 this.satelite[i].BallLocation(this.numberofsatelites, this.position.X, this.position.Y, i, this.kolo.Radius);
             }
 
 
-            if (status == 200)
+            if (type == "supernova")
             {
-                this.kolo.Radius = new System.Random().Next(20, 60);
-                this.obwodka.Radius = this.kolo.Radius + 2;
-                this.Go('x', 0, 800, 600);
-            }
-
-            if (status == 300)
-            {
-                int magic = numberofballs * 8;
-                magic /= 100;
-                this.kolo.Radius = new System.Random().Next(20, magic);
+                //Console.WriteLine("CO TO KURWA JEST " + type);
+                int magic = numberofballs;
+                magic /= 10;
+                this.kolo.Radius = new System.Random().Next(magic - 20, magic);
                 this.obwodka.Radius = this.kolo.Radius + 2;
                 this.Go('x', 0, (int)okienko.Size.X, (int)okienko.Size.Y);
-
             }
 
 
@@ -232,137 +472,179 @@ namespace EatCometsClear
 
             if (movement)
             {
-                int step = (int)okienko.Size.X / 200;
-                if (sterowanie == 3)
-                {
+                menuStatistic = false;
+                okienko.SetMouseCursorVisible(false);
 
-                    this.Go('x', Mouse.GetPosition(okienko).X - (int)this.position.X, (int)okienko.Size.X, (int)okienko.Size.Y);
-                    this.Go('y', Mouse.GetPosition(okienko).Y - (int)this.position.Y, (int)okienko.Size.X, (int)okienko.Size.Y);
-                }
-                if (sterowanie == 2)
+                if (Keyboard.IsKeyPressed(Keyboard.Key.Tab))
                 {
-                    if (Keyboard.IsKeyPressed(Keyboard.Key.D) || Keyboard.IsKeyPressed(Keyboard.Key.Right))
-                        this.Go('x', step, (int)okienko.Size.X, (int)okienko.Size.Y);
-                    if (Keyboard.IsKeyPressed(Keyboard.Key.A) || Keyboard.IsKeyPressed(Keyboard.Key.Left))
-                        this.Go('x', -step, (int)okienko.Size.X, (int)okienko.Size.Y);
-                    if (Keyboard.IsKeyPressed(Keyboard.Key.W) || Keyboard.IsKeyPressed(Keyboard.Key.Up))
-                        this.Go('y', -step, (int)okienko.Size.X, (int)okienko.Size.Y);
-                    if (Keyboard.IsKeyPressed(Keyboard.Key.S) || Keyboard.IsKeyPressed(Keyboard.Key.Down))
-                        this.Go('y', step, (int)okienko.Size.X, (int)okienko.Size.Y);
+                    menuStatistic = true;
+                    okienko.SetMouseCursorVisible(true);
                 }
-                else if (sterowanie == 1)
+                
+                if (menuStatistic)
                 {
-                    if (Keyboard.IsKeyPressed(Keyboard.Key.D))
-                        this.Go('x', step, (int)okienko.Size.X, (int)okienko.Size.Y);
-                    if (Keyboard.IsKeyPressed(Keyboard.Key.A))
-                        this.Go('x', -step, (int)okienko.Size.X, (int)okienko.Size.Y);
-                    if (Keyboard.IsKeyPressed(Keyboard.Key.W))
-                        this.Go('y', -step, (int)okienko.Size.X, (int)okienko.Size.Y);
-                    if (Keyboard.IsKeyPressed(Keyboard.Key.S))
-                        this.Go('y', step, (int)okienko.Size.X, (int)okienko.Size.Y);
-                }
-                else if (sterowanie == 0)
-                {
-                    if (Keyboard.IsKeyPressed(Keyboard.Key.Right))
-                        this.Go('x', step, (int)okienko.Size.X, (int)okienko.Size.Y);
-                    if (Keyboard.IsKeyPressed(Keyboard.Key.Left))
-                        this.Go('x', -step, (int)okienko.Size.X, (int)okienko.Size.Y);
-                    if (Keyboard.IsKeyPressed(Keyboard.Key.Up))
-                        this.Go('y', -step, (int)okienko.Size.X, (int)okienko.Size.Y);
-                    if (Keyboard.IsKeyPressed(Keyboard.Key.Down))
-                        this.Go('y', step, (int)okienko.Size.X, (int)okienko.Size.Y);
-                }
+                    var tmp = heromenu.GetEnumerator();
 
-
-
-                if (status < 300)
-                {
-                    if (this.Near(ball.position, ball.kolo.Radius, (uint)(numberofsatelites), difficulty))
+                    while(tmp.MoveNext())
                     {
+                        Button element;
+                        element = kaczynskiSmiec;
+                        if (tmp.Current.GetType() == element.GetType())
+                        {
+                            element = null;
+                            element = (Button)tmp.Current;
+                            
+                            if(element.id == 1)
+                            {
+                                if( this.mass >= status )
+                                {
+                                    element.ChangeText("V");
+                                    element.ChangeColor(new Color(0, 128, 0));
+                                }
+                                else
+                                {
+                                    element.ChangeText("X");
+                                    element.ChangeColor(new Color(128, 0, 0));
+                                }
+                            }
+                            
+                            if (element.tekst.DisplayedString.Equals("masa -> planeta") && element.DoAction())
+                            {
 
+                            }
+
+                            if (element.tekst.DisplayedString.Equals("+") && (element.id == 2))
+                            {
+                                if (element.DoAction())
+                                {
+                                    if ( this.mass > 0)
+                                    {
+                                        this.AddSatelite();
+                                    }
+                                }
+                            }
+                            if (element.tekst.DisplayedString.Equals("-") && (element.id == 2))
+                            {
+                                if (element.DoAction())
+                                {
+                                    if (numberofsatelites > 0)
+                                        this.RemoveSatelite();
+                                }
+                            }
+
+                            if (element.tekst.DisplayedString.Equals("Awansuj") && element.DoAction())
+                            {
+                                if (this.mass >= status)
+                                {
+                                    this.ChangeStatus(status);
+                                    this.mass -= status;
+                                    if (status == 10)
+                                        status = 25;
+                                    else if (status == 25)
+                                        status = 50;
+                                    else if (status == 50)
+                                        status = 100;
+                                    else if (status == 100)
+                                    {
+                                        status = 150;
+                                    }
+                                    else if (status == 150)
+                                    {
+                                        status = 200;
+                                    }
+                                    else if (status == 200)
+                                    {
+                                        status = 300;
+                                        AddSatelite();
+                                        //numberofsatelites--;
+                                    }
+
+                                    if (this.type == "small_sun")
+                                    {
+                                        this.kolo.Radius = (float)(this.mass * 1.3);
+                                        if (this.kolo.Radius > 50)
+                                            this.kolo.Radius = 50;
+                                        this.obwodka.Radius = this.kolo.Radius + 2;
+                                    }
+                                    if (this.type == "medium_sun")
+                                    {
+                                        this.kolo.Radius = (float)(this.mass * 1);
+                                        if (this.kolo.Radius > 100)
+                                            this.kolo.Radius = 100;
+                                        this.obwodka.Radius = this.kolo.Radius + 2;
+                                    }
+                                    if (this.type == "neutron_star")
+                                    {
+                                        this.kolo.Radius = (float)(this.mass * 0.9);
+                                        if (this.kolo.Radius > 200)
+                                            this.kolo.Radius = 200;
+                                        this.obwodka.Radius = this.kolo.Radius + 2;
+                                    }
+                                    if (this.type == "white_cancer")
+                                    {
+                                        this.kolo.Radius = (float)(this.mass * 0.1);
+                                        if (this.kolo.Radius > 50)
+                                            this.kolo.Radius = 50;
+                                        this.obwodka.Radius = this.kolo.Radius + 1;
+                                    }
+
+
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    WhatsGoingOn(numberofframe);
+
+                    if (type != "black_hole")
+                    {
+                        if (this.Near(ball.position, ball.kolo.Radius, (uint)(this.satelite.Count - 1)))
+                        {
+                            numberofballs++;
+                            ball.Remake();
+                            if (0 == (numberofballs % 3) && (numberofballs > 0))
+                            {
+                                this.mass++;
+                                AddSatelite();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (ball != null)
+                        {
+                            if (this.Near(ball.position, ball.kolo.Radius, (uint)(this.satelite.Count)))
+                            {
+                                return 3;
+                            }
+                        }
+                    }
+                    if (status == 300)
+                    {
                         numberofballs++;
-
-
-                        if (0 == (numberofballs % 10) && (numberofballs > 0))
+                        if ((numberofballs / 10) == 300)
                         {
-                            if (numberofballs < (maxballs / 10))
-                            {
-                                numberofsatelites++;
-                                Console.WriteLine("planeta numer " + numberofsatelites);
-                                this.NewBall(numberofsatelites, numberofsatelites);
-
-
-                            }
-                            if ((numberofballs / 10) == status)
-                            {
-                                this.ChangeStatus(status);
-                                if (status == 10)
-                                    status = 25;
-                                else if (status == 25)
-                                    status = 50;
-                                else if (status == 50)
-                                    status = 100;
-                                else if (status == 100)
-                                {
-                                    status = 150;
-                                }
-                                else if (status == 150)
-                                {
-                                    status = 200;
-                                }
-                                else if (status == 200)
-                                {
-                                    status = 300;
-                                    ball = null;
-                                    numberofsatelites++;
-                                    this.NewBall(numberofsatelites, numberofsatelites);
-                                    Console.WriteLine("planeta numer " + numberofsatelites);
-                                    //numberofsatelites--;
-                                    return 3;
-                                }
-                            }
+                            this.ChangeStatus(status);
+                            status = 400;
                         }
-
-                        return 1;
                     }
-                }
-                else if (status == 300)
-                {
-                    numberofballs++;
-                    if ((numberofballs / 10) == 300)
+                    else if (status == 400)
                     {
-                        this.ChangeStatus(status);
-                        status = 400;
-                    }
-                }
-                else if (status == 400)
-                {
-                    if (numberofsatelites > 0)
-                    {
-                        if (numberofframe % 3 == 0)
+                        if (numberofsatelites == 0)
                         {
-                            for (int i = 0; i < numberofsatelites; i++)
-                            {
-                                int j = i;
-                                j++;
-                                this.satelite[i] = null;
-                                this.satelite[i] = this.satelite[j];
-                            }
-                            this.satelite[numberofsatelites] = null;
+                            this.satelite.Clear();
                             numberofsatelites--;
-                        }
-                    }
-                    else if (numberofsatelites == 0)
-                    {
-                        this.satelite[0] = null;
-                        numberofsatelites--;
-                        Console.WriteLine("Wsiorbałeś cały kosmos xD");
-                        Console.WriteLine("Pozdro i papatki");
+                            Console.WriteLine("Wsiorbałeś cały kosmos xD");
+                            Console.WriteLine("Pozdro i papatki");
 
-                        return 2;
+                            return 3;
+                        }
                     }
                 }
             }
+
 
 
             return 0;
@@ -377,5 +659,13 @@ namespace EatCometsClear
         {
             return this.MemberwiseClone();
         }
+
+        public void Draw(RenderTarget target, RenderStates states)
+        {
+            this.Draw();
+        }
+
+
     }
+
 }
