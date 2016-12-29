@@ -8,6 +8,7 @@ using SFML.System;
 using SFML.Graphics;
 using SFML.Window;
 
+//2k16
 
 namespace EatCometsClear
 {
@@ -30,10 +31,12 @@ namespace EatCometsClear
         private bool menuStatistic;
         Button kaczynskiSmiec;
         int sterowanie;
+        private bool enableManipulation;
 
         public Hero(RenderWindow okienko, float x, float y, Color color, int screenX, int screenY, bool eneblemovementt, int sterowanie)
         {
 
+            enableManipulation = false;
 
             kaczynskiSmiec = new Button(1, 1, 1, 1, "1", okienko, new Color(Color.Black), 1, 1);
 
@@ -60,8 +63,18 @@ namespace EatCometsClear
             heromenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "-", okienko, buttonscolor, buttontextsize, 2));
             heromenu.Add(new Button((uint)(pomX * 0.12), (uint)(pomY * 0.40), (uint)(pomX * 0.17), (uint)(pomY * 0.10), "masa -> planeta", okienko, buttonscolor, buttontextsize, 0));
             heromenu.Add(new Button((uint)(pomX * 0.30), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "+", okienko, buttonscolor, buttontextsize, 2));
-            heromenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.55), (uint)(pomX * 0.25), (uint)(pomY * 0.1), "przycisk", okienko, buttonscolor, buttontextsize, 0));
+            heromenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.57), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "?", okienko, buttonscolor, buttontextsize, 3));
+            heromenu.Add(new Button((uint)(pomX * 0.12), (uint)(pomY * 0.55), (uint)(pomX * 0.17), (uint)(pomY * 0.10), "odblokuj", okienko, buttonscolor, buttontextsize, 3));
+            heromenu.Add(new Button((uint)(pomX * 0.30), (uint)(pomY * 0.57), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "X", okienko, new Color(128,0,0), buttontextsize, 4));
             heromenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.70), (uint)(pomX * 0.25), (uint)(pomY * 0.1), "przycisk", okienko, buttonscolor, buttontextsize, 0));
+
+            Gamename = null;
+
+            Gamename = new Text("Menu postaci", new Font("fonts/arial.ttf"), (uint)(pomY * 0.022222));
+            Gamename.Position = new Vector2f((uint)(pomX * 0.08), (uint)(pomY * 0.833333));
+            Gamename.Color = new Color(Color.White);
+            heromenu.Add(new Caption(Gamename, 2, okienko));
+
 
             this.menuStatistic = false;
 
@@ -458,7 +471,6 @@ namespace EatCometsClear
 
             if (type == "supernova")
             {
-                //Console.WriteLine("CO TO KURWA JEST " + type);
                 int magic = numberofballs;
                 magic /= 10;
                 this.kolo.Radius = new System.Random().Next(magic - 20, magic);
@@ -485,7 +497,7 @@ namespace EatCometsClear
                 {
                     var tmp = heromenu.GetEnumerator();
 
-                    while(tmp.MoveNext())
+                    while (tmp.MoveNext())
                     {
                         Button element;
                         element = kaczynskiSmiec;
@@ -493,10 +505,10 @@ namespace EatCometsClear
                         {
                             element = null;
                             element = (Button)tmp.Current;
-                            
-                            if(element.id == 1)
+
+                            if (element.id == 1)
                             {
-                                if( this.mass >= status )
+                                if (this.mass >= status)
                                 {
                                     element.ChangeText("V");
                                     element.ChangeColor(new Color(0, 128, 0));
@@ -507,6 +519,77 @@ namespace EatCometsClear
                                     element.ChangeColor(new Color(128, 0, 0));
                                 }
                             }
+
+                            if (element.id == 3 || element.id == 4)
+                            {
+
+                                if (enableManipulation)
+                                {
+
+                                }
+                                else
+                                {
+
+                                    if (element.id == 4)
+                                    {
+                                        if (this.mass >= 100)
+                                        {
+                                            element.ChangeText("V");
+                                            element.ChangeColor(new Color(0, 128, 0));
+                                        }
+                                        else
+                                        {
+                                            element.ChangeText("X");
+                                            element.ChangeColor(new Color(128, 0, 0));
+                                        }
+                                    }
+
+                                    if (element.tekst.DisplayedString.Equals("?") && element.DoAction())
+                                    {
+                                        var tmp2 = heromenu.GetEnumerator();
+                                        while (tmp2.MoveNext())
+                                        {
+                                            Caption element2;
+                                            element2 = new Caption();
+                                            if (tmp2.Current.GetType() == element2.GetType())
+                                            {
+                                                element2 = null;
+                                                element2 = (Caption)tmp2.Current;
+
+                                                if (element2.id == 2)
+                                                    element2.text.DisplayedString = "Umiejętność pozwalająca manipulować gęstością |- koszt 100 masy";
+                                            }
+                                        }
+                                        if (element.tekst.DisplayedString.Equals("odblokuj") && element.DoAction())
+                                        {
+                                            if (this.mass >= 100)
+                                            {
+                                                element.tekst.DisplayedString = "Gęstość";
+                                            }
+                                            else
+                                            {
+                                                var tmp3 = heromenu.GetEnumerator();
+                                                while (tmp3.MoveNext())
+                                                {
+                                                    Caption element3;
+                                                    element3 = new Caption();
+                                                    if (tmp3.Current.GetType() == element3.GetType())
+                                                    {
+                                                        element3 = null;
+                                                        element3 = (Caption)tmp3.Current;
+
+                                                        if (element3.id == 2)
+                                                            element3.text.DisplayedString = "Umiejętność pozwalająca manipulować gęstością |- koszt 100 masy";
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        
+                    
+
                             
                             if (element.tekst.DisplayedString.Equals("masa -> planeta") && element.DoAction())
                             {

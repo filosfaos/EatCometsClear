@@ -40,8 +40,8 @@ namespace EatCometsClear
         Physic rydzykFizyk;
 
         bool enableRangeWskaznik, enableGravity;
-        
 
+        Image ikona;
 
         public RPG()
             : base(1280, 720, "Żryj komety", Color.Black)
@@ -71,22 +71,28 @@ namespace EatCometsClear
 
             */
             music = new Music("content/music2.ogg");
-            //image = new Image("img/icon.ico");
+            ikona = new Image("img/icon.png");
+            
         }
 
         protected override void Initialize()
         {
-            rydzykFizyk = new Physic();
+            window.SetActive(true);
+            window.SetIcon(ikona.Size.X, ikona.Size.Y, ikona.Pixels);
+
+            rydzykFizyk = new Physic(); //on liczy fizyke fizyk jeden
 
             enableRangeWskaznik = true;
             enableGravity = false;
 
             uint pomX = window.Size.X;
             uint pomY = window.Size.Y;
-            //window.SetIcon(image.GetWidth(), image.GetHeight(), image.GetPixelsPtr());
+
             
             sterowanie = 3;
             difficulty = new int[3] { 10, 1000, 100 };
+            gamestarted = false;
+            numberofframe = 0;
 
             musicEnabled = false;
             music.Loop = true;
@@ -205,16 +211,9 @@ namespace EatCometsClear
             textMusicEnable.Color = new Color(Color.White);
             textMusicEnable.DisplayedString = Convert.ToString(musicEnabled);
 
-            gamestarted = false;
-
-            numberofframe = 0;
-            // map = new Tilemap(tileset, 24, 18, 16.0f, 32.0f );
 
             //uint tipsize = 16;
             uint tipsize = (uint)(pomY * 0.022222);
-
-
-
             texty = new List<Text>();
 
             for( int i = 0; i < 16; i++)
