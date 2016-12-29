@@ -10,23 +10,42 @@ using SFML.System;
 
 namespace EatCometsClear
 {
-    class Ball
+    class Ball :Physical_object
     {
-        public Vector2f position;
         public CircleShape kolo;
+        private int x, y;
 
-        public Ball(int x, int y)
+        public Ball(int x1, int y1)
         {
-            Random rnd = new Random();
-            x = rnd.Next(10, x - 10);
-            y = rnd.Next(10, y - 10);
+            this.gravityStrength = 1000;
+            this.enableGravity = true;
 
-            position = new Vector2f(x, y);
-            //Console.WriteLine("x = " + x + "  y = " + y );
+            this.mass = 1;
+            this.x = x1;
+            this.y = y1;
+
             kolo = new CircleShape();
             kolo.FillColor = new Color(100, 100, 100);
-            kolo.Position = position;
             kolo.Radius = 6;
+
+
+            this.Remake();
+
+
+            //Console.WriteLine("x = " + x + "  y = " + y );
+
+
+        }
+
+        public void Remake()
+        {
+            int x1, y1;
+            Random rnd = new Random();
+            x1 = rnd.Next( (int)(x*0.01), (int)(x*0.99) );
+            y1 = rnd.Next( (int)(y*0.01), (int)(y*0.99) );
+
+            position = new Vector2f(x1, y1);
+            kolo.Position = position;
 
         }
     }

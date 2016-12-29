@@ -10,7 +10,7 @@ using SFML.Graphics;
 
 namespace EatCometsClear
 {
-    class satelite
+    class Satelite
     {
         public CircleShape kolo;
         public CircleShape obwodka;
@@ -18,7 +18,7 @@ namespace EatCometsClear
         private float kat;
         private float startPosition, maxPosition;
 
-        public satelite(int i, float x, float y, int newspeed)
+        public Satelite(int i, float x, float y, int newspeed)
         {
 
             this.kolo = new CircleShape(); // nowy obiekt: ksztalk kola w pamieci
@@ -42,6 +42,8 @@ namespace EatCometsClear
                 this.kolo.Radius = rnd.Next(1, i / 3);
             else if (i > 100)
                 this.kolo.Radius = rnd.Next(1, i / 10);
+            else if (i > 200)
+                this.kolo.Radius = rnd.Next(1, 20);
 
             this.obwodka = new CircleShape(this.kolo.Radius + 1);
 
@@ -95,6 +97,11 @@ namespace EatCometsClear
             maxPosition = startPosition + 1080;
             this.kat = startPosition;
 
+            /*
+             *water effects xD
+            this.kolo.FillColor = new Color(0,0, 255);
+            this.obwodka.FillColor = new Color(30, 30, 255);
+            */
         }
 
 
@@ -118,6 +125,11 @@ namespace EatCometsClear
             //this.satelite[i].Position = this.position;
 
 
+        }
+
+        internal void Add(Satelite satelite)
+        {
+            throw new NotImplementedException();
         }
     }
 }

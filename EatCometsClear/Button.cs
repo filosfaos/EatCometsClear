@@ -10,19 +10,23 @@ using SFML.Window;
 
 namespace EatCometsClear
 {
-    class Button
+    class Button :Drawable
     {
 
         float rx, ry, rw, rh;
         RenderWindow window;
-        RectangleShape prostokat;
+        RectangleShape prostokat, tlo;
         public Text tekst;
         //Action akcja;
         public bool doAction;
         Color color, activeColor;
-
-        public Button(float posx, float posy, float width, float height, string napis, RenderWindow okno, Color color, uint textsize)
+        public int id;
+        private int iletyczymasz;
+        
+        public Button(float posx, float posy, float width, float height, string napis, RenderWindow okno, Color color, uint textsize, int id )
         {
+            this.iletyczymasz = 0;
+            this.id = id;
 
             this.color = color;
             int roznica = -32;
@@ -48,6 +52,9 @@ namespace EatCometsClear
             this.activeColor = new Color((byte)r, (byte)g, (byte)b);
 
 
+
+            window = okno;
+
             doAction = false;
             rx = posx;
             ry = posy;
@@ -57,21 +64,56 @@ namespace EatCometsClear
             prostokat.Position = new Vector2f(rx, ry);
             prostokat.Size = new Vector2f(rw, rh);
             prostokat.FillColor = new Color(255, 0, 0);
+
+
+
+            r = activeColor.R + roznica;
+            if (r > 255)
+                r = 255;
+            if (r < 0)
+                r = 0;
+
+            g = activeColor.G + roznica;
+            if (g > 255)
+                g = 255;
+            if (g < 0)
+                g = 0;
+            b = activeColor.B + roznica;
+            if (b > 255)
+                b = 255;
+            if (b < 0)
+                b = 0;
+
+            tlo = new RectangleShape();
+            tlo.Position = new Vector2f((float)(rx * 0.99), (float)(ry*0.99));
+            tlo.Size = new Vector2f(rw, rh);
+            tlo.FillColor = new Color((byte)r, (byte)g, (byte)b);
+
             tekst = new Text();
             tekst.DisplayedString = napis;
             tekst.Font = new Font("fonts/arial.ttf");
             tekst.Position = new Vector2f(rx + (rw - tekst.GetLocalBounds().Width) / 2, ry + (rh - tekst.GetLocalBounds().Height) / 2);
-            window = okno;
+            
 
             if ((napis == "-"))
             {
-                tekst.Position = new Vector2f(rx + 15, ry + 2);
+                //tekst.Position = new Vector2f(rx + 15, ry + 2);
+                tekst.Position = new Vector2f(rx + (uint)(window.Size.X * 0.01171), ry + (uint)(window.Size.Y * 0.00277777));
             }
-            if ((napis == "+"))
+            else if ((napis == "+"))
             {
-                tekst.Position = new Vector2f(rx + 12, ry + 3);
+                //tekst.Position = new Vector2f(rx + 12, ry + 3);
+                tekst.Position = new Vector2f(rx + (uint)(window.Size.X * 0.009375), ry + (uint)(window.Size.Y * 0.0041666));
             }
+            else if (napis.Length == 1)
+                tekst.Position = new Vector2f(rx + (uint)(window.Size.X * 0.01171), ry + (uint)(window.Size.Y * 0.00777777));
+
             tekst.CharacterSize = textsize;
+        }
+
+        public void ChangeColor(Color coloreg)
+        {
+            this.prostokat.FillColor = coloreg;
         }
 
         public void ChangeText(String text)
@@ -93,38 +135,55 @@ namespace EatCometsClear
 
         public bool DoAction()
         {
-            if (doAction == true)
+            if (IsHoovering())
+            {
+                this.ChangeColor(activeColor);
+                if (Mouse.IsButtonPressed(Mouse.Button.Left))
+                {
+                    this.iletyczymasz++;
+                    doAction = true;
+                }
+                else
+                    this.iletyczymasz = -1;
+            }
+            else
+                this.ChangeColor(color);
+
+            if ((doAction == true) && (iletyczymasz == 0))
             {
                 doAction = false;
                 return true;
             }
             else
             {
-                return false;
+                if (tekst.DisplayedString.Equals("-") || tekst.DisplayedString.Equals("+"))
+                {
+                    if (iletyczymasz > 45)
+                    {
+                        doAction = false;
+                        return true;
+                    }
+                    else
+                        return false;
+                }
+                else
+                    return false;
             }
         }
+        
 
-        public bool OnClick()
+        public void Draw()
         {
-            doAction = true;
-            return true;
-        }
-
-
-        public bool Draw()
-        {
+            window.Draw(tlo);
             window.Draw(prostokat);
             window.Draw(tekst);
+        }
 
-            if (IsHoovering())
-            {
-                prostokat.FillColor = activeColor;
-                if (Mouse.IsButtonPressed(Mouse.Button.Left))
-                    return OnClick();
-            }
-            else
-                prostokat.FillColor = color;
-            return true;
+        public void Draw(RenderTarget target, RenderStates states)
+        {
+            this.Draw();
         }
     }
+
+   
 }

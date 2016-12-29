@@ -16,130 +16,245 @@ namespace EatCometsClear
         public bool startNewGame;
         Hero hero, menuhero;
         Ball ball;
-        Text textt0, textt1, textt2, textt3, textt4, textt5, textt6, textt7, Gamename, textDifficulty;
+        Text  Gamename, Gamename2, textDifficulty, textGravity, textRange, textSteps, textMusicVolume, textMusicEnable;
         RectangleShape linia;
-        Image image;
-
+        
 
         Music music;
         bool musicEnabled;
 
         int numberofframe;
         public bool gamestarted;
-        static System.Collections.ArrayList mainmenu, options;
+        static System.Collections.ArrayList mainmenu, options1, options2, options3, optionbar;
         int showTip;
-        bool enableOptions;
-        const uint screenX = 1280, screenY = 720;
-
-        int cooldown; //czas odnowienia przycisków
+        int enableOptions;
+        //uint screenX = 1280, screenY = 720;
+        
 
         int sterowanie;
-        int difficulty;
+        int[] difficulty;
 
+        List<Text> texty;
+
+
+        Physic rydzykFizyk;
+
+        bool enableRangeWskaznik, enableGravity;
+        
 
 
         public RPG()
-            : base(screenX, screenY, "Żryj komety", Color.Black)
+            : base(1280, 720, "Żryj komety", Color.Black)
         {
         }
 
         protected override void LoadContent()
         {
-            //tileset = new Texture("Content/tileset.png");
+
+            /*
+            try
+            {
+                int pomX = (int)(window.Size.X*0.34);
+                int pomY = (int)(window.Size.Y*0.34);
+                Vector2i size = new Vector2i((int)(window.Size.X * 0.05), (int)(window.Size.Y * 0.05));
+                Console.WriteLine("liapa" + size.X + "gurwa" + size.Y);
+                butimg = new System.Collections.ArrayList();
+                butimg.Add(new Texture("img/1pad.jpg"  , new IntRect(pomX, pomY, 1/size.X, 1/size.Y) ));
+                butimg.Add(new Texture("img/1logo.jpg" , new IntRect(pomX, pomY, 1/size.X, 1/size.Y) ));
+                butimg.Add(new Texture("img/1head.png" , new IntRect(pomX, pomY, 1/size.X, 1/size.Y) ));
+
+            }
+            catch
+            {
+                Console.WriteLine("Nie wczytano obrazkow :(");
+            }
+
+            */
             music = new Music("content/music2.ogg");
-            image = new Image("img/icon.ico");
+            //image = new Image("img/icon.ico");
         }
 
         protected override void Initialize()
         {
+            rydzykFizyk = new Physic();
 
-            window.SetIcon(image.GetWidth(), image.GetHeight(), image.GetPixelsPtr());
+            enableRangeWskaznik = true;
+            enableGravity = false;
 
-            sterowanie = 2;
-            difficulty = 10;
-
-            cooldown = 0;
+            uint pomX = window.Size.X;
+            uint pomY = window.Size.Y;
+            //window.SetIcon(image.GetWidth(), image.GetHeight(), image.GetPixelsPtr());
+            
+            sterowanie = 3;
+            difficulty = new int[3] { 10, 1000, 100 };
 
             musicEnabled = false;
+            music.Loop = true;
+            music.Volume = 100;
             //music.Play();
 
-            enableOptions = false;
-            showTip = 8;
+            enableOptions = 0;
+            showTip = 0;
             Gamename = new Text();
             Gamename.DisplayedString = "Żryj komety";
             Gamename.Font = new Font("fonts/arial.ttf");
-            Gamename.Position = new Vector2f(100f, 30f);
+            Gamename.Position = new Vector2f((uint)(pomX * 0.03), (uint)(pomY * 0.03));
             Gamename.Color = new Color(138, 7, 7);
-            Gamename.CharacterSize = 100;
+            Gamename.CharacterSize = (uint)(pomY * 0.15);
+            
+            Gamename2 = new Text();
+            Gamename2.DisplayedString = "Żryj komety";
+            Gamename2.Font = new Font("fonts/arial.ttf");
+            Gamename2.Position = new Vector2f((uint)(pomX * 0.028), (uint)(pomY * 0.0305));
+            Gamename2.Color = new Color(255, 255, 255);
+            Gamename2.CharacterSize = (uint)(pomY * 0.151);
 
-            linia = new RectangleShape(new Vector2f(1, 300));
-            linia.Position = new Vector2f(450, 232);
+            linia = new RectangleShape(new Vector2f(2, (uint)(pomY * 0.45)));
+            linia.Position = new Vector2f((uint)(pomX * 0.365), (uint)(pomY * 0.3222));
+            linia.FillColor = new Color(255,255,255);
 
-            uint buttontextsize = 30;
+            uint buttontextsize = (uint)(pomY * 0.040);
             Color buttonscolor = new Color(127, 112, 0);
             mainmenu = new System.Collections.ArrayList();
-            mainmenu.Add(new Button(100, 200, 300, 64, "Graj", window, buttonscolor, buttontextsize));
-            mainmenu.Add(new Button(100, 300, 300, 64, "Opcje", window, buttonscolor, buttontextsize));
-            mainmenu.Add(new Button(100, 400, 300, 64, "Pokaż wskazówkę", window, buttonscolor, buttontextsize));
-            mainmenu.Add(new Button(100, 500, 300, 64, "Wyjdź", window, buttonscolor, buttontextsize));
+            mainmenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.25), (uint)(pomX * 0.15), (uint)(pomY * 0.1), "Graj", window, buttonscolor, buttontextsize, 0 ));
+            mainmenu.Add(new Button((uint)(pomX * 0.24), (uint)(pomY * 0.25), (uint)(pomX * 0.09), (uint)(pomY * 0.1), "Nowa", window, new Color(200, 128, 64), buttontextsize, 0));
+            mainmenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.40), (uint)(pomX * 0.25), (uint)(pomY * 0.1), "Opcje", window, buttonscolor, buttontextsize, 0));
+            mainmenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.55), (uint)(pomX * 0.25), (uint)(pomY * 0.1), "Pokaż wskazówkę", window, buttonscolor, buttontextsize, 0));
+            mainmenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.70), (uint)(pomX * 0.25), (uint)(pomY * 0.1), "Wyjdź", window, buttonscolor, buttontextsize, 0));
 
+            /*
+            buttonscolor = new Color(69, 255, 69);
+            optionbar = new System.Collections.ArrayList();
+            optionbar.Add(new ButtonImg((uint)(pomX * 0.40), (uint)(pomY * 0.25), (uint)(pomX * 0.03), (uint)(pomY * 0.06), window, buttonscolor, (Texture)butimg[0]));
+            optionbar.Add(new ButtonImg((uint)(pomX * 0.40), (uint)(pomY * 0.55), (uint)(pomX * 0.03), (uint)(pomY * 0.06), window, buttonscolor, (Texture)butimg[1]));
+            optionbar.Add(new ButtonImg((uint)(pomX * 0.40), (uint)(pomY * 0.70), (uint)(pomX * 0.03), (uint)(pomY * 0.06), window, buttonscolor, (Texture)butimg[2]));
+            */
+            buttonscolor = new Color(69, 128, 69);
+            optionbar = new System.Collections.ArrayList();
+            optionbar.Add(new Button((uint)(pomX * 0.345), (uint)(pomY * 0.265), (uint)(pomX * 0.04), (uint)(pomY * 0.07), "S", window, buttonscolor, buttontextsize, 0));
+            buttonscolor = new Color(128, 69, 69);
+            optionbar.Add(new Button((uint)(pomX * 0.345), (uint)(pomY * 0.415), (uint)(pomX * 0.04), (uint)(pomY * 0.07), "M", window, buttonscolor, buttontextsize, 0));
+            buttonscolor = new Color(69, 69, 128);
+            optionbar.Add(new Button((uint)(pomX * 0.345), (uint)(pomY * 0.565), (uint)(pomX * 0.04), (uint)(pomY * 0.07), "G", window, buttonscolor, buttontextsize, 0));
             buttonscolor = new Color(69, 69, 69);
-            options = new System.Collections.ArrayList();
-            options.Add(new Button(500, 200, 300, 64, "WSAD + Strzałki", window, buttonscolor, buttontextsize));
-            options.Add(new Button(500, 310, 40, 44, "-", window, buttonscolor, buttontextsize));
-            options.Add(new Button(550, 300, 200, 64, "Trudność", window, buttonscolor, buttontextsize));
-            options.Add(new Button(760, 310, 40, 44, "+", window, buttonscolor, buttontextsize));
-            options.Add(new Button(500, 400, 300, 64, "Muzyka", window, buttonscolor, buttontextsize));
-            options.Add(new Button(500, 500, 300, 64, "Zamknij", window, buttonscolor, buttontextsize));
+            optionbar.Add(new Button((uint)(pomX * 0.345), (uint)(pomY * 0.715), (uint)(pomX * 0.04), (uint)(pomY * 0.07), "X", window, buttonscolor, buttontextsize, 0));
+
+
+
+            buttonscolor = new Color(69, 128, 69);
+            options1 = new System.Collections.ArrayList();
+            options1.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.25), (uint)(pomX * 0.25), (uint)(pomY * 0.10), "Myszka", window, buttonscolor, buttontextsize, 0));
+            options1.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "-", window, buttonscolor, buttontextsize, 0));
+            options1.Add(new Button((uint)(pomX * 0.44), (uint)(pomY * 0.40), (uint)(pomX * 0.17), (uint)(pomY * 0.10), "Czułość", window, buttonscolor, buttontextsize, 0));
+            options1.Add(new Button((uint)(pomX * 0.62), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "+", window, buttonscolor, buttontextsize, 0));
+            options1.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.55), (uint)(pomX * 0.25), (uint)(pomY * 0.10), "przycisk", window, buttonscolor, buttontextsize, 0));
+            options1.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.70), (uint)(pomX * 0.25), (uint)(pomY * 0.10), "Zamknij", window, buttonscolor, buttontextsize, 0));
+
+
+            buttonscolor = new Color(128, 69, 69);
+            options2 = new System.Collections.ArrayList();
+            options2.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.25), (uint)(pomX * 0.25), (uint)(pomY * 0.10), "Muzyka", window, buttonscolor, buttontextsize, 0));
+            options2.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "-", window, buttonscolor, buttontextsize, 0));
+            options2.Add(new Button((uint)(pomX * 0.44), (uint)(pomY * 0.40), (uint)(pomX * 0.17), (uint)(pomY * 0.10), "Głośność", window, buttonscolor, buttontextsize, 0));
+            options2.Add(new Button((uint)(pomX * 0.62), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "+", window, buttonscolor, buttontextsize, 0));
+            options2.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.55), (uint)(pomX * 0.25), (uint)(pomY * 0.10), "przycisk", window, buttonscolor, buttontextsize, 0));
+            options2.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.70), (uint)(pomX * 0.25), (uint)(pomY * 0.10), "Zamknij", window, buttonscolor, buttontextsize, 0));
+
+            buttonscolor = new Color(69, 69, 128);
+            options3 = new System.Collections.ArrayList();
+            options3.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.27), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "-", window, buttonscolor, buttontextsize, 1));
+            options3.Add(new Button((uint)(pomX * 0.44), (uint)(pomY * 0.25), (uint)(pomX * 0.17), (uint)(pomY * 0.10), "Zasięg", window, buttonscolor, buttontextsize, 0));
+            options3.Add(new Button((uint)(pomX * 0.62), (uint)(pomY * 0.27), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "+", window, buttonscolor, buttontextsize, 1));
+            options3.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "-", window, buttonscolor, buttontextsize, 2));
+            options3.Add(new Button((uint)(pomX * 0.44), (uint)(pomY * 0.40), (uint)(pomX * 0.17), (uint)(pomY * 0.10), "Grawitacja", window, buttonscolor, buttontextsize, 0));
+            options3.Add(new Button((uint)(pomX * 0.62), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "+", window, buttonscolor, buttontextsize, 2));
+            options3.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.55), (uint)(pomX * 0.25), (uint)(pomY * 0.10), "Połykanie", window, buttonscolor, buttontextsize, 0));
+            options3.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.70), (uint)(pomX * 0.25), (uint)(pomY * 0.10), "Wskaźnik zasięgu", window, buttonscolor, buttontextsize, 0));
+
 
             textDifficulty = new Text("0", new Font("fonts/arial.ttf"), 50);
-            textDifficulty.Position = new Vector2f(810, 300);
+            textDifficulty.Position = new Vector2f((uint)(pomX * 0.66), (uint)(pomY * 0.27));
             textDifficulty.Color = new Color(Color.White);
-            textDifficulty.DisplayedString = Convert.ToString(difficulty);
+            textDifficulty.DisplayedString = Convert.ToString(difficulty[0]);
 
+
+            textGravity = new Text("0", new Font("fonts/arial.ttf"), 50);
+            textGravity.Position = new Vector2f((uint)(pomX * 0.66), (uint)(pomY * 0.41));
+            textGravity.Color = new Color(Color.White);
+            textGravity.DisplayedString = Convert.ToString(difficulty[1]);
+
+
+            textRange = new Text("0", new Font("fonts/arial.ttf"), 50);
+            textRange.Position = new Vector2f((uint)(pomX * 0.66), (uint)(pomY * 0.71));
+            textRange.Color = new Color(Color.White);
+            textRange.DisplayedString = Convert.ToString(enableRangeWskaznik);
+
+            textSteps = new Text("0", new Font("fonts/arial.ttf"), 50);
+            textSteps.Position = new Vector2f((uint)(pomX * 0.66), (uint)(pomY * 0.41));
+            textSteps.Color = new Color(Color.White);
+            textSteps.DisplayedString = Convert.ToString(difficulty[2]);
+
+            textMusicVolume = new Text("0", new Font("fonts/arial.ttf"), 50);
+            textMusicVolume.Position = new Vector2f((uint)(pomX * 0.66), (uint)(pomY * 0.41));
+            textMusicVolume.Color = new Color(Color.White);
+            textMusicVolume.DisplayedString = Convert.ToString(music.Volume);
+
+
+            textMusicEnable = new Text("0", new Font("fonts/arial.ttf"), 50);
+            textMusicEnable.Position = new Vector2f((uint)(pomX * 0.66), (uint)(pomY * 0.27));
+            textMusicEnable.Color = new Color(Color.White);
+            textMusicEnable.DisplayedString = Convert.ToString(musicEnabled);
 
             gamestarted = false;
 
             numberofframe = 0;
             // map = new Tilemap(tileset, 24, 18, 16.0f, 32.0f );
 
-            uint tipsize = 16;
-
-            textt0 = new Text("Poruszanie - dostosuj w opcjach", new Font("fonts/arial.ttf"), tipsize);
-            textt0.Position = new Vector2f(100f, 600f);
-            textt0.Color = new Color(Color.White);
+            //uint tipsize = 16;
+            uint tipsize = (uint)(pomY * 0.022222);
 
 
-            textt1 = new Text("Co 10 zdobytych komet otrzymujesz planetę", new Font("fonts/arial.ttf"), tipsize);
-            textt1.Position = new Vector2f(100f, 600f);
-            textt1.Color = new Color(Color.White);
 
-            textt2 = new Text("Twoja gwiazda ewoluuje", new Font("fonts/arial.ttf"), tipsize);
-            textt2.Position = new Vector2f(100f, 600f);
-            textt2.Color = new Color(Color.White);
+            texty = new List<Text>();
 
-            textt3 = new Text("ESC cofa do menu głównego", new Font("fonts/arial.ttf"), tipsize);
-            textt3.Position = new Vector2f(100f, 600f);
-            textt3.Color = new Color(Color.White);
+            for( int i = 0; i < 16; i++)
+            {
+                if( i == 0)
+                    texty.Add( new Text("Poruszanie - dostosuj w opcjach", new Font("fonts/arial.ttf"), tipsize) );
+                if( i == 1)
+                    texty.Add(new Text("Co 10 zdobytych komet otrzymujesz planetę", new Font("fonts/arial.ttf"), tipsize));
+                if(i == 2)
+                    texty.Add(new Text("Twoja gwiazda ewoluuje", new Font("fonts/arial.ttf"), tipsize));
+                if( i == 3)
+                    texty.Add(new Text("ESC cofa do menu głównego", new Font("fonts/arial.ttf"), tipsize));
+                if (i == 4)
+                    texty.Add(new Text("Po ukończeniu gry możesz zacząć od nowa z poziomu menu głównego", new Font("fonts/arial.ttf"), tipsize));
+                if (i == 5)
+                    texty.Add(new Text("Dodatkowy zasięg połykania komet", new Font("fonts/arial.ttf"), tipsize));
+                if (i == 6)
+                    texty.Add(new Text("Zmienia ustawienia sterowania", new Font("fonts/arial.ttf"), tipsize));
+                if (i == 7)
+                    texty.Add(new Text("Włącz / Wyłącz  muzykę", new Font("fonts/arial.ttf"), tipsize));
+                if (i == 8)
+                    texty.Add(new Text("Siła grawitacji", new Font("fonts/arial.ttf"), tipsize));
+                if (i == 9)
+                    texty.Add(new Text("Pokaż / ukryj wskaźnik zasięgu połykania / przyciągania", new Font("fonts/arial.ttf"), tipsize));
+                if (i == 10)
+                    texty.Add(new Text("Zmienia przelicznik zasięgu między masą a ilością planet", new Font("fonts/arial.ttf"), tipsize));
+                if (i == 11)
+                    texty.Add(new Text("Zmień ustawienia gry", new Font("fonts/arial.ttf"), tipsize));
+                if (i == 12)
+                    texty.Add(new Text("Zmień ustawienia muzyki", new Font("fonts/arial.ttf"), tipsize));
+                if (i == 13)
+                    texty.Add(new Text("Zmień ustawienia sterowania", new Font("fonts/arial.ttf"), tipsize));
+                if (i == 14)
+                    texty.Add(new Text("Zmień \"czułość klawiatury\" ", new Font("fonts/arial.ttf"), tipsize));
+                if (i == 15)
+                    texty.Add(new Text("Zmień głośność muzyki", new Font("fonts/arial.ttf"), tipsize));
 
-            textt4 = new Text("Po ukończeniu gry możesz zacząć od nowa z poziomu menu głównego", new Font("fonts/arial.ttf"), tipsize);
-            textt4.Position = new Vector2f(100f, 600f);
-            textt4.Color = new Color(Color.White);
-
-
-            textt5 = new Text("Trudność oznacza dodatkowy zasięg chwytania komet", new Font("fonts/arial.ttf"), tipsize);
-            textt5.Position = new Vector2f(100f, 600f);
-            textt5.Color = new Color(Color.White);
-
-            textt6 = new Text("Zmienia ustawienia sterowania", new Font("fonts/arial.ttf"), tipsize);
-            textt6.Position = new Vector2f(100f, 600f);
-            textt6.Color = new Color(Color.White);
-
-
-            textt7 = new Text("Włącz / Wyłącz  muzykę", new Font("fonts/arial.ttf"), tipsize);
-            textt7.Position = new Vector2f(100f, 600f);
-            textt7.Color = new Color(Color.White);
-
+                texty[i].Position = new Vector2f((uint)(pomX * 0.08), (uint)(pomY * 0.833333));
+                texty[i].Color = new Color(Color.White);
+            }
 
             NewGame();
         }
@@ -150,11 +265,11 @@ namespace EatCometsClear
 
 
             hero = null;
-            hero = new Hero(window, 1050, 376, new Color(255, 195, 77), (int)screenX, (int)screenY, true, sterowanie);
+            hero = new Hero(window, (uint)(window.Size.X * 0.8203125), (uint)(window.Size.Y * 0.5222222), new Color(255, 195, 77), (int)window.Size.X, (int)window.Size.Y, true, sterowanie);
 
             menuhero = (Hero)hero.Clone();
 
-            ball = new Ball((int)screenX, (int)screenY);
+            ball = new Ball((int)window.Size.X, (int)window.Size.Y);
 
             Console.Clear();
         }
@@ -166,9 +281,7 @@ namespace EatCometsClear
             {
                 numberofframe -= 60;
             }
-
-            if (cooldown > 0)
-                cooldown--;
+            
 
             if (gamestarted == true)
             {
@@ -180,7 +293,7 @@ namespace EatCometsClear
 
 
 
-                int cotamzwracasz = hero.Tick(true, numberofframe, ball, difficulty);
+                int cotamzwracasz = hero.Tick(true, numberofframe, ball);
                 if (cotamzwracasz == 2)
                 {
                     startNewGame = true;
@@ -188,7 +301,7 @@ namespace EatCometsClear
                 else if (cotamzwracasz == 1)
                 {
                     ball = null;
-                    ball = new Ball((int)screenX, (int)screenY);
+                    ball = new Ball((int)window.Size.X, (int)window.Size.Y);
                 }
                 else if (cotamzwracasz == 3)
                 {
@@ -203,16 +316,30 @@ namespace EatCometsClear
                     window.SetMouseCursorVisible(true);
                     gamestarted = false;
 
-                    menuhero.position = new Vector2f(1050, 376);
-                    menuhero.Go('x', 0, (int)screenX, (int)screenY);
+                    menuhero.position = new Vector2f((uint)(window.Size.X * 0.8203125), (uint)(window.Size.Y * 0.5222222));
+                    menuhero.Go('x', 0, (int)window.Size.X, (int)window.Size.Y);
                 }
 
+                List<Physical_object> objekty = new List<Physical_object>();
+                objekty.Add(hero);
+                objekty.Add(ball);
+
+                rydzykFizyk.Gravitation(objekty);
+                try
+                {
+                    ball.kolo.Position = ball.position;
+                }
+                catch
+                {
+
+                }
+                    this.hero.Go('x', 0, 0, 0);
 
                 //koniec grywalnego
             }
             else
             {
-                hero.Tick(false, numberofframe, ball, difficulty);
+                hero.Tick(false, numberofframe, ball);
 
 
                 if (startNewGame == true)
@@ -222,127 +349,299 @@ namespace EatCometsClear
                     NewGame();
                 }
 
+                //Tutaj zaczyna się obsługa przycisków menu
                 foreach (Button element in mainmenu)
                 {
                     if (element.tekst.DisplayedString.Equals("Graj") && element.DoAction())
                     {
                         gamestarted = true;
                         showTip = 0;
-                        enableOptions = false;
+                        enableOptions = 0;
 
                         window.SetMouseCursorVisible(false);
                         hero.Go('x', 0, 0, 0);
                     }
-                    if (element.tekst.DisplayedString.Equals("Pokaż wskazówkę") && element.DoAction() && cooldown == 0)
+                    if (element.tekst.DisplayedString.Equals("Nowa") && element.DoAction())
                     {
-                        cooldown = 30;
-
+                        startNewGame = true;
+                    }
+                    if (element.tekst.DisplayedString.Equals("Pokaż wskazówkę") && element.DoAction() )
+                    {
                         showTip++;
                         if (showTip > 4)
                             showTip = -1;
                     }
                     if (element.tekst.DisplayedString.Equals("Opcje") && element.DoAction())
                     {
-                        enableOptions = true;
+                        enableOptions = 3;
                     }
 
                     if (element.tekst.DisplayedString.Equals("Wyjdź") && element.DoAction())
                     {
                         window.Close();
                     }
+
+
                 }
 
 
 
-                if (enableOptions == true)
+                if (enableOptions >= 1)
                 {
-                    foreach (Button element in options)
+                    foreach (Button element in optionbar)
                     {
-                        if (element.tekst.DisplayedString.Equals("Muzyka") && element.DoAction() && cooldown == 0)
+                        if (element.tekst.DisplayedString.Equals("S") && element.DoAction())
                         {
-                            showTip = 7;
-                            cooldown = 30;
+                            enableOptions = 1;
+                            showTip = 13;
+                        }
+                        if (element.tekst.DisplayedString.Equals("M") && element.DoAction())
+                        {
+                            enableOptions = 2;
+                            showTip = 12;
+                        }
+                        if (element.tekst.DisplayedString.Equals("G") && element.DoAction())
+                        {
+                            enableOptions = 3;
+                            showTip = 11;
+                        }
+                        if (element.tekst.DisplayedString.Equals("X") && element.DoAction())
+                        {
+                            enableOptions = 0;
+                        }
 
-                            if (musicEnabled)
+                    }
+                    if (enableOptions == 1)
+                    {
+                        foreach (Button element in options1)
+                        {
+                            if (element.tekst.DisplayedString.Equals("W - A - S - D") && element.DoAction())
                             {
-                                music.Pause();
-                                musicEnabled = false;
-                                Console.WriteLine("Muzyka wyłączona [*]");
+                                element.ChangeText("Strzałki");
+                                sterowanie = 0;
+                                hero.Changemovement(sterowanie);
+                                showTip = 6;
                             }
-                            else
+
+                            if (element.tekst.DisplayedString.Equals("Strzałki") && element.DoAction())
                             {
-                                music.Play();
-                                musicEnabled = true;
-                                Console.WriteLine("Muzyka włączona (y)");
+                                element.ChangeText("WSAD + Strzałki");
+                                sterowanie = 2;
+                                hero.Changemovement(sterowanie);
+                                showTip = 6;
+                            }
+
+                            if (element.tekst.DisplayedString.Equals("WSAD / Strzałki") && element.DoAction())
+                            {
+                                element.ChangeText("Myszka");
+                                sterowanie = 3;
+                                hero.Changemovement(sterowanie);
+                                showTip = 6;
+                            }
+                            if (element.tekst.DisplayedString.Equals("Myszka") && element.DoAction())
+                            {
+                                element.ChangeText("WSAD / Strzałki");
+                                sterowanie = 2;
+                                hero.Changemovement(sterowanie);
+                                showTip = 6;
+                            }
+
+                            if (element.tekst.DisplayedString.Equals("Zamknij") && element.DoAction())
+                            {
+                                enableOptions = 0;
+                            }
+
+
+                            if (element.tekst.DisplayedString.Equals("Czułość") && element.DoAction())
+                            {
+                                showTip = 14;
+                            }
+                            if (element.tekst.DisplayedString.Equals("-") && element.DoAction())
+                            {
+                                showTip = 14;
+
+                                difficulty[2]--;
+                                if (difficulty[2] < 0)
+                                    difficulty[2] = 0;
+                                Console.WriteLine("Czułość = " + difficulty[2]);
+
+                                textSteps.DisplayedString = Convert.ToString(difficulty[2]);
+
+                            }
+                            if (element.tekst.DisplayedString.Equals("+") && element.DoAction())
+                            {
+                                showTip = 14;
+
+                                difficulty[2]++;
+                                Console.WriteLine("Czułość = " + difficulty[2]);
+
+                                textSteps.DisplayedString = Convert.ToString(difficulty[2]);
                             }
                         }
-
-                        if (element.tekst.DisplayedString.Equals("W - A - S - D") && element.DoAction() && cooldown == 0)
+                    }
+                    if (enableOptions == 2)
+                    {
+                        foreach (Button element in options2)
                         {
-                            cooldown = 45;
-                            element.ChangeText("Strzałki");
-                            sterowanie = 0;
-                            hero.Changemovement(sterowanie);
-                            showTip = 6;
+                            if (element.tekst.DisplayedString.Equals("Muzyka") && element.DoAction())
+                            {
+                                showTip = 7;
+
+                                if (musicEnabled)
+                                {
+                                    music.Pause();
+                                    musicEnabled = false;
+                                    textMusicEnable.DisplayedString = Convert.ToString(musicEnabled);
+                                    Console.WriteLine("Muzyka wyłączona [*]");
+                                }
+                                else
+                                {
+                                    music.Play();
+                                    musicEnabled = true;
+                                    textMusicEnable.DisplayedString = Convert.ToString(musicEnabled);
+                                    Console.WriteLine("Muzyka włączona (y)");
+                                }
+                            }
+                            if (element.tekst.DisplayedString.Equals("Głośność") && element.DoAction())
+                            {
+                                showTip = 15;
+                            }
+                            if (element.tekst.DisplayedString.Equals("-") && element.DoAction())
+                            {
+                                showTip = 15;
+
+                                music.Volume--;
+                                if (music.Volume < 0)
+                                    music.Volume = 0;
+                                Console.WriteLine("Głośność muzyki = " + music.Volume);
+
+                                textMusicVolume.DisplayedString = Convert.ToString((int)music.Volume);
+
+                            }
+                            if (element.tekst.DisplayedString.Equals("+") && element.DoAction())
+                            {
+                                showTip = 15;
+
+                                music.Volume++;
+                                if (music.Volume > 100)
+                                    music.Volume = 100;
+                                Console.WriteLine("Głośność muzyki = " + music.Volume);
+
+                                textMusicVolume.DisplayedString = Convert.ToString((int)music.Volume);
+                            }
+
+                            if (element.tekst.DisplayedString.Equals("Zamknij") && element.DoAction())
+                            {
+                                enableOptions = 0;
+                            }
                         }
-
-                        if (element.tekst.DisplayedString.Equals("Strzałki") && element.DoAction() && cooldown == 0)
+                    }
+                    if (enableOptions == 3)
+                    {
+                        foreach (Button element in options3)
                         {
-                            cooldown = 45;
-                            element.ChangeText("WSAD + Strzałki");
-                            sterowanie = 2;
-                            hero.Changemovement(sterowanie);
-                            showTip = 6;
-                        }
+                            
 
-                        if (element.tekst.DisplayedString.Equals("WSAD + Strzałki") && element.DoAction() && cooldown == 0)
-                        {
-                            cooldown = 45;
-                            element.ChangeText("Myszka");
-                            sterowanie = 3;
-                            hero.Changemovement(sterowanie);
-                            showTip = 6;
-                        }
-                        if (element.tekst.DisplayedString.Equals("Myszka") && element.DoAction() && cooldown == 0)
-                        {
-                            cooldown = 45;
-                            element.ChangeText("WSAD + Strzałki");
-                            sterowanie = 2;
-                            hero.Changemovement(sterowanie);
-                            showTip = 6;
-                        }
+                            if (element.tekst.DisplayedString.Equals("Wskaźnik zasięgu") && element.DoAction())
+                            {
+                                showTip = 9;
+                                if(enableRangeWskaznik)
+                                {
+                                    enableRangeWskaznik = false;
+                                    textRange.DisplayedString = Convert.ToString(enableRangeWskaznik);
+                                }
+                                else
+                                {
+                                    enableRangeWskaznik = true;
+                                    textRange.DisplayedString = Convert.ToString(enableRangeWskaznik);
+                                }
+                            }
 
-                        if (element.tekst.DisplayedString.Equals("Zamknij") && element.DoAction())
-                        {
-                            enableOptions = false;
-                        }
+                            if (element.tekst.DisplayedString.Equals("Zasięg") && element.DoAction())
+                            {
+                                showTip = 5;
+                            }
+                            if (element.tekst.DisplayedString.Equals("-") && (element.id == 1) )
+                            {
 
+                                if (element.DoAction())
+                                {
+                                    showTip = 5;
 
-                        if (element.tekst.DisplayedString.Equals("Trudność") && element.DoAction())
-                        {
-                            showTip = 5;
-                        }
-                        if (element.tekst.DisplayedString.Equals("-") && element.DoAction() && cooldown == 0)
-                        {
-                            cooldown = 15;
-                            difficulty--;
-                            if (difficulty < 0)
-                                difficulty = 0;
-                            Console.WriteLine("Trudność = " + difficulty);
+                                    difficulty[0]--;
+                                    if (difficulty[0] < 0)
+                                        difficulty[0] = 0;
+                                    Console.WriteLine("Trudność = " + difficulty[0]);
 
-                            textDifficulty.DisplayedString = Convert.ToString(difficulty);
+                                    textDifficulty.DisplayedString = Convert.ToString(difficulty[0]);
+                                }
+                            }
+                            if (element.tekst.DisplayedString.Equals("+") && (element.id == 1) )
+                            {
+                                if ( element.DoAction())
+                                {
+                                    showTip = 5;
 
-                        }
-                        if (element.tekst.DisplayedString.Equals("+") && element.DoAction() && cooldown == 0)
-                        {
-                            cooldown = 15;
-                            difficulty++;
-                            Console.WriteLine("Trudność = " + difficulty);
+                                    difficulty[0]++;
+                                    Console.WriteLine("Trudność = " + difficulty[0]);
 
-                            textDifficulty.DisplayedString = Convert.ToString(difficulty);
+                                    textDifficulty.DisplayedString = Convert.ToString(difficulty[0]);
+                                }
+                            }
+                            if (element.tekst.DisplayedString.Equals("Grawitacja") && element.DoAction())
+                            {
+                                showTip = 8;
+                            }
+                            if (element.tekst.DisplayedString.Equals("-") &&  (element.id == 2) )
+                            {
+                                if (element.DoAction())
+                                {
+                                    showTip = 8;
+
+                                    difficulty[1]--;
+                                    if (difficulty[1] < 0)
+                                        difficulty[1] = 0;
+
+                                    Console.WriteLine("Grawitacja = " + difficulty[1]);
+
+                                    textGravity.DisplayedString = Convert.ToString(difficulty[1]);
+                                }
+                            }
+                            if (element.tekst.DisplayedString.Equals("+") && (element.id == 2))
+                            {
+                                if (element.DoAction())
+                                {
+                                    showTip = 8;
+
+                                    difficulty[1]++;
+
+                                    Console.WriteLine("Grawitacja = " + difficulty[1]);
+
+                                    textGravity.DisplayedString = Convert.ToString(difficulty[1]);
+                                }
+                            }
+                            if (element.tekst.DisplayedString.Equals("Przyciąganie") && element.DoAction())
+                            {
+                                showTip = 10;
+                                enableGravity = false;
+                                element.ChangeText("Połykanie");
+                            }
+                            if (element.tekst.DisplayedString.Equals("Połykanie") && element.DoAction())
+                            {
+                                showTip = 10;
+                                enableGravity = true;
+                                element.ChangeText("Przyciąganie");
+
+                            }
                         }
                     }
                 }
+
+                hero.additionalRange = difficulty[0];
+                hero.gravityStrength = difficulty[1];
+                hero.step = difficulty[2]/10;
+                hero.enableRange = enableRangeWskaznik;
+                hero.enableGravity = enableGravity;
             }
 
 
@@ -350,7 +649,7 @@ namespace EatCometsClear
 
 
 
-            menuhero.Tick(false, numberofframe, ball, difficulty);
+            menuhero.Tick(false, numberofframe, ball);
 
         }
 
@@ -370,35 +669,45 @@ namespace EatCometsClear
 
 
                 foreach (Button element in mainmenu)
-                    if (element.Draw() == false)
-                        break;
+                    element.Draw();
 
+                window.Draw(Gamename2);
                 window.Draw(Gamename);
-                if (showTip == 0)
-                    window.Draw(textt0);
-                else if (showTip == 1)
-                    window.Draw(textt1);
-                else if (showTip == 2)
-                    window.Draw(textt2);
-                else if (showTip == 3)
-                    window.Draw(textt3);
-                else if (showTip == 4)
-                    window.Draw(textt4);
-                else if (showTip == 5)
-                    window.Draw(textt5);
-                else if (showTip == 6)
-                    window.Draw(textt6);
-                else if (showTip == 7)
-                    window.Draw(textt7);
+                if ( (showTip >= 0) && (showTip <= texty.Count))
+                    window.Draw(texty[showTip]);
 
-                if (enableOptions)
+                if (enableOptions >= 1)
                 {
                     window.Draw(linia);
 
-                    foreach (Button element in options)
-                        if (element.Draw() == false)
-                            break;
-                    window.Draw(textDifficulty);
+                    foreach (Button element in optionbar)
+                        element.Draw();
+
+                    if (enableOptions == 1)
+                    {
+                        foreach (Button element in options1)
+                            element.Draw();
+
+                        window.Draw(textSteps);
+                    }
+
+                    if (enableOptions == 2)
+                    {
+                        foreach (Button element in options2)
+                            element.Draw();
+
+                        window.Draw(textMusicVolume);
+                        window.Draw(textMusicEnable);
+                    }
+                    if (enableOptions == 3)
+                    {
+                        foreach (Button element in options3)
+                            element.Draw();
+
+                        window.Draw(textDifficulty);
+                        window.Draw(textGravity);
+                        window.Draw(textRange);
+                    }
                 }
 
             }
