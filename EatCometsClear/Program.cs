@@ -11,6 +11,8 @@ namespace EatCometsClear
     {
         static void Main(string[] args)
         {
+            Console.Title = "Konsola żarcia komet";
+
             RPG myGame;
             myGame = new RPG();
             myGame.startNewGame = true;

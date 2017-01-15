@@ -15,7 +15,7 @@ namespace EatCometsClear
     {
         public bool startNewGame;
         Hero hero, menuhero;
-        Ball ball;
+        Ball[] ball;
         Text  Gamename, Gamename2, textDifficulty, textGravity, textRange, textSteps, textMusicVolume, textMusicEnable;
         RectangleShape linia;
         
@@ -40,6 +40,7 @@ namespace EatCometsClear
         Physic rydzykFizyk;
 
         bool enableRangeWskaznik, enableGravity;
+        bool enableMusic;
 
         Image ikona;
 
@@ -70,17 +71,36 @@ namespace EatCometsClear
             }
 
             */
-            music = new Music("content/music2.ogg");
-            ikona = new Image("img/icon.png");
-            
+            try
+            {
+                music = new Music("content/music.ogg");
+                enableMusic = true;
+            }
+            catch
+            {
+                enableMusic = false;
+            }
+            try
+            {
+                ikona = new Image("img/icon.png");
+            }
+            catch { }
         }
 
         protected override void Initialize()
         {
             window.SetActive(true);
-            window.SetIcon(ikona.Size.X, ikona.Size.Y, ikona.Pixels);
+            try
+            {
+                window.SetIcon(ikona.Size.X, ikona.Size.Y, ikona.Pixels);
+            }
+            catch
+            { }
 
             rydzykFizyk = new Physic(); //on liczy fizyke fizyk jeden
+            ball = new Ball[5];
+
+
 
             enableRangeWskaznik = true;
             enableGravity = false;
@@ -94,11 +114,13 @@ namespace EatCometsClear
             gamestarted = false;
             numberofframe = 0;
 
-            musicEnabled = false;
-            music.Loop = true;
-            music.Volume = 100;
-            //music.Play();
-
+            if (music != null)
+            {
+                musicEnabled = false;
+                music.Loop = true;
+                music.Volume = 100;
+                //music.Play();
+            }
             enableOptions = 0;
             showTip = 0;
             Gamename = new Text();
@@ -200,23 +222,25 @@ namespace EatCometsClear
             textSteps.Color = new Color(Color.White);
             textSteps.DisplayedString = Convert.ToString(difficulty[2]);
 
-            textMusicVolume = new Text("0", new Font("fonts/arial.ttf"), 50);
-            textMusicVolume.Position = new Vector2f((uint)(pomX * 0.66), (uint)(pomY * 0.41));
-            textMusicVolume.Color = new Color(Color.White);
-            textMusicVolume.DisplayedString = Convert.ToString(music.Volume);
+            if (enableMusic)
+            {
+                textMusicVolume = new Text("0", new Font("fonts/arial.ttf"), 50);
+                textMusicVolume.Position = new Vector2f((uint)(pomX * 0.66), (uint)(pomY * 0.41));
+                textMusicVolume.Color = new Color(Color.White);
+                textMusicVolume.DisplayedString = Convert.ToString(music.Volume);
 
 
-            textMusicEnable = new Text("0", new Font("fonts/arial.ttf"), 50);
-            textMusicEnable.Position = new Vector2f((uint)(pomX * 0.66), (uint)(pomY * 0.27));
-            textMusicEnable.Color = new Color(Color.White);
-            textMusicEnable.DisplayedString = Convert.ToString(musicEnabled);
-
+                textMusicEnable = new Text("0", new Font("fonts/arial.ttf"), 50);
+                textMusicEnable.Position = new Vector2f((uint)(pomX * 0.66), (uint)(pomY * 0.27));
+                textMusicEnable.Color = new Color(Color.White);
+                textMusicEnable.DisplayedString = Convert.ToString(musicEnabled);
+            }
 
             //uint tipsize = 16;
             uint tipsize = (uint)(pomY * 0.022222);
             texty = new List<Text>();
 
-            for( int i = 0; i < 16; i++)
+            for( int i = 0; i < 17; i++)
             {
                 if( i == 0)
                     texty.Add( new Text("Poruszanie - dostosuj w opcjach", new Font("fonts/arial.ttf"), tipsize) );
@@ -250,6 +274,8 @@ namespace EatCometsClear
                     texty.Add(new Text("Zmień \"czułość klawiatury\" ", new Font("fonts/arial.ttf"), tipsize));
                 if (i == 15)
                     texty.Add(new Text("Zmień głośność muzyki", new Font("fonts/arial.ttf"), tipsize));
+                if (i == 16)
+                    texty.Add(new Text("Nie wczytano muzyki", new Font("fonts/arial.ttf"), tipsize));
 
                 texty[i].Position = new Vector2f((uint)(pomX * 0.08), (uint)(pomY * 0.833333));
                 texty[i].Color = new Color(Color.White);
@@ -268,9 +294,13 @@ namespace EatCometsClear
 
             menuhero = (Hero)hero.Clone();
 
-            ball = new Ball((int)window.Size.X, (int)window.Size.Y);
+            for (int i = 0; i < ball.Length; i++)
+            {
+                ball[i] = new Ball((int)window.Size.X, (int)window.Size.Y, i);
+            }
 
             Console.Clear();
+
         }
 
         protected override void Tick()
@@ -289,7 +319,25 @@ namespace EatCometsClear
                 numberofframe++;
                 if (numberofframe > 60)
                     numberofframe -= 60;
+                
+                List<Physical_object> objekty = new List<Physical_object>();
+                objekty.Add(hero);
 
+                for (int i = 0; i < ball.Length; i++)
+                {
+                    if (ball[i] != null)
+                        objekty.Add(ball[i]);
+                }
+
+                rydzykFizyk.Gravitation(objekty);
+
+                this.hero.Go('x', 0, 0, 0);
+
+                for (int i = 0; i < ball.Length; i++)
+                {
+                    if (ball[i] != null)
+                        ball[i].ReDraw();
+                }
 
 
                 int cotamzwracasz = hero.Tick(true, numberofframe, ball);
@@ -297,42 +345,23 @@ namespace EatCometsClear
                 {
                     startNewGame = true;
                 }
-                else if (cotamzwracasz == 1)
-                {
-                    ball = null;
-                    ball = new Ball((int)window.Size.X, (int)window.Size.Y);
-                }
-                else if (cotamzwracasz == 3)
-                {
-                    ball = null;
-                }
 
 
 
                 menuhero = (Hero)hero.Clone();
+                menuhero.enablemovement = false;
+                
+
                 if (Keyboard.IsKeyPressed(Keyboard.Key.Escape))
                 {
                     window.SetMouseCursorVisible(true);
                     gamestarted = false;
-
-                    menuhero.position = new Vector2f((uint)(window.Size.X * 0.8203125), (uint)(window.Size.Y * 0.5222222));
-                    menuhero.Go('x', 0, (int)window.Size.X, (int)window.Size.Y);
-                }
-
-                List<Physical_object> objekty = new List<Physical_object>();
-                objekty.Add(hero);
-                objekty.Add(ball);
-
-                rydzykFizyk.Gravitation(objekty);
-                try
-                {
-                    ball.kolo.Position = ball.position;
-                }
-                catch
-                {
+                    
+                    Vector2f newpos = new Vector2f((uint)(window.Size.X * 0.8203125), (uint)(window.Size.Y * 0.5222222));
+                    menuhero.position = newpos;
+                    menuhero.CalculatePosition();
 
                 }
-                    this.hero.Go('x', 0, 0, 0);
 
                 //koniec grywalnego
             }
@@ -396,8 +425,15 @@ namespace EatCometsClear
                         }
                         if (element.tekst.DisplayedString.Equals("M") && element.DoAction())
                         {
-                            enableOptions = 2;
-                            showTip = 12;
+                            if (enableMusic)
+                            {
+                                enableOptions = 2;
+                                showTip = 12;
+                            }
+                            else
+                            {
+                                showTip = 16;
+                            }
                         }
                         if (element.tekst.DisplayedString.Equals("G") && element.DoAction())
                         {
@@ -648,7 +684,7 @@ namespace EatCometsClear
 
 
 
-            menuhero.Tick(false, numberofframe, ball);
+            menuhero.Tick(false, numberofframe, ball );
 
         }
 
@@ -657,8 +693,13 @@ namespace EatCometsClear
             if (gamestarted == true)
             {
                 // window.Draw(map);
-                if (ball != null)
-                    window.Draw(ball.kolo);
+
+                for (int i = 0; i < ball.Length; i++)
+                {
+                    if (ball[i] != null)
+                        window.Draw(ball[i].kolo);
+                }
+                
 
                 hero.Draw();
             }

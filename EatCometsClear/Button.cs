@@ -23,6 +23,9 @@ namespace EatCometsClear
         public int id;
         private int iletyczymasz;
         
+        public Button()
+        { }
+
         public Button(float posx, float posy, float width, float height, string napis, RenderWindow okno, Color color, uint textsize, int id )
         {
             this.iletyczymasz = 0;
