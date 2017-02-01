@@ -33,10 +33,16 @@ namespace EatCometsClear
         int sterowanie;
         private bool enableManipulation;
         int density;
-
+        private bool lastGravity;
         
         public Hero(RenderWindow okienko, float x, float y, Color color, int screenX, int screenY, bool eneblemovementt, int sterowanie)
         {
+
+            this.enablemovement = eneblemovementt;
+            this.okienko = okienko;
+
+            lastGravity = false;
+
             density = 1000;
             enableManipulation = false;
 
@@ -48,7 +54,16 @@ namespace EatCometsClear
             uint pomX = okienko.Size.X;
             uint pomY = okienko.Size.Y;
 
-            uint buttontextsize = (uint)(pomY * 0.040);
+            uint buttontextsize = (uint)(pomX * 0.040);
+            if (this.okienko.Size.X == 1920)
+                buttontextsize = (uint)(pomY * 0.030);
+            if (this.okienko.Size.X == 1280)
+                buttontextsize = (uint)(pomX * 0.022);
+            if (this.okienko.Size.X == 1024)
+                buttontextsize = (uint)(pomX * 0.025);
+            if (this.okienko.Size.X == 800)
+                buttontextsize = (uint)(pomX * 0.015);
+
             Color buttonscolor = new Color(69, 69, 0);
             heromenu = new System.Collections.ArrayList();
             Text Gamename;
@@ -63,7 +78,7 @@ namespace EatCometsClear
             heromenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.25), (uint)(pomX * 0.15), (uint)(pomY * 0.1), "Awansuj", okienko, buttonscolor, buttontextsize, 0));
             heromenu.Add(new Button((uint)(pomX * 0.24), (uint)(pomY * 0.25), (uint)(pomX * 0.09), (uint)(pomY * 0.1), "X", okienko, new Color(200, 128, 64), buttontextsize, 1));
             heromenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "-", okienko, buttonscolor, buttontextsize, 2));
-            heromenu.Add(new Button((uint)(pomX * 0.12), (uint)(pomY * 0.40), (uint)(pomX * 0.17), (uint)(pomY * 0.10), "masa -> planeta", okienko, buttonscolor, buttontextsize, 0));
+            heromenu.Add(new Button((uint)(pomX * 0.12), (uint)(pomY * 0.40), (uint)(pomX * 0.17), (uint)(pomY * 0.10), "masa->planeta", okienko, buttonscolor, buttontextsize, 0));
             heromenu.Add(new Button((uint)(pomX * 0.30), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "+", okienko, buttonscolor, buttontextsize, 2));
             heromenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.57), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "?", okienko, buttonscolor, buttontextsize, 3));
             heromenu.Add(new Button((uint)(pomX * 0.12), (uint)(pomY * 0.55), (uint)(pomX * 0.17), (uint)(pomY * 0.10), "odblokuj", okienko, buttonscolor, buttontextsize, 3));
@@ -94,8 +109,6 @@ namespace EatCometsClear
             numberofballs = 0;
             numberofsatelites = 0;
 
-            this.enablemovement = eneblemovementt;
-            this.okienko = okienko;
             position = new Vector2f(x, y);
             obwodka = new CircleShape();
             obwodka.FillColor = new Color(229, 83, 0);
@@ -119,6 +132,7 @@ namespace EatCometsClear
 
             this.Go('x', 0, screenX, screenY);
         }
+
 
         public void Draw()
         {
@@ -506,8 +520,15 @@ namespace EatCometsClear
                 menuStatistic = false;
                 okienko.SetMouseCursorVisible(false);
 
+                if (lastGravity)
+                    enableGravity = true;
+                 
+
                 if (Keyboard.IsKeyPressed(Keyboard.Key.Tab))
                 {
+                    if (enableGravity)
+                        lastGravity = true;
+                    enableGravity = false;
                     menuStatistic = true;
                     okienko.SetMouseCursorVisible(true);
                 }
@@ -747,7 +768,7 @@ namespace EatCometsClear
 
 
 
-                    if (element.tekst.DisplayedString.Equals("masa -> planeta") && element.DoAction())
+                    if (element.tekst.DisplayedString.Equals("masa->planeta") && element.DoAction())
                     {
                         var tmp3 = heromenu.GetEnumerator();
                         while (tmp3.MoveNext())

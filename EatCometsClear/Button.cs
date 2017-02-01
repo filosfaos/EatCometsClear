@@ -10,7 +10,7 @@ using SFML.Window;
 
 namespace EatCometsClear
 {
-    class Button :Drawable
+    class Button :Drawabable, Drawable
     {
 
         float rx, ry, rw, rh;
@@ -20,7 +20,6 @@ namespace EatCometsClear
         //Action akcja;
         public bool doAction;
         Color color, activeColor;
-        public int id;
         private int iletyczymasz;
         
         public Button()
@@ -31,7 +30,70 @@ namespace EatCometsClear
             this.iletyczymasz = 0;
             this.id = id;
 
-            this.color = color;
+
+
+            window = okno;
+
+            doAction = false;
+            rx = posx;
+            ry = posy;
+            rw = width;
+            rh = height;
+            prostokat = new RectangleShape();
+            prostokat.Position = new Vector2f(rx, ry);
+            prostokat.Size = new Vector2f(rw, rh);
+            prostokat.FillColor = new Color(255, 0, 0);
+
+            tlo = new RectangleShape();
+            tlo.Position = new Vector2f((float)(rx * 0.99), (float)(ry*0.99));
+            tlo.Size = new Vector2f(rw, rh);
+
+            this.SetColor(color);
+            tekst = new Text();
+            tekst.DisplayedString = napis;
+            tekst.Font = new Font("fonts/arial.ttf");
+            if(tekst.DisplayedString.Length > 10)
+                tekst.CharacterSize = textsize-2;
+            else
+                tekst.CharacterSize = textsize;
+            tekst.Position = new Vector2f(rx + (rw - tekst.GetLocalBounds().Width) / 2, ry + (rh - tekst.GetLocalBounds().Height) / 2);
+
+            if ((napis == "-"))
+            {
+                //tekst.Position = new Vector2f(rx + 15, ry + 2);
+                tekst.Position = new Vector2f(rx + (uint)(window.Size.X * 0.01171), ry + (uint)(window.Size.Y * 0.00277777));
+            }
+            else if ((napis == "+"))
+            {
+                //tekst.Position = new Vector2f(rx + 12, ry + 3);
+                tekst.Position = new Vector2f(rx + (uint)(window.Size.X * 0.009375), ry + (uint)(window.Size.Y * 0.0041666));
+            }
+            else if (napis.Length == 1)
+                tekst.Position = new Vector2f(rx + (uint)(window.Size.X * 0.01171), ry + (uint)(window.Size.Y * 0.00777777));
+
+        }
+
+        public void SetPosition(int x, int y)
+        {
+            //prostokąt, tło, tekst
+
+            prostokat.Position = new Vector2f(x, y);
+            tekst.Position = new Vector2f(x + (rw - tekst.GetLocalBounds().Width) / 2, y + (rh - tekst.GetLocalBounds().Height) / 2);
+            tlo.Position = new Vector2f((float)(x * 0.99), (float)(y * 0.99));
+
+
+
+        }
+
+        public void ChangeColor(Color coloreg)
+        {
+            this.prostokat.FillColor = coloreg;
+        }
+
+        public void SetColor(Color newColor)
+        {
+
+            this.color = newColor;
             int roznica = -32;
             int r, g, b;
 
@@ -56,19 +118,6 @@ namespace EatCometsClear
 
 
 
-            window = okno;
-
-            doAction = false;
-            rx = posx;
-            ry = posy;
-            rw = width;
-            rh = height;
-            prostokat = new RectangleShape();
-            prostokat.Position = new Vector2f(rx, ry);
-            prostokat.Size = new Vector2f(rw, rh);
-            prostokat.FillColor = new Color(255, 0, 0);
-
-
 
             r = activeColor.R + roznica;
             if (r > 255)
@@ -87,36 +136,8 @@ namespace EatCometsClear
             if (b < 0)
                 b = 0;
 
-            tlo = new RectangleShape();
-            tlo.Position = new Vector2f((float)(rx * 0.99), (float)(ry*0.99));
-            tlo.Size = new Vector2f(rw, rh);
+
             tlo.FillColor = new Color((byte)r, (byte)g, (byte)b);
-
-            tekst = new Text();
-            tekst.DisplayedString = napis;
-            tekst.Font = new Font("fonts/arial.ttf");
-            tekst.Position = new Vector2f(rx + (rw - tekst.GetLocalBounds().Width) / 2, ry + (rh - tekst.GetLocalBounds().Height) / 2);
-            
-
-            if ((napis == "-"))
-            {
-                //tekst.Position = new Vector2f(rx + 15, ry + 2);
-                tekst.Position = new Vector2f(rx + (uint)(window.Size.X * 0.01171), ry + (uint)(window.Size.Y * 0.00277777));
-            }
-            else if ((napis == "+"))
-            {
-                //tekst.Position = new Vector2f(rx + 12, ry + 3);
-                tekst.Position = new Vector2f(rx + (uint)(window.Size.X * 0.009375), ry + (uint)(window.Size.Y * 0.0041666));
-            }
-            else if (napis.Length == 1)
-                tekst.Position = new Vector2f(rx + (uint)(window.Size.X * 0.01171), ry + (uint)(window.Size.Y * 0.00777777));
-
-            tekst.CharacterSize = textsize;
-        }
-
-        public void ChangeColor(Color coloreg)
-        {
-            this.prostokat.FillColor = coloreg;
         }
 
         public void ChangeText(String text)

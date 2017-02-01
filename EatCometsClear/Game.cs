@@ -22,7 +22,18 @@ namespace EatCometsClear
 
         public Game(uint width, uint height, string title, Color clearColor)
         {
-            this.window = new RenderWindow(new VideoMode(width, height), title, Styles.Close);
+
+            string style = System.Configuration.ConfigurationManager.AppSettings["WindowMode"];
+
+            if(style.Equals("window"))
+            {
+                this.window = new RenderWindow(new VideoMode(width, height), title, Styles.Close);
+            }
+            if (style.Equals("full"))
+            {
+                this.window = new RenderWindow(new VideoMode(width, height), title, Styles.Fullscreen);
+            }
+
             this.window.SetFramerateLimit(60);
             this.clearColor = clearColor;
 
