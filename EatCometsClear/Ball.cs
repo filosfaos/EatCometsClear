@@ -14,9 +14,12 @@ namespace EatCometsClear
     {
         public CircleShape kolo;
         private int x, y;
+        Random rnd;
 
-        public Ball(int x1, int y1)
+        public Ball(int x1, int y1, int seeder)
         {
+            int Seed = (int)DateTime.Now.Ticks;
+            rnd = new Random(Seed+seeder);
             this.gravityStrength = 1000;
             this.enableGravity = true;
 
@@ -28,9 +31,7 @@ namespace EatCometsClear
             kolo.FillColor = new Color(100, 100, 100);
             kolo.Radius = 6;
 
-
             this.Remake();
-
 
             //Console.WriteLine("x = " + x + "  y = " + y );
 
@@ -40,13 +41,16 @@ namespace EatCometsClear
         public void Remake()
         {
             int x1, y1;
-            Random rnd = new Random();
             x1 = rnd.Next( (int)(x*0.01), (int)(x*0.99) );
             y1 = rnd.Next( (int)(y*0.01), (int)(y*0.99) );
 
-            position = new Vector2f(x1, y1);
-            kolo.Position = position;
+            this.position = new Vector2f(x1, y1);
+            this.ReDraw();
+        }
 
+        public void ReDraw()
+        {
+            this.kolo.Position = new Vector2f( this.position.X - 6, this.position.Y - 6);
         }
     }
 }

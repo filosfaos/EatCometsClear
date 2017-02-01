@@ -10,10 +10,9 @@ using SFML.Window;
 
 namespace EatCometsClear
 {
-    class Caption : Drawable
+    class Caption :IDable, Drawable
     {
         public Text text;
-        public int id;
         private RenderWindow window;
 
         public Caption(Text inscription, int id, RenderWindow window)

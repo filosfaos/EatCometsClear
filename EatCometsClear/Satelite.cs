@@ -17,6 +17,7 @@ namespace EatCometsClear
         public float speed;
         private float kat;
         private float startPosition, maxPosition;
+        private int sinuser, cosinuser;
 
         public Satelite(int i, float x, float y, int newspeed)
         {
@@ -40,10 +41,10 @@ namespace EatCometsClear
 
             if (i > 5)
                 this.kolo.Radius = rnd.Next(1, i / 3);
-            else if (i > 100)
+            else if (i > 10)
                 this.kolo.Radius = rnd.Next(1, i / 10);
-            else if (i > 200)
-                this.kolo.Radius = rnd.Next(1, 20);
+            else if (i > 20)
+                this.kolo.Radius = rnd.Next(1, 10);
 
             this.obwodka = new CircleShape(this.kolo.Radius + 1);
 
@@ -97,6 +98,9 @@ namespace EatCometsClear
             maxPosition = startPosition + 1080;
             this.kat = startPosition;
 
+            this.sinuser = rnd.Next(6, 10);
+            this.cosinuser = rnd.Next(4, 7);
+
             /*
              *water effects xD
             this.kolo.FillColor = new Color(0,0, 255);
@@ -117,8 +121,9 @@ namespace EatCometsClear
                 this.kat = startPosition;
 
 
-            float cos = Convert.ToSingle((6 * whichball) * Math.Cos((this.kat * Math.PI) / 180));
-            float sin = Convert.ToSingle((6 * whichball) * Math.Sin((this.kat * Math.PI) / 180));
+            //te gówniaki *whichball zmieniają czy poruszaja sie po okręgu czy elipsie
+            float cos = Convert.ToSingle((cosinuser * whichball) * Math.Cos((this.kat * Math.PI) / 180));
+            float sin = Convert.ToSingle((sinuser * whichball) * Math.Sin((this.kat * Math.PI) / 180));
 
             this.kolo.Position = new Vector2f(x + sin - this.kolo.Radius, y + cos - this.kolo.Radius);
             this.obwodka.Position = new Vector2f(this.kolo.Position.X - 1, this.kolo.Position.Y - 1);

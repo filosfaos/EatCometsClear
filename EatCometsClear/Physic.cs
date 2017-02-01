@@ -26,12 +26,17 @@ namespace EatCometsClear
                         {
                             if (objekt.enableGravity && objekt2.enableGravity)
                             {
-                                float x = 0, y = 0;
+                                float o1x = objekt.position.X, o1y = objekt.position.Y;
+                                float o2x = objekt2.position.X, o2y = objekt2.position.Y;
 
-                                x = (float)Math.Pow((objekt.position.X - objekt2.position.X), 2);
-                                y = (float)Math.Pow((objekt.position.Y - objekt2.position.Y), 2);
 
-                                float c = x + y;
+
+                                //różnice między obiektami w odległości
+                                float rozx = 0, rozy = 0;
+                                rozx = (float)Math.Pow((o1x - o2x), 2);
+                                rozy = (float)Math.Pow((o1y - o2y), 2);
+
+                                float c = rozx + rozy;
                                 //c = kwadrat odległości między obiektami
 
                                 float masa, masa2;
@@ -44,45 +49,83 @@ namespace EatCometsClear
 
                                 gravity_strenght /= 2; //na pół bo jest liczone dwa razy
 
+
+                                c = (float)Math.Sqrt(c);
+
+                                float xChangeMultipler = Math.Abs( objekt.position.X - objekt2.position.X);
+                                float yChangeMultipler = Math.Abs( objekt.position.Y - objekt2.position.Y);
+
+                                float xChange;
+                                xChange = gravity_strenght * (xChangeMultipler / c);
+
+                                float yChange;
+                                yChange = gravity_strenght * (yChangeMultipler / c);
+
+
                                 if (objekt.mass > objekt2.mass)
                                 {
                                     if (objekt.position.X < objekt2.position.X)
                                     {
-                                        objekt2.position.X -= gravity_strenght;
+                                        objekt2.position.X -= xChange;
                                         if (objekt.position.X > objekt2.position.X)
                                             objekt2.position.X = objekt.position.X;
                                     }
 
                                     if (objekt.position.X > objekt2.position.X)
                                     {
-                                        objekt2.position.X += gravity_strenght;
+                                        objekt2.position.X += xChange;
                                         if (objekt.position.X < objekt2.position.X)
                                             objekt2.position.X = objekt.position.X;
                                     }
 
                                     if (objekt.position.Y < objekt2.position.Y)
                                     {
-                                        objekt2.position.Y -= gravity_strenght;
+                                        objekt2.position.Y -= yChange;
                                         if (objekt.position.Y > objekt2.position.Y)
                                             objekt2.position.Y = objekt.position.Y;
                                     }
 
                                     if (objekt.position.Y > objekt2.position.Y)
                                     {
-                                        objekt2.position.Y += gravity_strenght;
+                                        objekt2.position.Y += yChange;
                                         if (objekt.position.Y < objekt2.position.Y)
                                             objekt2.position.Y = objekt.position.Y;
                                     }
-
-
                                 }
                                 else if (objekt.mass < objekt2.mass)
                                 {
+                                    if (objekt2.position.X < objekt.position.X)
+                                    {
+                                        objekt.position.X -= gravity_strenght;
+                                        if (objekt2.position.X > objekt.position.X)
+                                            objekt.position.X = objekt2.position.X;
+                                    }
+
+                                    if (objekt2.position.X > objekt.position.X)
+                                    {
+                                        objekt.position.X += gravity_strenght;
+                                        if (objekt2.position.X < objekt.position.X)
+                                            objekt.position.X = objekt2.position.X;
+                                    }
+
+                                    if (objekt2.position.Y < objekt.position.Y)
+                                    {
+                                        objekt.position.Y -= gravity_strenght;
+                                        if (objekt2.position.Y > objekt.position.Y)
+                                            objekt.position.Y = objekt2.position.Y;
+                                    }
+
+                                    if (objekt2.position.Y > objekt.position.Y)
+                                    {
+                                        objekt.position.Y += gravity_strenght;
+                                        if (objekt2.position.Y < objekt.position.Y)
+                                            objekt.position.Y = objekt2.position.Y;
+                                    }
 
                                 }
                                 else
                                 {
-
+                                    //jak ta sama maso to się nic nie powinno dziać xD
                                 }
                             }
                         }
