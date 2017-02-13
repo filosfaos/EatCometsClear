@@ -66,6 +66,18 @@ namespace EatCometsClear
             return null;
         }
 
+        public void ChangeCaptionByID(int id, string newString)
+        {
+            Caption element = (Caption)this.GetElementByID(id);
+            element.text.DisplayedString = newString;
+        }
+
+        public void DrawIDs()
+        {
+            foreach (IDable elemend in elements)
+                Console.WriteLine(elemend.id);
+        }
+
         public void AddElement(Drawable newElement)
         {
             elements.Add(newElement);
@@ -78,5 +90,6 @@ namespace EatCometsClear
                 element.Draw( target, new RenderStates());
             }
         }
+        
     }
 }

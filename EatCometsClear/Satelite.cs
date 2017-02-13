@@ -44,7 +44,7 @@ namespace EatCometsClear
             else if (i > 10)
                 this.kolo.Radius = rnd.Next(1, i / 10);
             else if (i > 20)
-                this.kolo.Radius = rnd.Next(1, 10);
+                this.kolo.Radius = rnd.Next(1, 20);
 
             this.obwodka = new CircleShape(this.kolo.Radius + 1);
 
@@ -109,7 +109,7 @@ namespace EatCometsClear
         }
 
 
-        public void BallLocation(int number, float x, float y, int whichball, float objectR)
+        public int BallLocation(int number, float x, float y, int distance, float objectR)
         {
 
             Random rnd;
@@ -120,16 +120,17 @@ namespace EatCometsClear
             if (this.kat > this.maxPosition)
                 this.kat = startPosition;
 
+            distance += (int)(this.obwodka.Radius*3);
 
             //te gówniaki *whichball zmieniają czy poruszaja sie po okręgu czy elipsie
-            float cos = Convert.ToSingle((cosinuser * whichball) * Math.Cos((this.kat * Math.PI) / 180));
-            float sin = Convert.ToSingle((sinuser * whichball) * Math.Sin((this.kat * Math.PI) / 180));
+            float cos = Convert.ToSingle((cosinuser + distance) * Math.Cos((this.kat * Math.PI) / 180));
+            float sin = Convert.ToSingle((sinuser + distance) * Math.Sin((this.kat * Math.PI) / 180));
 
             this.kolo.Position = new Vector2f(x + sin - this.kolo.Radius, y + cos - this.kolo.Radius);
             this.obwodka.Position = new Vector2f(this.kolo.Position.X - 1, this.kolo.Position.Y - 1);
             //this.satelite[i].Position = this.position;
 
-
+            return distance;
         }
 
         internal void Add(Satelite satelite)
