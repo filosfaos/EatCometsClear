@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
+using SFML.Audio;
 
 namespace EatCometsClear
 {
@@ -21,7 +22,11 @@ namespace EatCometsClear
         public bool doAction;
         Color color, activeColor;
         private int iletyczymasz;
-        
+        private delegate void OnClickDelegate();
+        OnClickDelegate onClick;
+
+
+
         public Button()
         { }
 
@@ -29,10 +34,9 @@ namespace EatCometsClear
         {
             this.iletyczymasz = 0;
             this.id = id;
-
-
-
+            
             window = okno;
+            
 
             doAction = false;
             rx = posx;
@@ -146,7 +150,7 @@ namespace EatCometsClear
             tekst.Position = new Vector2f(rx + (rw - tekst.GetGlobalBounds().Width) / 2, ry + (rh - tekst.GetGlobalBounds().Height) / 2);
         }
 
-        bool IsHoovering()
+        public bool IsHoovering()
         {
             float mx = Mouse.GetPosition(window).X;
             float my = Mouse.GetPosition(window).Y;
@@ -195,6 +199,15 @@ namespace EatCometsClear
             }
         }
         
+        public void SetOnClick( Delegate delegaterke )
+        {
+           // this.onClick = new OnClickDelegate( delegaterke );
+        }
+
+        public void OnClick()
+        {
+            this.onClick();
+        }
 
         public void Draw()
         {
@@ -207,7 +220,6 @@ namespace EatCometsClear
         {
             this.Draw();
         }
-    }
 
-   
+    }
 }

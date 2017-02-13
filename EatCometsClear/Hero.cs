@@ -18,7 +18,8 @@ namespace EatCometsClear
         public CircleShape obwodka;
         public CircleShape zasiegacz;
         List<Satelite> satelite;
-        static System.Collections.ArrayList heromenu;
+        //static System.Collections.ArrayList heromenu;
+        private HeadUpDisplay heromenuHUD;
         private RenderWindow okienko;
         public bool enablemovement;
         private int numberofballs;
@@ -34,10 +35,13 @@ namespace EatCometsClear
         private bool enableManipulation;
         int density;
         private bool lastGravity;
-        
+        SFML.Audio.Sound collectSound;
+        private int soundColldown;
+
+
         public Hero(RenderWindow okienko, float x, float y, Color color, int screenX, int screenY, bool eneblemovementt, int sterowanie)
         {
-
+            soundColldown = 0;
             this.enablemovement = eneblemovementt;
             this.okienko = okienko;
 
@@ -46,15 +50,16 @@ namespace EatCometsClear
             density = 1000;
             enableManipulation = false;
 
+
             kaczynskiSmiec = new Button(1, 1, 1, 1, "1", okienko, new Color(Color.Black), 1, 1);
 
-            heromenu = new System.Collections.ArrayList();
+            List<Drawable> heromenu = new List<Drawable>();
 
 
             uint pomX = okienko.Size.X;
             uint pomY = okienko.Size.Y;
 
-            uint buttontextsize = (uint)(pomX * 0.040);
+            uint buttontextsize = (uint)(pomX * 0.022);
             if (this.okienko.Size.X == 1920)
                 buttontextsize = (uint)(pomY * 0.030);
             if (this.okienko.Size.X == 1280)
@@ -65,7 +70,6 @@ namespace EatCometsClear
                 buttontextsize = (uint)(pomX * 0.015);
 
             Color buttonscolor = new Color(69, 69, 0);
-            heromenu = new System.Collections.ArrayList();
             Text Gamename;
             Gamename = new Text();
             Gamename.DisplayedString = "Małe słońce";
@@ -82,7 +86,7 @@ namespace EatCometsClear
             heromenu.Add(new Button((uint)(pomX * 0.30), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "+", okienko, buttonscolor, buttontextsize, 2));
             heromenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.57), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "?", okienko, buttonscolor, buttontextsize, 3));
             heromenu.Add(new Button((uint)(pomX * 0.12), (uint)(pomY * 0.55), (uint)(pomX * 0.17), (uint)(pomY * 0.10), "odblokuj", okienko, buttonscolor, buttontextsize, 3));
-            heromenu.Add(new Button((uint)(pomX * 0.30), (uint)(pomY * 0.57), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "X", okienko, new Color(128,0,0), buttontextsize, 4));
+            heromenu.Add(new Button((uint)(pomX * 0.30), (uint)(pomY * 0.57), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "X", okienko, new Color(128, 0, 0), buttontextsize, 4));
             heromenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.70), (uint)(pomX * 0.25), (uint)(pomY * 0.1), "przycisk", okienko, buttonscolor, buttontextsize, 0));
 
             Gamename = null;
@@ -90,8 +94,10 @@ namespace EatCometsClear
             Gamename = new Text("Menu postaci", new Font("fonts/arial.ttf"), (uint)(pomY * 0.022222));
             Gamename.Position = new Vector2f((uint)(pomX * 0.08), (uint)(pomY * 0.833333));
             Gamename.Color = new Color(Color.White);
-            heromenu.Add(new Caption(Gamename, 2, okienko));
+            heromenu.Add(new Caption(Gamename, 31, okienko));
 
+
+            heromenuHUD = new HeadUpDisplay(heromenu);
 
             this.menuStatistic = false;
 
@@ -122,7 +128,7 @@ namespace EatCometsClear
 
 
             zasiegacz = new CircleShape();
-            zasiegacz.FillColor = new Color(10,10,10);
+            zasiegacz.FillColor = new Color(10, 10, 10);
             zasiegacz.Position = position;
             zasiegacz.Radius = 4;
 
@@ -132,7 +138,6 @@ namespace EatCometsClear
 
             this.Go('x', 0, screenX, screenY);
         }
-
 
         public void Draw()
         {
@@ -153,33 +158,30 @@ namespace EatCometsClear
             }
             if (menuStatistic)
             {
-                foreach (Drawable rysownik in heromenu)
-                    rysownik.Draw(null, new RenderStates());
+                heromenuHUD.Draw();
             }
         }
 
-        public bool Near(Vector2f position, float poprawka, uint howmanyplanets)
+        public bool Near(Vector2f position, float poprawka, uint range)
         {
-            if (howmanyplanets == 0)
-                howmanyplanets = 1;
-
+            if (range == 0)
+                range = (uint)this.obwodka.Radius;
             
-            howmanyplanets *= 8;
 
-            if(this.enableGravity)
+            if (this.enableGravity)
             {
-                howmanyplanets = 0;
+                range = 0;
             }
 
-            uint distance = (uint)Math.Pow(howmanyplanets + (uint)this.obwodka.Radius + additionalRange, 2);
-            uint distance2 = (uint)Math.Pow(howmanyplanets + (uint)this.obwodka.Radius + additionalRange - poprawka, 2);
+            uint distance = (uint)Math.Pow(range + (uint)this.obwodka.Radius + additionalRange, 2);
+            uint distance2 = (uint)Math.Pow(range + (uint)this.obwodka.Radius + additionalRange - poprawka, 2);
 
             this.zasiegacz.Radius = (float)Math.Sqrt(distance2);
             //this is squared value ( potęgowana wartość )
-            
-            uint x = (uint)Math.Pow( this.position.X - (position.X + poprawka), 2);
-            uint y = (uint)Math.Pow( this.position.Y - (position.Y + poprawka), 2);
-            
+
+            uint x = (uint)Math.Pow(this.position.X - (position.X + poprawka), 2);
+            uint y = (uint)Math.Pow(this.position.Y - (position.Y + poprawka), 2);
+
             if ((x + y) <= distance)
                 return true;
 
@@ -246,20 +248,7 @@ namespace EatCometsClear
                 Console.WriteLine("Super słońce !");
                 type = "medium_sun";
 
-                var tmp = heromenu.GetEnumerator();
-                while (tmp.MoveNext())
-                {
-                    Caption element;
-                    element = new Caption();
-                    if (tmp.Current.GetType() == element.GetType())
-                    {
-                        element = null;
-                        element = (Caption)tmp.Current;
-
-                        if (element.id == 1)
-                            element.text.DisplayedString = "Średnie słońce";
-                    }
-                }
+                heromenuHUD.ChangeCaptionByID(1, "Średnie słońce");
 
                 kolo.FillColor = new Color(255, 155, 37);
                 obwodka.FillColor = new Color(255, 53, 0);
@@ -272,42 +261,18 @@ namespace EatCometsClear
 
                 Console.WriteLine("Neutronowy olbrzym !");
                 type = "neutron_star";
-                var tmp = heromenu.GetEnumerator();
-                while (tmp.MoveNext())
-                {
-                    Caption element;
-                    element = new Caption();
-                    if (tmp.Current.GetType() == element.GetType())
-                    {
-                        element = null;
-                        element = (Caption)tmp.Current;
-
-                        if (element.id == 1)
-                            element.text.DisplayedString = "Neutronowy olbrzym";
-                    }
-                }
+                heromenuHUD.ChangeCaptionByID(1, "Neutronowy olbrzym");
 
             }
             else if (howmuch == 100)
             {
-                this.kolo.FillColor =  new Color(Color.White);
-                this.obwodka.FillColor =new Color(200, 200, 200);
+                this.kolo.FillColor = new Color(Color.White);
+                this.obwodka.FillColor = new Color(200, 200, 200);
                 Console.WriteLine("Biały niewypał !");
                 type = "white_cancer";
-                var tmp = heromenu.GetEnumerator();
-                while (tmp.MoveNext())
-                {
-                    Caption element;
-                    element = new Caption();
-                    if (tmp.Current.GetType() == element.GetType())
-                    {
-                        element = null;
-                        element = (Caption)tmp.Current;
 
-                        if (element.id == 1)
-                            element.text.DisplayedString = "Biały niewypał";
-                    }
-                }
+                heromenuHUD.ChangeCaptionByID(1, "Biały niewypał");
+
             }
             else if (howmuch == 150)
             {
@@ -315,20 +280,8 @@ namespace EatCometsClear
                 this.obwodka.FillColor = new Color(Color.White);
                 Console.WriteLine("Supernova !!!!");
                 type = "supernova";
-                var tmp = heromenu.GetEnumerator();
-                while (tmp.MoveNext())
-                {
-                    Caption element;
-                    element = new Caption();
-                    if (tmp.Current.GetType() == element.GetType())
-                    {
-                        element = null;
-                        element = (Caption)tmp.Current;
 
-                        if (element.id == 1)
-                            element.text.DisplayedString = "Supernova";
-                    }
-                }
+                heromenuHUD.ChangeCaptionByID(1, "Supernova");
             }
             else if (howmuch == 300)
             {
@@ -337,30 +290,16 @@ namespace EatCometsClear
 
                 Console.WriteLine("Czarna dziura !");
                 type = "black_hole";
-                var tmp = heromenu.GetEnumerator();
-                while (tmp.MoveNext())
-                {
-                    Caption element;
-                    element = new Caption();
-                    if (tmp.Current.GetType() == element.GetType())
-                    {
-                        element = null;
-                        element = (Caption)tmp.Current;
 
-                        if (element.id == 1)
-                            element.text.DisplayedString = "Czarna dziura";
-                    }
-                }
+                heromenuHUD.ChangeCaptionByID(1, "Czarna dziura");
             }
-
-
             this.Go('x', 0, 800, 600);
         }
 
         private void WhatsGoingOn(int numberofframe)
         {
 
-            if ( ((numberofsatelites > 0) && Keyboard.IsKeyPressed(Keyboard.Key.Space)) || ((numberofsatelites > 0) && this.type == "black_hole" ))
+            if (((numberofsatelites > 0) && Keyboard.IsKeyPressed(Keyboard.Key.Space)) || ((numberofsatelites > 0) && this.type == "black_hole"))
             {
                 if (numberofframe % 3 == 0) // Co trzecią klatkę, coby za szybko nie było
                 {
@@ -430,34 +369,34 @@ namespace EatCometsClear
 
             if (this.mass > this.okienko.Size.X)
             {
-                costamekranu = this.okienko.Size.X / this.mass ;
+                costamekranu = this.okienko.Size.X / this.mass;
 
             }
 
 
             if (this.type == "small_sun")
             {
-                this.kolo.Radius = (float)( this.mass * 0.001 * density);
+                this.kolo.Radius = (float)(this.mass * 0.001 * density);
                 this.obwodka.Radius = this.kolo.Radius + 2;
             }
             if (this.type == "medium_sun")
             {
-                this.kolo.Radius = (float)( this.mass * 0.0009 * density);
+                this.kolo.Radius = (float)(this.mass * 0.0009 * density);
                 this.obwodka.Radius = this.kolo.Radius + 2;
             }
             if (this.type == "neutron_star")
             {
-                this.kolo.Radius = (float)( this.mass * 0.0005 * density);
+                this.kolo.Radius = (float)(this.mass * 0.0005 * density);
                 this.obwodka.Radius = this.kolo.Radius + 2;
             }
 
             if (this.type == "white_cancer")
             {
-                this.kolo.Radius = (float)( this.mass * 0.00005 * density);
+                this.kolo.Radius = (float)(this.mass * 0.00005 * density);
                 this.obwodka.Radius = this.kolo.Radius + 2;
             }
 
-            Console.WriteLine("radius " +( this.mass * 0.1 * density));
+            Console.WriteLine("radius " + (this.mass * 0.1 * density));
         }
 
         public void CalculatePosition()
@@ -492,15 +431,19 @@ namespace EatCometsClear
 
         }
 
-        public int Tick(bool movement, int numberofframe, Ball[] ball )
+        public int Tick(bool movement, int numberofframe, Ball[] ball)
         {
+            soundColldown++;
 
+            int distance = 2;
 
-            for (int i = 0; i < this.satelite.Count ; i++)
+            foreach(Satelite element in this.satelite)
             {
-                this.satelite[i].BallLocation(this.numberofsatelites, this.position.X, this.position.Y, i, this.kolo.Radius);
+                int pom = distance;
+                distance = element.BallLocation(this.numberofsatelites, this.position.X, this.position.Y, pom, this.kolo.Radius);
             }
 
+            int distanceOfLastSatelite = distance;
 
             if (type == "supernova")
             {
@@ -547,12 +490,21 @@ namespace EatCometsClear
                         {
                             if (ball[i] != null)
                             {
-                                if (this.Near(ball[i].position, ball[i].kolo.Radius, (uint)(this.satelite.Count - 1)))
+                                if (this.Near(ball[i].position, ball[i].kolo.Radius, (uint)(distanceOfLastSatelite)))
                                 {
                                     numberofballs++;
                                     ball[i].Remake();
-                                    if (0 == (numberofballs % 7) && (numberofballs > 0))
+                                    if (0 == (numberofballs % 10) && (numberofballs > 0))
                                     {
+                                        if (soundColldown > 120)
+                                        {
+                                            if ((collectSound != null) && (collectSound.Status == SFML.Audio.SoundStatus.Stopped))
+                                            {
+                                                collectSound.Play();
+                                            }
+                                        }
+
+                                        soundColldown = 0;
                                         this.mass++;
                                         AddSatelite();
                                     }
@@ -612,230 +564,171 @@ namespace EatCometsClear
 
         private void MenuTick()
         {
-            var tmp = heromenu.GetEnumerator();
-
-            while (tmp.MoveNext())
+            foreach (Button element in heromenuHUD.GetButtons())
             {
-                Button element;
-                element = kaczynskiSmiec;
-                if (tmp.Current.GetType() == element.GetType())
-                {
-                    element = null;
-                    element = (Button)tmp.Current;
 
-                    if (element.id == 1)
+                if (element.id == 1)
+                {
+                    if (this.mass >= status)
                     {
-                        if (this.mass >= status)
+                        element.ChangeText("V");
+                        element.ChangeColor(new Color(0, 128, 0));
+                    }
+                    else
+                    {
+                        element.ChangeText("X");
+                        element.ChangeColor(new Color(128, 0, 0));
+                    }
+                }
+
+                if (element.id == 3 || element.id == 4)
+                {
+
+                    if (element.id == 4)
+                    {
+                        if (element.tekst.DisplayedString.Equals("+"))
                         {
-                            element.ChangeText("V");
-                            element.ChangeColor(new Color(0, 128, 0));
+                            if (element.DoAction())
+                            {
+                                this.density++;
+
+                                this.CalculateRadius();
+
+                                Console.WriteLine("plusiczek");
+                                Console.WriteLine(density);
+                            }
                         }
                         else
                         {
-                            element.ChangeText("X");
-                            element.ChangeColor(new Color(128, 0, 0));
-                        }
-                    }
-
-                    if (element.id == 3 || element.id == 4)
-                    {
-
-                        if (element.id == 4)
-                        {
-                            if (element.tekst.DisplayedString.Equals("+"))
+                            if (!enableManipulation)
                             {
-                                if (element.DoAction())
+                                if (this.mass >= 100)
                                 {
-                                    this.density++;
-
-                                    this.CalculateRadius();
-
-                                    Console.WriteLine("plusiczek");
-                                    Console.WriteLine(density);
-                                }
-                            }
-                            else
-                            {
-                                if (!enableManipulation)
-                                {
-                                    if (this.mass >= 100)
-                                    {
-                                        element.ChangeText("V");
-                                        element.ChangeColor(new Color(0, 128, 0));
-                                    }
-                                    else
-                                    {
-                                        element.ChangeText("X");
-                                        element.ChangeColor(new Color(128, 0, 0));
-                                    }
+                                    element.ChangeText("V");
+                                    element.ChangeColor(new Color(0, 128, 0));
                                 }
                                 else
                                 {
-                                    element.tekst.DisplayedString = "+";
-                                    element.ChangeColor(new Color(127, 112, 0));
+                                    element.ChangeText("X");
+                                    element.ChangeColor(new Color(128, 0, 0));
                                 }
-                            }
-                        }
-
-
-                        if (element.tekst.DisplayedString.Equals("-") && element.DoAction())
-                        {
-                            density--;
-                            if (density < 10)
-                                density = 10;
-
-                            this.CalculateRadius();
-
-                            Console.WriteLine("minusiczek");
-                            Console.WriteLine(density);
-
-                        }
-
-                        if (element.tekst.DisplayedString.Equals("?"))
-                        {
-                            if (enableManipulation)
-                            {
-                                element.tekst.DisplayedString = "-";
-                                element.ChangeColor(new Color(127, 112, 0));
-                            }
-
-                            if (element.DoAction())
-                            {
-                                var tmp2 = heromenu.GetEnumerator();
-                                while (tmp2.MoveNext())
-                                {
-                                    Caption element2;
-                                    element2 = new Caption();
-                                    if (tmp2.Current.GetType() == element2.GetType())
-                                    {
-                                        element2 = null;
-                                        element2 = (Caption)tmp2.Current;
-
-                                        if (element2.id == 2)
-                                            element2.text.DisplayedString = "Umiejętność pozwalająca manipulować gęstością |- koszt 100 masy";
-                                    }
-
-                                }
-                            }
-
-                        }
-
-                        if (element.tekst.DisplayedString.Equals("odblokuj") && element.DoAction())
-                        {
-                            if (this.mass >= 100)
-                            {
-                                element.tekst.DisplayedString = "Gęstość";
-                                enableManipulation = true;
                             }
                             else
                             {
-                                var tmp3 = heromenu.GetEnumerator();
-                                while (tmp3.MoveNext())
-                                {
-                                    Caption element3;
-                                    element3 = new Caption();
-                                    if (tmp3.Current.GetType() == element3.GetType())
-                                    {
-                                        element3 = null;
-                                        element3 = (Caption)tmp3.Current;
-
-                                        if (element3.id == 2)
-                                            element3.text.DisplayedString = "Umiejętność pozwalająca manipulować gęstością |- koszt 100 masy";
-                                    }
-                                }
-                            }
-                            if (element.tekst.DisplayedString.Equals("Gęstość") && element.DoAction())
-                            {
-                                var tmp3 = heromenu.GetEnumerator();
-                                while (tmp3.MoveNext())
-                                {
-                                    Caption element3;
-                                    element3 = new Caption();
-                                    if (tmp3.Current.GetType() == element3.GetType())
-                                    {
-                                        element3 = null;
-                                        element3 = (Caption)tmp3.Current;
-
-                                        if (element3.id == 2)
-                                            element3.text.DisplayedString = "Umiejętność pozwalająca manipulować gęstością";
-                                    }
-                                }
+                                element.tekst.DisplayedString = "+";
+                                element.ChangeColor(new Color(127, 112, 0));
                             }
                         }
-
                     }
 
 
-
-
-                    if (element.tekst.DisplayedString.Equals("masa->planeta") && element.DoAction())
+                    if (element.tekst.DisplayedString.Equals("-") && element.DoAction())
                     {
-                        var tmp3 = heromenu.GetEnumerator();
-                        while (tmp3.MoveNext())
+                        density--;
+                        if (density < 10)
+                            density = 10;
+
+                        this.CalculateRadius();
+
+                        Console.WriteLine("minusiczek");
+                        Console.WriteLine(density);
+
+                    }
+
+                    if (element.tekst.DisplayedString.Equals("?"))
+                    {
+                        if (enableManipulation)
                         {
-                            Caption element3;
-                            element3 = new Caption();
-                            if (tmp3.Current.GetType() == element3.GetType())
-                            {
-                                element3 = null;
-                                element3 = (Caption)tmp3.Current;
-
-                                if (element3.id == 2)
-                                    element3.text.DisplayedString = "Zmień masę na planety i odwrotnie";
-                            }
+                            element.tekst.DisplayedString = "-";
+                            element.ChangeColor(new Color(127, 112, 0));
                         }
-                    }
 
-                    if (element.tekst.DisplayedString.Equals("+") && (element.id == 2))
-                    {
                         if (element.DoAction())
                         {
-                            if (this.mass > 0)
-                            {
-                                this.AddSatelite();
-                            }
+                            heromenuHUD.ChangeCaptionByID(31, "Umiejętność pozwalająca manipulować gęstością |- koszt 100 masy");
                         }
-                    }
-                    if (element.tekst.DisplayedString.Equals("-") && (element.id == 2))
-                    {
-                        if (element.DoAction())
-                        {
-                            if (numberofsatelites > 0)
-                                this.RemoveSatelite();
-                        }
+
                     }
 
-                    if (element.tekst.DisplayedString.Equals("Awansuj") && element.DoAction())
+                    if (element.tekst.DisplayedString.Equals("odblokuj") && element.DoAction())
                     {
-                        if (this.mass >= status)
+                        if (this.mass >= 100)
                         {
-                            this.ChangeStatus(status);
-                            this.mass -= status;
-                            if (status == 10)
-                                status = 25;
-                            else if (status == 25)
-                                status = 50;
-                            else if (status == 50)
-                                status = 100;
-                            else if (status == 100)
-                            {
-                                status = 150;
-                            }
-                            else if (status == 150)
-                            {
-                                status = 200;
-                            }
-                            else if (status == 200)
-                            {
-                                status = 300;
-                                AddSatelite();
-                                //numberofsatelites--;
-                            }
-
-                            this.CalculateRadius();
-
-
+                            element.tekst.DisplayedString = "Gęstość";
+                            enableManipulation = true;
                         }
+                        else
+                        {
+                            heromenuHUD.ChangeCaptionByID(31, "Umiejętność pozwalająca manipulować gęstością |- koszt 100 masy");
+                            
+                        }
+                        if (element.tekst.DisplayedString.Equals("Gęstość") && element.DoAction())
+                        {
+                            heromenuHUD.ChangeCaptionByID(31, "Umiejętność pozwalająca manipulować gęstością");
+                            
+                        }
+                    }
+
+                }
+
+
+
+
+                if (element.tekst.DisplayedString.Equals("masa->planeta") && element.DoAction())
+                {
+                    heromenuHUD.ChangeCaptionByID(31, "Zmień masę na planety i odwrotnie");
+                    heromenuHUD.DrawIDs();
+                }
+
+                if (element.tekst.DisplayedString.Equals("+") && (element.id == 2))
+                {
+                    if (element.DoAction())
+                    {
+                        if (this.mass > 0)
+                        {
+                            this.AddSatelite();
+                        }
+                    }
+                }
+                if (element.tekst.DisplayedString.Equals("-") && (element.id == 2))
+                {
+                    if (element.DoAction())
+                    {
+                        if (numberofsatelites > 0)
+                            this.RemoveSatelite();
+                    }
+                }
+
+                if (element.tekst.DisplayedString.Equals("Awansuj") && element.DoAction())
+                {
+                    if (this.mass >= status)
+                    {
+                        this.ChangeStatus(status);
+                        this.mass -= status;
+                        if (status == 10)
+                            status = 25;
+                        else if (status == 25)
+                            status = 50;
+                        else if (status == 50)
+                            status = 100;
+                        else if (status == 100)
+                        {
+                            status = 150;
+                        }
+                        else if (status == 150)
+                        {
+                            status = 200;
+                        }
+                        else if (status == 200)
+                        {
+                            status = 300;
+                            AddSatelite();
+                            //numberofsatelites--;
+                        }
+
+                        this.CalculateRadius();
+
+
                     }
                 }
             }
@@ -844,6 +737,11 @@ namespace EatCometsClear
         public void Changemovement(int a)
         {
             this.sterowanie = a;
+        }
+
+        public void AddSound(SFML.Audio.Sound newSound)
+        {
+            this.collectSound = newSound;
         }
 
         public object Clone()
@@ -855,8 +753,7 @@ namespace EatCometsClear
         {
             this.Draw();
         }
-
-
+        
     }
 
 }

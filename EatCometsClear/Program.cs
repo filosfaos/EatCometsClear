@@ -39,6 +39,8 @@ namespace EatCometsClear
                 else
                 {
                     iterate = false;
+                    //myGame.OnClose();
+                    //myGame = null;
                 }
             }
         }
