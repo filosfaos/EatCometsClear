@@ -22,7 +22,7 @@ namespace EatCometsClear
         public bool doAction;
         Color color, activeColor;
         private int iletyczymasz;
-        private delegate void OnClickDelegate();
+        public delegate void OnClickDelegate();
         OnClickDelegate onClick;
 
 
@@ -199,9 +199,9 @@ namespace EatCometsClear
             }
         }
         
-        public void SetOnClick( Delegate delegaterke )
+        public void SetOnClick( OnClickDelegate delegaterke )
         {
-           // this.onClick = new OnClickDelegate( delegaterke );
+           this.onClick = new OnClickDelegate( delegaterke );
         }
 
         public void OnClick()

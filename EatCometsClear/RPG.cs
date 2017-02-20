@@ -13,10 +13,15 @@ namespace EatCometsClear
 {
     class RPG : Game
     {
+        /// <summary><param name="startNewGame">określa, czy gra ma zostać uruchomiona ponownie przy kolejnym obiegu głównej pętli</param></summary>
         public bool startNewGame;
-        Hero hero, menuhero;
+        /// <summary><param name="hero">obiekt reprezentujący gracza</param></summary>
+        Hero hero;
+        /// <summary><param name="menuhero">obiekt reprezentujący wizualizację gracza w menu głównym</param></summary>
+        Hero menuhero;
+        /// <summary><param name="ball">tablica obiektów reprezentująca komety</param></summary>
         Ball[] ball;
-
+        
         Music music;
         bool musicEnabled;
         Sound clickSound;
@@ -60,7 +65,8 @@ namespace EatCometsClear
 
         protected override void LoadContent()
         {
-
+            //wczytywanie plików gry
+            
             /*
             try
             {
@@ -131,6 +137,9 @@ namespace EatCometsClear
 
         protected override void Initialize()
         {
+            //inicjalizacja zmiennych programu
+
+
             configurancja = new MyConfig();
 
             window.SetActive(true);
@@ -456,6 +465,8 @@ namespace EatCometsClear
 
         private void NewGame()
         {
+            //tworzy nową grę
+
             startNewGame = false;
 
 
@@ -479,6 +490,7 @@ namespace EatCometsClear
 
         protected override void Tick()
         {
+            //obliczanie numeru klatki
             numberofframe++;
             if (numberofframe >= 60)
             {
@@ -548,7 +560,9 @@ namespace EatCometsClear
             }
             else
             {
+                //niegrywalne
 
+                //esc przełącza między grą a mainmenu
                 if(Keyboard.IsKeyPressed(Keyboard.Key.Escape))
                 {
                     if(!escBlock)
@@ -568,12 +582,13 @@ namespace EatCometsClear
                     escBlock = false;
                 }
 
-
+                //obliczenia bohatyra
                 hero.Tick(false, numberofframe, ball);
 
 
                 if (startNewGame == true)
                 {
+                    //tworzy nową grę
                     Console.WriteLine("Tworzenie nowej gry...");
 
                     NewGame();
@@ -582,6 +597,7 @@ namespace EatCometsClear
 
                 //Tutaj zaczyna się obsługa przycisków menu
 
+                //dźwięk najechania
                 if (this.HoverSound())
                 {
                     if ((hoverSound != null) && hoverSoundEnable)
@@ -597,6 +613,8 @@ namespace EatCometsClear
                     hoverSoundStop = true;
                 }
 
+                //dźwięk kliknięcia
+                //TickButtons obsługuje przyciski
                 if(this.TickButtons() && clickSoundEnable)
                 {
                     if (clickSound != null)
@@ -605,12 +623,15 @@ namespace EatCometsClear
 
                 menuhero.Tick(false, numberofframe, ball);
 
+                //koniec niegrywalnego
             }
 
         }
 
         bool HoverSound()
         {
+            //jeżeli się najedzie na jakiś przycisk to odgrywa się dźwięk najechania
+
             bool playSound = false;
 
             do
@@ -652,6 +673,7 @@ namespace EatCometsClear
 
         bool TickButtons()
         {
+            //zmiennia zwracana, jeżeli zwroci true zostanie zagrany dźwięk kliknięcia.
             bool playSound;
             playSound = false;
 
@@ -659,6 +681,7 @@ namespace EatCometsClear
             {
                 if (element.tekst.DisplayedString.Equals("Graj") && element.DoAction())
                 {
+                    //zmienia stan gry z menu na gre
                     playSound = true;
                     gamestarted = true;
                     showTip = 0;
@@ -669,11 +692,13 @@ namespace EatCometsClear
                 }
                 if (element.tekst.DisplayedString.Equals("Nowa") && element.DoAction())
                 {
+                    //przycisk nowej gry
                     playSound = true;
                     startNewGame = true;
                 }
                 if (element.tekst.DisplayedString.Equals("Pokaż wskazówkę") && element.DoAction())
                 {
+                    //pokazuje kolejne wskazowki
                     playSound = true;
                     showTip++;
                     if (showTip > 4)
@@ -681,6 +706,7 @@ namespace EatCometsClear
                 }
                 if (element.tekst.DisplayedString.Equals("Opcje"))
                 {
+                    //przycisk do włączanie menu opcji, po włączeniu zmienia się na zamknij
                     if (element.DoAction())
                     {
                         playSound = true;
@@ -707,6 +733,7 @@ namespace EatCometsClear
                 }
                 if (element.tekst.DisplayedString.Equals("Zamknij"))
                 {
+                    //przycisk do zamykania menu opcji, po zamknięciu zmienia się na opcje
                     if (element.DoAction())
                     {
                         playSound = true;
@@ -730,6 +757,7 @@ namespace EatCometsClear
 
                 if (element.tekst.DisplayedString.Equals("Wyjdź") && element.DoAction())
                 {
+                    //służy do wyłączania gry
                     playSound = true;
                     window.Close();
                 }
@@ -743,8 +771,10 @@ namespace EatCometsClear
             {
                 foreach (Button element in optionbarHUD.GetButtons())
                 {
+                    //panel wyboru podmenu opcji
                     if (element.tekst.DisplayedString.Equals("S") && element.DoAction())
                     {
+                        //otwiera menu sterowania
                         playSound = true;
 
                         Caption handelier;
@@ -757,6 +787,7 @@ namespace EatCometsClear
                     }
                     if (element.tekst.DisplayedString.Equals("M") && element.DoAction())
                     {
+                        //otwiera podmenu dźwięków i muzyki
                         playSound = true;
                         if (enableMusic)
                         {
@@ -775,6 +806,7 @@ namespace EatCometsClear
                     }
                     if (element.tekst.DisplayedString.Equals("G") && element.DoAction())
                     {
+                        //otwiera podmenu opcji gry
                         playSound = true;
 
                         Caption handelier;
@@ -787,6 +819,7 @@ namespace EatCometsClear
                     }
                     if (element.tekst.DisplayedString.Equals("O") && element.DoAction())
                     {
+                        //otwiera podmenu opcji obrazu | ekranu
                         playSound = true;
 
                         Caption handelier;
@@ -819,8 +852,10 @@ namespace EatCometsClear
                 {
                     foreach (Button element in options1HUD.GetButtons())
                     {
+                        //podmenu sterownia
                         if (element.tekst.DisplayedString.Equals("W - A - S - D") && element.DoAction())
                         {
+                            //zostawione na potem
                             playSound = true;
                             element.ChangeText("Strzałki");
                             sterowanie = 0;
@@ -830,6 +865,7 @@ namespace EatCometsClear
 
                         if (element.tekst.DisplayedString.Equals("Strzałki") && element.DoAction())
                         {
+                            //zostawione na potem
                             playSound = true;
                             element.ChangeText("WSAD + Strzałki");
                             sterowanie = 2;
@@ -839,6 +875,7 @@ namespace EatCometsClear
 
                         if (element.tekst.DisplayedString.Equals("WSAD / Strzałki") && element.DoAction())
                         {
+                            //po kliknieciu zmienia sterowanie na myszke
                             playSound = true;
                             element.ChangeText("Myszka");
                             sterowanie = 3;
@@ -847,6 +884,7 @@ namespace EatCometsClear
                         }
                         if (element.tekst.DisplayedString.Equals("Myszka") && element.DoAction())
                         {
+                            //po kliknieciu zmienia sterownie na klawiature
                             playSound = true;
                             element.ChangeText("WSAD / Strzałki");
                             sterowanie = 2;
@@ -856,6 +894,7 @@ namespace EatCometsClear
 
                         if (element.tekst.DisplayedString.Equals("Zamknij") && element.DoAction())
                         {
+                            //zamyka opcje, zapasowy przycisk na potem
                             playSound = true;
                             enableOptions = 0;
                         }
@@ -863,11 +902,13 @@ namespace EatCometsClear
 
                         if (element.tekst.DisplayedString.Equals("Czułość") && element.DoAction())
                         {
+                            //info
                             playSound = true;
                             showTip = 14;
                         }
                         if (element.tekst.DisplayedString.Equals("-") && element.DoAction())
                         {
+                            //zmniejsza czulosc klawiatury
                             playSound = true;
                             showTip = 14;
 
@@ -883,6 +924,7 @@ namespace EatCometsClear
                         }
                         if (element.tekst.DisplayedString.Equals("+") && element.DoAction())
                         {
+                            //zmniejsza czulość klawiatury
                             playSound = true;
                             showTip = 14;
 
@@ -899,8 +941,10 @@ namespace EatCometsClear
                 {
                     foreach (Button element in options2HUD.GetButtons())
                     {
+                        //podmenu muzyki i dźwięku
                         if (element.tekst.DisplayedString.Equals("Muzyka") && element.DoAction())
                         {
+                            //włącza|wyłącza muzykę
                             playSound = true;
                             showTip = 7;
 
@@ -932,11 +976,13 @@ namespace EatCometsClear
                         {
                             if (element.tekst.DisplayedString.Equals("Głośność") && element.DoAction())
                             {
+                                //info
                                 playSound = true;
                                 showTip = 15;
                             }
                             if (element.tekst.DisplayedString.Equals("-") && element.DoAction())
                             {
+                                //zmniejsza głośność muzyki
                                 playSound = true;
                                 showTip = 15;
 
@@ -955,6 +1001,7 @@ namespace EatCometsClear
                             }
                             if (element.tekst.DisplayedString.Equals("+") && element.DoAction())
                             {
+                                //zwiększa głośność muzyki
                                 playSound = true;
                                 showTip = 15;
 
@@ -974,11 +1021,13 @@ namespace EatCometsClear
                         {
                             if (element.tekst.DisplayedString.Equals("Głośność") && element.DoAction())
                             {
+                                //info
                                 playSound = true;
                                 showTip = 20;
                             }
                             if (element.tekst.DisplayedString.Equals("-") && element.DoAction())
                             {
+                                //zmniejsza głośność dźwięków
                                 playSound = true;
                                 showTip = 20;
 
@@ -1013,6 +1062,7 @@ namespace EatCometsClear
                             }
                             if (element.tekst.DisplayedString.Equals("+") && element.DoAction())
                             {
+                                //zmniejsza głośność dźwięków
                                 playSound = true;
                                 showTip = 20;
                                 if (hoverSound != null)
@@ -1045,7 +1095,10 @@ namespace EatCometsClear
                         }
                         if (element.tekst.DisplayedString.Equals("Dźwięki") && element.DoAction())
                         {
+                            //włącza | wyłącza dźwięki
                             playSound = true;
+
+                            //ta dzika konstrukcja pozwala na bezproblemowe zmienianie stanu dźwięków niezależnie od stanu wczytania tychże
                             if (clickSound != null)
                                 clickSoundEnable = !clickSoundEnable;
                             if (hoverSound != null)
@@ -1060,10 +1113,11 @@ namespace EatCometsClear
                 {
                     foreach (Button element in options3HUD.GetButtons())
                     {
-
+                        //podmenu zasad gry
 
                         if (element.tekst.DisplayedString.Equals("Wskaźnik zasięgu") && element.DoAction())
                         {
+                            //włącza | wyłącza wskaźnik zasięgu
                             playSound = true;
                             showTip = 9;
                             if (enableRangeWskaznik)
@@ -1088,11 +1142,13 @@ namespace EatCometsClear
 
                         if (element.tekst.DisplayedString.Equals("Zasięg") && element.DoAction())
                         {
+                            //info
                             playSound = true;
                             showTip = 5;
                         }
                         if (element.tekst.DisplayedString.Equals("-") && (element.id == 1))
                         {
+                            //zmniejsza bonusowy zasięg
 
                             if (element.DoAction())
                             {
@@ -1113,6 +1169,7 @@ namespace EatCometsClear
                         }
                         if (element.tekst.DisplayedString.Equals("+") && (element.id == 1))
                         {
+                            //zwiększa bonusowy zasięg
                             if (element.DoAction())
                             {
                                 playSound = true;
@@ -1129,11 +1186,13 @@ namespace EatCometsClear
                         }
                         if (element.tekst.DisplayedString.Equals("Grawitacja") && element.DoAction())
                         {
+                            //info
                             playSound = true;
                             showTip = 8;
                         }
                         if (element.tekst.DisplayedString.Equals("-") && (element.id == 2))
                         {
+                            //zmiejsza siłę grawitacji
                             if (element.DoAction())
                             {
                                 playSound = true;
@@ -1153,6 +1212,7 @@ namespace EatCometsClear
                         }
                         if (element.tekst.DisplayedString.Equals("+") && (element.id == 2))
                         {
+                            //zwiększa siłę grawitacji
                             if (element.DoAction())
                             {
                                 playSound = true;
@@ -1170,6 +1230,7 @@ namespace EatCometsClear
                         }
                         if (element.tekst.DisplayedString.Equals("Przyciąganie") && element.DoAction())
                         {
+                            //zmienia tryb na połykanie | włącza grawitacje
                             playSound = true;
                             showTip = 10;
                             enableGravity = false;
@@ -1177,6 +1238,7 @@ namespace EatCometsClear
                         }
                         if (element.tekst.DisplayedString.Equals("Połykanie") && element.DoAction())
                         {
+                            //zmienia tryb na przyciąganie | włącza grawitację
                             playSound = true;
                             showTip = 10;
                             enableGravity = true;
@@ -1189,37 +1251,20 @@ namespace EatCometsClear
 
                 if (enableOptions == 4)
                 {
-                    /*
-                    if (configurancja.screenX.Equals("1024"))
-                    {
-                        Caption handelier;
-                        handelier = (Caption)options4HUD.GetElementByID(14);
-                        handelier.text.Position = new Vector2f((uint)(window.Size.X * 0.66), (uint)(window.Size.Y * 0.27));
-                    }
-                    if (configurancja.screenX.Equals("1280"))
-                    {
-                        Caption handelier;
-                        handelier = (Caption)options4HUD.GetElementByID(14);
-                        handelier.text.Position = new Vector2f((uint)(window.Size.X * 0.66), (uint)(window.Size.Y * 0.41));
-                    }
-                    if (configurancja.screenX.Equals("1920"))
-                    {
-                        Caption handelier;
-                        handelier = (Caption)options4HUD.GetElementByID(14);
-                        handelier.text.Position = new Vector2f((uint)(window.Size.X * 0.66), (uint)(window.Size.Y * 0.56));
-                    }
-                    */
-
+                    //ustawienia obrazu i ekranu, rozdzielczość i tryb wyświetlania
+                    
                     foreach (Button element in options4HUD.GetButtons())
                     {
 
                         if (element.id.Equals(11) && element.DoAction())
                         {
+                            //info, tylko id bo napis zmienia się w trakcie
                             playSound = true;
                             showTip = 19;
                         }
                         if (element.tekst.DisplayedString.Equals("+") && element.DoAction())
                         {
+                            //zwiększa rozdzielczość
                             playSound = true;
                             showTip = 19;
                             if (configurancja.screenX.Equals("800"))
@@ -1286,6 +1331,7 @@ namespace EatCometsClear
 
                         if (element.tekst.DisplayedString.Equals("-") && element.DoAction())
                         {
+                            //zmniejsza rozdzielczość
                             playSound = true;
                             showTip = 19;
                             if (configurancja.screenX.Equals("800"))
@@ -1351,6 +1397,7 @@ namespace EatCometsClear
                         }
                         if (element.tekst.DisplayedString.Equals("Tryb okna") && element.DoAction())
                         {
+                            //zmienia tryb wyświetlania ekranu między oknem i pełnym ekranem
                             playSound = true;
                             showTip = 18;
                             if (configurancja.windowMode.Equals("full"))
@@ -1368,6 +1415,7 @@ namespace EatCometsClear
                         }
                         if (element.tekst.DisplayedString.Equals("Zapisz") && element.DoAction())
                         {
+                            //zapisuje kofigurację
                             playSound = true;
                             showTip = 17;
                             configurancja.SaveConfig();
@@ -1375,6 +1423,7 @@ namespace EatCometsClear
                         }
                         if (element.tekst.DisplayedString.Equals("R") && element.DoAction())
                         {
+                            //uruchamia ponownie okno z nowymi ustawieniami
                             playSound = true;
                             startNewGame = true;
                             window.Close();
@@ -1384,6 +1433,7 @@ namespace EatCometsClear
                 }
             }
 
+            //aktualizuje ustawienia postaci względem stanu z menus
             hero.additionalRange = difficulty[0];
             hero.gravityStrength = difficulty[1];
             hero.step = difficulty[2] / 10;
@@ -1395,29 +1445,36 @@ namespace EatCometsClear
         
         protected override void Render()
         {
+            //generuje klatkę do wyświetlenia
+
             if (gamestarted == true)
             {
-                // window.Draw(map);
-
+                //jeżeli stan gry oznacza uruchomioną grę, wyświetla komety i gracza
                 for (int i = 0; i < ball.Length; i++)
                 {
                     if (ball[i] != null)
                         window.Draw(ball[i].kolo);
                 }
-                
 
                 hero.Draw();
             }
             else
             {
+                //jeży stan gry oznacza menu główne, rysuje interfejs menu
+
+                //te słoneczko po prawej
                 menuhero.Draw();
                 
+                //główne menu główne
                 mainMenuHUD.Draw();
                 
 
+                //wskazowka
                 if ( (showTip >= 0) && (showTip <= texty.Count))
                     window.Draw(texty[showTip]);
 
+
+                //jeżeli jakieś podmenu jest otwarte
                 if (enableOptions >= 1)
                 {
                     optionbarHUD.Draw();
