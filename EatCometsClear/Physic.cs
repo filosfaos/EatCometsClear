@@ -40,8 +40,8 @@ namespace EatCometsClear
                                 //c = kwadrat odległości między obiektami
 
                                 float masa, masa2;
-                                masa = (float)objekt.mass * objekt.gravityStrength;
-                                masa2 = (float)objekt2.mass * objekt2.gravityStrength;
+                                masa = (float)objekt.GetMass() * objekt.gravityStrength;
+                                masa2 = (float)objekt2.GetMass() * objekt2.gravityStrength;
 
                                 float gravity_strenght;
 
@@ -62,7 +62,7 @@ namespace EatCometsClear
                                 yChange = gravity_strenght * (yChangeMultipler / c);
 
 
-                                if (objekt.mass > objekt2.mass)
+                                if (objekt.GetMass() > objekt2.GetMass())
                                 {
                                     if (objekt.position.X < objekt2.position.X)
                                     {
@@ -92,7 +92,7 @@ namespace EatCometsClear
                                             objekt2.position.Y = objekt.position.Y;
                                     }
                                 }
-                                else if (objekt.mass < objekt2.mass)
+                                else if (objekt.GetMass() < objekt2.GetMass())
                                 {
                                     if (objekt2.position.X < objekt.position.X)
                                     {

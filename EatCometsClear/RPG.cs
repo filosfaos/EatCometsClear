@@ -45,10 +45,9 @@ namespace EatCometsClear
 
         List<Text> texty;
 
-
         Physic rydzykFizyk;
 
-        bool enableRangeWskaznik, enableGravity;
+        bool enableRangeWskaznik;// enableGravity;
         bool enableMusic;
 
         Image ikona;
@@ -155,8 +154,8 @@ namespace EatCometsClear
 
 
 
-            enableRangeWskaznik = true;
-            enableGravity = false;
+            enableRangeWskaznik = false;
+            //enableGravity = false;
             uint pomX = window.Size.X;
             uint pomY = window.Size.Y;
 
@@ -275,7 +274,6 @@ namespace EatCometsClear
             hudelements.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "-", window, buttonscolor, buttontextsize,  0));
             hudelements.Add(new Button((uint)(pomX * 0.44), (uint)(pomY * 0.40), (uint)(pomX * 0.17), (uint)(pomY * 0.10), "Czułość", window, buttonscolor, buttontextsize,  0));
             hudelements.Add(new Button((uint)(pomX * 0.62), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "+", window, buttonscolor, buttontextsize,  0));
-            hudelements.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.70), (uint)(pomX * 0.25), (uint)(pomY * 0.10), "Zamknij", window, new Color(69, 69, 69), buttontextsize,  0));
 
             options1HUD = new HeadUpDisplay();
             foreach (Button element in hudelements)
@@ -310,7 +308,7 @@ namespace EatCometsClear
             hudelements.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "-", window, buttonscolor, buttontextsize,  2));
             hudelements.Add(new Button((uint)(pomX * 0.44), (uint)(pomY * 0.40), (uint)(pomX * 0.17), (uint)(pomY * 0.10), "Grawitacja", window, buttonscolor, buttontextsize,  0));
             hudelements.Add(new Button((uint)(pomX * 0.62), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "+", window, buttonscolor, buttontextsize,  2));
-            hudelements.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.55), (uint)(pomX * 0.25), (uint)(pomY * 0.10), "Połykanie", window, buttonscolor, buttontextsize,  0));
+            //hudelements.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.55), (uint)(pomX * 0.25), (uint)(pomY * 0.10), "Połykanie", window, buttonscolor, buttontextsize,  0));
             hudelements.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.70), (uint)(pomX * 0.25), (uint)(pomY * 0.10), "Wskaźnik zasięgu", window, buttonscolor, buttontextsize,  0));
 
             options3HUD = new HeadUpDisplay();
@@ -412,15 +410,15 @@ namespace EatCometsClear
             for( int i = 0; i < 22; i++)
             {
                 if( i == 0)
-                    texty.Add( new Text("Poruszanie - dostosuj w opcjach", new Font("fonts/arial.ttf"), tipsize) );
+                    texty.Add( new Text("Co 10 zdobytych komet otrzymujesz planetę", new Font("fonts/arial.ttf"), tipsize) );
                 if( i == 1)
-                    texty.Add(new Text("Co 10 zdobytych komet otrzymujesz planetę", new Font("fonts/arial.ttf"), tipsize));
-                if(i == 2)
                     texty.Add(new Text("Przytrzymanie TAB wyświetla menu postaci", new Font("fonts/arial.ttf"), tipsize));
+                if(i == 2)
+                    texty.Add(new Text("Prawym wyświetlasz podpowiedzi do elementów menu", new Font("fonts/arial.ttf"), tipsize));
                 if( i == 3)
                     texty.Add(new Text("ESC cofa do menu głównego", new Font("fonts/arial.ttf"), tipsize));
                 if (i == 4)
-                    texty.Add(new Text("Po ukończeniu gry możesz zacząć od nowa z poziomu menu głównego", new Font("fonts/arial.ttf"), tipsize));
+                    texty.Add(new Text("Q wciąga, E wypluwa planety", new Font("fonts/arial.ttf"), tipsize));
                 if (i == 5)
                     texty.Add(new Text("Dodatkowy zasięg połykania komet", new Font("fonts/arial.ttf"), tipsize));
                 if (i == 6)
@@ -460,6 +458,7 @@ namespace EatCometsClear
                 texty[i].Color = new Color(Color.White);
             }
 
+            SetButtonsActions();
             NewGame();
         }
 
@@ -482,6 +481,7 @@ namespace EatCometsClear
             for (int i = 0; i < ball.Length; i++)
             {
                 ball[i] = new Ball((int)window.Size.X, (int)window.Size.Y, i);
+                ball[i].cycle = (int)( new Random().Next(0, 40) );
             }
 
             Console.Clear();
@@ -506,25 +506,33 @@ namespace EatCometsClear
                 if (numberofframe > 60)
                     numberofframe -= 60;
 
+                //tutaj zbierają się obiekty fizycznie i rydzyk fizyk je rozstawia po kątach
                 List<Physical_object> objekty = new List<Physical_object>();
                 objekty.Add(hero);
 
                 for (int i = 0; i < ball.Length; i++)
                 {
                     if (ball[i] != null)
+                    {
                         objekty.Add(ball[i]);
+                    }
                 }
 
                 rydzykFizyk.Gravitation(objekty);
 
+               //coby position i pozycja wizualnych shajpów się pokrywała
                 this.hero.Go('x', 0, 0, 0);
 
                 for (int i = 0; i < ball.Length; i++)
                 {
                     if (ball[i] != null)
-                        ball[i].ReDraw();
+                    {
+                        if (numberofframe % ball[i].speeder == 0)
+                            ball[i].Tick();
+                        else
+                            ball[i].ReDraw();
+                    }
                 }
-
 
                 int cotamzwracasz = hero.Tick(true, numberofframe, ball);
                 if (cotamzwracasz == 2)
@@ -533,7 +541,7 @@ namespace EatCometsClear
                 }
 
 
-
+                //kopiuje no ico?
                 menuhero = (Hero)hero.Clone();
                 menuhero.enablemovement = false;
 
@@ -542,6 +550,8 @@ namespace EatCometsClear
                 {
                     if (!escBlock)
                     {
+                        hero.IsPlaying = false;
+                        menuhero.IsPlaying = false;
                         escBlock = true;
                         window.SetMouseCursorVisible(true);
                         gamestarted = false;
@@ -567,6 +577,8 @@ namespace EatCometsClear
                 {
                     if(!escBlock)
                     {
+                        hero.IsPlaying = true;
+
                         escBlock = true;
 
                         gamestarted = true;
@@ -621,6 +633,14 @@ namespace EatCometsClear
                         clickSound.Play();
                 }
 
+                //aktualizuje ustawienia postaci względem stanu z menus
+                hero.additionalRange = difficulty[0];
+                hero.gravityStrength = difficulty[1];
+                hero.step = difficulty[2] / 10;
+                hero.enableRange = enableRangeWskaznik;
+                //hero.enableGravity = enableGravity;
+
+                //coby się planety w menu kręciły
                 menuhero.Tick(false, numberofframe, ball);
 
                 //koniec niegrywalnego
@@ -671,45 +691,50 @@ namespace EatCometsClear
             return playSound;
         }
 
-        bool TickButtons()
+        void SetButtonsActions()
         {
-            //zmiennia zwracana, jeżeli zwroci true zostanie zagrany dźwięk kliknięcia.
-            bool playSound;
-            playSound = false;
 
             foreach (Button element in mainMenuHUD.GetButtons())
             {
-                if (element.tekst.DisplayedString.Equals("Graj") && element.DoAction())
+                //menu główne
+                if (element.tekst.DisplayedString.Equals("Graj"))
                 {
-                    //zmienia stan gry z menu na gre
-                    playSound = true;
-                    gamestarted = true;
-                    showTip = 0;
-                    enableOptions = 0;
+                    element.onClick = delegate ()
+                        {
+                            //zmienia stan gry z menu na gre
+                            hero.IsPlaying = true;
+                            gamestarted = true;
+                            showTip = 0;
+                            enableOptions = 0;
 
-                    window.SetMouseCursorVisible(false);
-                    hero.Go('x', 0, 0, 0);
+                            window.SetMouseCursorVisible(false);
+                            hero.Go('x', 0, 0, 0);
+                        };
                 }
-                if (element.tekst.DisplayedString.Equals("Nowa") && element.DoAction())
+                if (element.tekst.DisplayedString.Equals("Nowa"))
                 {
-                    //przycisk nowej gry
-                    playSound = true;
-                    startNewGame = true;
+                    element.onClick = delegate ()
+                    {
+                        //przycisk nowej gry
+                        startNewGame = true;
+                    };
                 }
-                if (element.tekst.DisplayedString.Equals("Pokaż wskazówkę") && element.DoAction())
+                if (element.tekst.DisplayedString.Equals("Pokaż wskazówkę"))
                 {
-                    //pokazuje kolejne wskazowki
-                    playSound = true;
-                    showTip++;
-                    if (showTip > 4)
-                        showTip = -1;
+                    element.onClick = delegate ()
+                    {
+                        //pokazuje kolejne wskazowki
+                        showTip++;
+                        if (showTip > 4)
+                            showTip = -1;
+                    };
                 }
                 if (element.tekst.DisplayedString.Equals("Opcje"))
                 {
-                    //przycisk do włączanie menu opcji, po włączeniu zmienia się na zamknij
-                    if (element.DoAction())
+                    element.onClick = delegate ()
                     {
-                        playSound = true;
+                        //przycisk do włączanie menu opcji, po włączeniu zmienia się na zamknij
+
                         if (enableOptions == 0)
                         {
                             enableOptions = lastOption;
@@ -718,65 +743,39 @@ namespace EatCometsClear
                         {
                             enableOptions = 0;
                         }
-                    }
-
-                    if (enableOptions == 0)
+                    };
+                    element.tick = delegate ()
                     {
-                        element.tekst.DisplayedString = "Opcje";
-                        element.SetColor(new Color(127, 112, 0));
-                    }
-                    else
-                    {
-                        element.tekst.DisplayedString = "Zamknij";
-                        element.SetColor(new Color(69, 69, 69));
-                    }
-                }
-                if (element.tekst.DisplayedString.Equals("Zamknij"))
-                {
-                    //przycisk do zamykania menu opcji, po zamknięciu zmienia się na opcje
-                    if (element.DoAction())
-                    {
-                        playSound = true;
-                        if (enableOptions != 0)
+                        if (enableOptions == 0)
                         {
-                            enableOptions = 0;
+                            element.tekst.DisplayedString = "Opcje";
+                            element.SetColor(new Color(127, 112, 0));
                         }
-                    }
-
-                    if (enableOptions == 0)
-                    {
-                        element.tekst.DisplayedString = "Opcje";
-                        element.SetColor(new Color(127, 112, 0));
-                    }
-                    else
-                    {
-                        element.tekst.DisplayedString = "Zamknij";
-                        element.SetColor(new Color(69, 69, 69));
-                    }
+                        else
+                        {
+                            element.tekst.DisplayedString = "Zamknij";
+                            element.SetColor(new Color(69, 69, 69));
+                        }
+                    };
                 }
 
-                if (element.tekst.DisplayedString.Equals("Wyjdź") && element.DoAction())
+                if (element.tekst.DisplayedString.Equals("Wyjdź"))
                 {
-                    //służy do wyłączania gry
-                    playSound = true;
-                    window.Close();
+                    element.onClick = delegate ()
+                    {
+                        //służy do wyłączania gry
+                        window.Close();
+                    };
                 }
-
-
             }
-
-
-
-            if (enableOptions >= 1)
+            foreach (Button element in optionbarHUD.GetButtons())
             {
-                foreach (Button element in optionbarHUD.GetButtons())
+                //panel wyboru podmenu opcji
+                if (element.tekst.DisplayedString.Equals("S"))
                 {
-                    //panel wyboru podmenu opcji
-                    if (element.tekst.DisplayedString.Equals("S") && element.DoAction())
+                    element.onClick = delegate ()
                     {
                         //otwiera menu sterowania
-                        playSound = true;
-
                         Caption handelier;
                         handelier = (Caption)optionbarHUD.GetElementByID(911);
                         handelier.text.Position = new Vector2f((uint)(window.Size.X * 0.347), (uint)(window.Size.Y * 0.277));
@@ -784,11 +783,13 @@ namespace EatCometsClear
                         lastOption = 1;
                         enableOptions = 1;
                         showTip = 13;
-                    }
-                    if (element.tekst.DisplayedString.Equals("M") && element.DoAction())
+                    };
+                }
+                if (element.tekst.DisplayedString.Equals("M"))
+                {
+                    element.onClick = delegate ()
                     {
                         //otwiera podmenu dźwięków i muzyki
-                        playSound = true;
                         if (enableMusic)
                         {
                             Caption handelier;
@@ -803,11 +804,13 @@ namespace EatCometsClear
                         {
                             showTip = 16;
                         }
-                    }
-                    if (element.tekst.DisplayedString.Equals("G") && element.DoAction())
+                    };
+                }
+                if (element.tekst.DisplayedString.Equals("G"))
+                {
+                    element.onClick = delegate ()
                     {
                         //otwiera podmenu opcji gry
-                        playSound = true;
 
                         Caption handelier;
                         handelier = (Caption)optionbarHUD.GetElementByID(911);
@@ -816,11 +819,13 @@ namespace EatCometsClear
                         lastOption = 3;
                         enableOptions = 3;
                         showTip = 11;
-                    }
-                    if (element.tekst.DisplayedString.Equals("O") && element.DoAction())
+                    };
+                }
+                if (element.tekst.DisplayedString.Equals("O"))
+                {
+                    element.onClick = delegate ()
                     {
                         //otwiera podmenu opcji obrazu | ekranu
-                        playSound = true;
 
                         Caption handelier;
                         handelier = (Caption)optionbarHUD.GetElementByID(911);
@@ -835,7 +840,6 @@ namespace EatCometsClear
                         dupa += "x";
                         dupa += Convert.ToString(configurancja.screenY);
 
-
                         foreach (Button element1 in options4HUD.GetButtons())
                         {
                             if (element1.id == 11)
@@ -843,603 +847,650 @@ namespace EatCometsClear
                                 element1.tekst.DisplayedString = dupa;
                             }
                         }
-
-
-                    }
-
+                    };
                 }
-                if (enableOptions == 1)
+            }
+            foreach (Button element in options1HUD.GetButtons())
+            {
+                //podmenu sterownia
+                if (element.tekst.DisplayedString.Equals("W - A - S - D"))
                 {
-                    foreach (Button element in options1HUD.GetButtons())
+                    element.onClick = delegate ()
                     {
-                        //podmenu sterownia
-                        if (element.tekst.DisplayedString.Equals("W - A - S - D") && element.DoAction())
-                        {
-                            //zostawione na potem
-                            playSound = true;
-                            element.ChangeText("Strzałki");
-                            sterowanie = 0;
-                            hero.Changemovement(sterowanie);
-                            showTip = 6;
-                        }
+                        //zostawione na potem
+                        element.ChangeText("Strzałki");
+                        sterowanie = 0;
+                        hero.Changemovement(sterowanie);
+                        showTip = 6;
+                    };
+                }
 
-                        if (element.tekst.DisplayedString.Equals("Strzałki") && element.DoAction())
-                        {
-                            //zostawione na potem
-                            playSound = true;
-                            element.ChangeText("WSAD + Strzałki");
-                            sterowanie = 2;
-                            hero.Changemovement(sterowanie);
-                            showTip = 6;
-                        }
+                if (element.tekst.DisplayedString.Equals("Strzałki"))
+                {
+                    element.onClick = delegate ()
+                    {
+                        //zostawione na potem
+                        element.ChangeText("WSAD + Strzałki");
+                        sterowanie = 2;
+                        hero.Changemovement(sterowanie);
+                        showTip = 6;
+                    };
+                }
 
-                        if (element.tekst.DisplayedString.Equals("WSAD / Strzałki") && element.DoAction())
+                if (element.tekst.DisplayedString.Equals("Myszka") || element.tekst.DisplayedString.Equals("WSAD / Strzałki"))
+                {
+                    element.onClick = delegate ()
+                    {
+                        if (element.tekst.DisplayedString.Equals("WSAD / Strzałki"))
                         {
-                            //po kliknieciu zmienia sterowanie na myszke
-                            playSound = true;
-                            element.ChangeText("Myszka");
-                            sterowanie = 3;
-                            hero.Changemovement(sterowanie);
-                            showTip = 6;
+                                //po kliknieciu zmienia sterowanie na myszke
+                                element.ChangeText("Myszka");
+                                sterowanie = 3;
+                                hero.Changemovement(sterowanie);
+                                showTip = 6;
+                            
                         }
-                        if (element.tekst.DisplayedString.Equals("Myszka") && element.DoAction())
+                        else if (element.tekst.DisplayedString.Equals("Myszka"))
                         {
                             //po kliknieciu zmienia sterownie na klawiature
-                            playSound = true;
                             element.ChangeText("WSAD / Strzałki");
                             sterowanie = 2;
                             hero.Changemovement(sterowanie);
                             showTip = 6;
                         }
+                    };
+                }
+                if (element.tekst.DisplayedString.Equals("Czułość"))
+                {
+                    element.onClick = delegate ()
+                    {
+                        //info
+                        showTip = 14;
+                    };
+                }
+                if (element.tekst.DisplayedString.Equals("-"))
+                {
+                    element.onClick = delegate ()
+                    {
+                        //zmniejsza czulosc klawiatury
+                        showTip = 14;
 
-                        if (element.tekst.DisplayedString.Equals("Zamknij") && element.DoAction())
+                        difficulty[2]--;
+                        if (difficulty[2] < 0)
+                            difficulty[2] = 0;
+                        Console.WriteLine("Czułość = " + difficulty[2]);
+
+                        Caption handelier;
+                        handelier = (Caption)options1HUD.GetElementByID(25);
+                        handelier.text.DisplayedString = Convert.ToString(difficulty[2]);
+                    };
+                }
+                if (element.tekst.DisplayedString.Equals("+"))
+                {
+                    element.onClick = delegate ()
+                    {
+                        //zmniejsza czulość klawiatury
+                        showTip = 14;
+
+                        difficulty[2]++;
+                        Console.WriteLine("Czułość = " + difficulty[2]);
+
+                        Caption handelier;
+                        handelier = (Caption)options1HUD.GetElementByID(25);
+                        handelier.text.DisplayedString = Convert.ToString(difficulty[2]);
+                    };
+                }
+            }
+            foreach (Button element in options2HUD.GetButtons())
+            {
+                //podmenu muzyki i dźwięku
+                if (element.tekst.DisplayedString.Equals("Muzyka"))
+                {
+                    element.onClick = delegate ()
+                    {
+                        //włącza|wyłącza muzykę
+                        showTip = 7;
+
+                        if (musicEnabled)
                         {
-                            //zamyka opcje, zapasowy przycisk na potem
-                            playSound = true;
-                            enableOptions = 0;
+                            music.Pause();
+                            musicEnabled = false;
+
+
+                            Caption handelier;
+                            handelier = (Caption)options2HUD.GetElementByID(23);
+                            handelier.text.DisplayedString = Convert.ToString(musicEnabled);
+                            //textMusicEnable.DisplayedString = Convert.ToString(musicEnabled);
+                            Console.WriteLine("Muzyka wyłączona [*]");
                         }
+                        else
+                        {
+                            music.Play();
+                            musicEnabled = true;
 
-
-                        if (element.tekst.DisplayedString.Equals("Czułość") && element.DoAction())
+                            Caption handelier;
+                            handelier = (Caption)options2HUD.GetElementByID(23);
+                            handelier.text.DisplayedString = Convert.ToString(musicEnabled);
+                            //textMusicEnable.DisplayedString = Convert.ToString(musicEnabled);
+                            Console.WriteLine("Muzyka włączona (y)");
+                        }
+                    };
+                }
+                if (element.id.Equals(1))
+                {
+                    if (element.tekst.DisplayedString.Equals("Głośność"))
+                    {
+                        element.onClick = delegate ()
                         {
                             //info
-                            playSound = true;
-                            showTip = 14;
-                        }
-                        if (element.tekst.DisplayedString.Equals("-") && element.DoAction())
+                            showTip = 15;
+                        };
+                    }
+                    if (element.tekst.DisplayedString.Equals("-"))
+                    {
+                        element.onClick = delegate ()
                         {
-                            //zmniejsza czulosc klawiatury
-                            playSound = true;
-                            showTip = 14;
+                            //zmniejsza głośność muzyki
+                            showTip = 15;
 
-                            difficulty[2]--;
-                            if (difficulty[2] < 0)
-                                difficulty[2] = 0;
-                            Console.WriteLine("Czułość = " + difficulty[2]);
+                            music.Volume--;
+                            if (music.Volume < 0)
+                                music.Volume = 0;
+
+                            Console.WriteLine("Głośność muzyki = " + music.Volume);
+
 
                             Caption handelier;
-                            handelier = (Caption)options1HUD.GetElementByID(25);
-                            handelier.text.DisplayedString = Convert.ToString(difficulty[2]);
-
-                        }
-                        if (element.tekst.DisplayedString.Equals("+") && element.DoAction())
+                            handelier = (Caption)options2HUD.GetElementByID(24);
+                            handelier.text.DisplayedString = Convert.ToString((int)music.Volume);
+                            //textMusicVolume.DisplayedString = Convert.ToString((int)music.Volume);
+                        };
+                    }
+                    if (element.tekst.DisplayedString.Equals("+"))
+                    {
+                        element.onClick = delegate ()
                         {
-                            //zmniejsza czulość klawiatury
-                            playSound = true;
-                            showTip = 14;
+                            //zwiększa głośność muzyki
+                            showTip = 15;
 
-                            difficulty[2]++;
-                            Console.WriteLine("Czułość = " + difficulty[2]);
+                            music.Volume++;
+                            if (music.Volume > 100)
+                                music.Volume = 100;
+                            Console.WriteLine("Głośność muzyki = " + music.Volume);
 
                             Caption handelier;
-                            handelier = (Caption)options1HUD.GetElementByID(25);
-                            handelier.text.DisplayedString = Convert.ToString(difficulty[2]);
-                        }
+                            handelier = (Caption)options2HUD.GetElementByID(24);
+                            handelier.text.DisplayedString = Convert.ToString((int)music.Volume);
+                            //textMusicVolume.DisplayedString = Convert.ToString((int)music.Volume);
+                        };
                     }
                 }
-                if (enableOptions == 2)
+
+                if (element.id.Equals(2))
                 {
-                    foreach (Button element in options2HUD.GetButtons())
+                    if (element.tekst.DisplayedString.Equals("Głośność"))
                     {
-                        //podmenu muzyki i dźwięku
-                        if (element.tekst.DisplayedString.Equals("Muzyka") && element.DoAction())
+                        element.onClick = delegate ()
                         {
-                            //włącza|wyłącza muzykę
-                            playSound = true;
-                            showTip = 7;
-
-                            if (musicEnabled)
-                            {
-                                music.Pause();
-                                musicEnabled = false;
-
-
-                                Caption handelier;
-                                handelier = (Caption)options2HUD.GetElementByID(23);
-                                handelier.text.DisplayedString = Convert.ToString(musicEnabled);
-                                //textMusicEnable.DisplayedString = Convert.ToString(musicEnabled);
-                                Console.WriteLine("Muzyka wyłączona [*]");
-                            }
-                            else
-                            {
-                                music.Play();
-                                musicEnabled = true;
-
-                                Caption handelier;
-                                handelier = (Caption)options2HUD.GetElementByID(23);
-                                handelier.text.DisplayedString = Convert.ToString(musicEnabled);
-                                //textMusicEnable.DisplayedString = Convert.ToString(musicEnabled);
-                                Console.WriteLine("Muzyka włączona (y)");
-                            }
-                        }
-                        if (element.id.Equals(1))
+                            //info
+                            showTip = 20;
+                        };
+                    }
+                    if (element.tekst.DisplayedString.Equals("-"))
+                    {
+                        element.onClick = delegate ()
                         {
-                            if (element.tekst.DisplayedString.Equals("Głośność") && element.DoAction())
-                            {
-                                //info
-                                playSound = true;
-                                showTip = 15;
-                            }
-                            if (element.tekst.DisplayedString.Equals("-") && element.DoAction())
-                            {
-                                //zmniejsza głośność muzyki
-                                playSound = true;
-                                showTip = 15;
+                            //zmniejsza głośność dźwięków
+                            showTip = 20;
 
-                                music.Volume--;
-                                if (music.Volume < 0)
-                                    music.Volume = 0;
-
-                                Console.WriteLine("Głośność muzyki = " + music.Volume);
-
-
-                                Caption handelier;
-                                handelier = (Caption)options2HUD.GetElementByID(24);
-                                handelier.text.DisplayedString = Convert.ToString((int)music.Volume);
-                                //textMusicVolume.DisplayedString = Convert.ToString((int)music.Volume);
-
-                            }
-                            if (element.tekst.DisplayedString.Equals("+") && element.DoAction())
-                            {
-                                //zwiększa głośność muzyki
-                                playSound = true;
-                                showTip = 15;
-
-                                music.Volume++;
-                                if (music.Volume > 100)
-                                    music.Volume = 100;
-                                Console.WriteLine("Głośność muzyki = " + music.Volume);
-
-                                Caption handelier;
-                                handelier = (Caption)options2HUD.GetElementByID(24);
-                                handelier.text.DisplayedString = Convert.ToString((int)music.Volume);
-                                //textMusicVolume.DisplayedString = Convert.ToString((int)music.Volume);
-                            }
-
-                        }
-                        if (element.id.Equals(2))
-                        {
-                            if (element.tekst.DisplayedString.Equals("Głośność") && element.DoAction())
-                            {
-                                //info
-                                playSound = true;
-                                showTip = 20;
-                            }
-                            if (element.tekst.DisplayedString.Equals("-") && element.DoAction())
-                            {
-                                //zmniejsza głośność dźwięków
-                                playSound = true;
-                                showTip = 20;
-
-                                if(hoverSound != null)
-                                {
-                                    hoverSound.Volume--;
-                                    if (hoverSound.Volume < 0)
-                                        hoverSound.Volume = 0;
-                                }
-
-                                if (clickSound != null)
-                                {
-                                    clickSound.Volume--;
-                                    if (clickSound.Volume < 0)
-                                        clickSound.Volume = 0;
-
-
-                                    Console.WriteLine("Głośność dźwięków = " + clickSound.Volume);
-
-
-                                    Caption handelier;
-                                    handelier = (Caption)options2HUD.GetElementByID(22);
-                                    handelier.text.DisplayedString = Convert.ToString((int)clickSound.Volume);
-                                }
-                                else
-                                {
-                                    showTip = 21;
-                                }
-                                
-                                //textMusicVolume.DisplayedString = Convert.ToString((int)music.Volume);
-
-                            }
-                            if (element.tekst.DisplayedString.Equals("+") && element.DoAction())
-                            {
-                                //zmniejsza głośność dźwięków
-                                playSound = true;
-                                showTip = 20;
-                                if (hoverSound != null)
-                                {
-                                    hoverSound.Volume++;
-                                    if (hoverSound.Volume > 100)
-                                        hoverSound.Volume = 100;
-                                }
-
-                                if (clickSound != null)
-                                {
-                                    clickSound.Volume++;
-                                    if (clickSound.Volume > 100)
-                                        clickSound.Volume = 100;
-                                    Console.WriteLine("Głośność dźwięków = " + clickSound.Volume);
-
-                                    Caption handelier;
-                                    handelier = (Caption)options2HUD.GetElementByID(22);
-                                    handelier.text.DisplayedString = Convert.ToString((int)clickSound.Volume);
-                                }
-                                else
-                                {
-                                    showTip = 21;
-                                }
-                                //textMusicVolume.DisplayedString = Convert.ToString((int)music.Volume);
-                            }
-
-
-
-                        }
-                        if (element.tekst.DisplayedString.Equals("Dźwięki") && element.DoAction())
-                        {
-                            //włącza | wyłącza dźwięki
-                            playSound = true;
-
-                            //ta dzika konstrukcja pozwala na bezproblemowe zmienianie stanu dźwięków niezależnie od stanu wczytania tychże
-                            if (clickSound != null)
-                                clickSoundEnable = !clickSoundEnable;
                             if (hoverSound != null)
-                                hoverSoundEnable = !hoverSoundEnable;
+                            {
+                                hoverSound.Volume--;
+                                if (hoverSound.Volume < 0)
+                                    hoverSound.Volume = 0;
+                            }
+
+                            if (clickSound != null)
+                            {
+                                clickSound.Volume--;
+                                if (clickSound.Volume < 0)
+                                    clickSound.Volume = 0;
+
+
+                                Console.WriteLine("Głośność dźwięków = " + clickSound.Volume);
+
+
+                                Caption handelier;
+                                handelier = (Caption)options2HUD.GetElementByID(22);
+                                handelier.text.DisplayedString = Convert.ToString((int)clickSound.Volume);
+                            }
                             else
+                            {
                                 showTip = 21;
-                            //clickSound.SoundBuffer = new SoundBuffer("sounds/click2.wav");
-                        }
+                            }
+
+                            //textMusicVolume.DisplayedString = Convert.ToString((int)music.Volume);
+                        };
+                    }
+                    if (element.tekst.DisplayedString.Equals("+"))
+                    {
+                        element.onClick = delegate ()
+                        {
+                            //zmniejsza głośność dźwięków
+                            showTip = 20;
+                            if (hoverSound != null)
+                            {
+                                hoverSound.Volume++;
+                                if (hoverSound.Volume > 100)
+                                    hoverSound.Volume = 100;
+                            }
+
+                            if (clickSound != null)
+                            {
+                                clickSound.Volume++;
+                                if (clickSound.Volume > 100)
+                                    clickSound.Volume = 100;
+                                Console.WriteLine("Głośność dźwięków = " + clickSound.Volume);
+
+                                Caption handelier;
+                                handelier = (Caption)options2HUD.GetElementByID(22);
+                                handelier.text.DisplayedString = Convert.ToString((int)clickSound.Volume);
+                            }
+                            else
+                            {
+                                showTip = 21;
+                            }
+                            //textMusicVolume.DisplayedString = Convert.ToString((int)music.Volume);
+
+                        };
                     }
                 }
-                if (enableOptions == 3)
+                if (element.tekst.DisplayedString.Equals("Dźwięki"))
                 {
-                    foreach (Button element in options3HUD.GetButtons())
+                    element.onClick = delegate ()
                     {
-                        //podmenu zasad gry
 
-                        if (element.tekst.DisplayedString.Equals("Wskaźnik zasięgu") && element.DoAction())
+                        //włącza | wyłącza dźwięki
+                        //ta dzika konstrukcja pozwala na bezproblemowe zmienianie stanu dźwięków niezależnie od stanu wczytania tychże
+                        if (clickSound != null)
+                            clickSoundEnable = !clickSoundEnable;
+                        if (hoverSound != null)
+                            hoverSoundEnable = !hoverSoundEnable;
+                        else
+                            showTip = 21;
+                        //clickSound.SoundBuffer = new SoundBuffer("sounds/click2.wav");
+                    };
+                }
+            }
+            foreach (Button element in options3HUD.GetButtons())
+            {
+                //podmenu zasad gry
+
+                if (element.tekst.DisplayedString.Equals("Wskaźnik zasięgu"))
+                {
+                    element.onClick = delegate ()
+                    {
+                        //włącza | wyłącza wskaźnik zasięgu
+                        showTip = 9;
+                        if (enableRangeWskaznik)
                         {
-                            //włącza | wyłącza wskaźnik zasięgu
-                            playSound = true;
-                            showTip = 9;
-                            if (enableRangeWskaznik)
-                            {
-                                enableRangeWskaznik = false;
+                            enableRangeWskaznik = false;
 
-                                Caption handelier;
-                                handelier = (Caption)options3HUD.GetElementByID(1232);
-                                handelier.text.DisplayedString = Convert.ToString(enableRangeWskaznik);
-                                //textRange.DisplayedString = Convert.ToString(enableRangeWskaznik);
-                            }
-                            else
-                            {
-                                enableRangeWskaznik = true;
-
-                                Caption handelier;
-                                handelier = (Caption)options3HUD.GetElementByID(1232);
-                                handelier.text.DisplayedString = Convert.ToString(enableRangeWskaznik);
-                                //textRange.DisplayedString = Convert.ToString(enableRangeWskaznik);
-                            }
+                            Caption handelier;
+                            handelier = (Caption)options3HUD.GetElementByID(1232);
+                            handelier.text.DisplayedString = Convert.ToString(enableRangeWskaznik);
+                            //textRange.DisplayedString = Convert.ToString(enableRangeWskaznik);
                         }
-
-                        if (element.tekst.DisplayedString.Equals("Zasięg") && element.DoAction())
+                        else
                         {
-                            //info
-                            playSound = true;
-                            showTip = 5;
+                            enableRangeWskaznik = true;
+
+                            Caption handelier;
+                            handelier = (Caption)options3HUD.GetElementByID(1232);
+                            handelier.text.DisplayedString = Convert.ToString(enableRangeWskaznik);
+                            //textRange.DisplayedString = Convert.ToString(enableRangeWskaznik);
                         }
-                        if (element.tekst.DisplayedString.Equals("-") && (element.id == 1))
+                    };
+                }
+
+                if (element.tekst.DisplayedString.Equals("Zasięg"))
+                {
+                    element.onClick = delegate ()
+                    {
+                        //info
+                        showTip = 5;
+                    };
+                }
+                if (element.tekst.DisplayedString.Equals("-") && (element.id == 1))
+                {
+                    element.onClick = delegate ()
+                    {
+                        //zmniejsza bonusowy zasięg
+
+                        showTip = 5;
+
+                        difficulty[0]--;
+                        if (difficulty[0] < 0)
+                            difficulty[0] = 0;
+                        Console.WriteLine("Trudność = " + difficulty[0]);
+
+
+                        Caption handelier;
+                        handelier = (Caption)options3HUD.GetElementByID(1234);
+                        handelier.text.DisplayedString = Convert.ToString(difficulty[0]);
+                        //textDifficulty.DisplayedString = Convert.ToString(difficulty[0]);
+
+                    };
+                }
+                if (element.tekst.DisplayedString.Equals("+") && (element.id == 1))
+                {
+                    element.onClick = delegate ()
+                    {
+                        //zwiększa bonusowy zasięg
+                        showTip = 5;
+
+                        difficulty[0]++;
+                        Console.WriteLine("Trudność = " + difficulty[0]);
+
+                        Caption handelier;
+                        handelier = (Caption)options3HUD.GetElementByID(1234);
+                        handelier.text.DisplayedString = Convert.ToString(difficulty[0]);
+                        //textDifficulty.DisplayedString = Convert.ToString(difficulty[0]);
+                    };
+                }
+                if (element.tekst.DisplayedString.Equals("Grawitacja"))
+                {
+                    element.onClick = delegate ()
+                    {
+                        //info
+                        showTip = 8;
+                    };
+                }
+                if (element.tekst.DisplayedString.Equals("-") && (element.id == 2))
+                {
+                    element.onClick = delegate ()
+                    {
+                        //zmiejsza siłę grawitacji
+                        showTip = 8;
+
+                        difficulty[1]--;
+                        if (difficulty[1] < 0)
+                            difficulty[1] = 0;
+
+                        Console.WriteLine("Grawitacja = " + difficulty[1]);
+
+                        Caption handelier;
+                        handelier = (Caption)options3HUD.GetElementByID(1233);
+                        handelier.text.DisplayedString = Convert.ToString(difficulty[1]);
+                        //textGravity.DisplayedString = Convert.ToString(difficulty[1]);
+                    };
+                }
+                if (element.tekst.DisplayedString.Equals("+") && (element.id == 2))
+                {
+                    element.onClick = delegate ()
+                    {
+                        //zwiększa siłę grawitacji
+                        showTip = 8;
+
+                        difficulty[1]++;
+
+                        Console.WriteLine("Grawitacja = " + difficulty[1]);
+
+                        Caption handelier;
+                        handelier = (Caption)options3HUD.GetElementByID(1233);
+                        handelier.text.DisplayedString = Convert.ToString(difficulty[1]);
+                        //textGravity.DisplayedString = Convert.ToString(difficulty[1]);
+                    };
+                }
+                /*
+                if (element.tekst.DisplayedString.Equals("Połykanie") || element.tekst.DisplayedString.Equals("Przyciąganie"))
+                {
+                    element.onClick = delegate ()
+                    {
+                        //zmienia tryb na połykanie | włącza grawitacje
+                        showTip = 10;
+                        if (enableGravity)
                         {
-                            //zmniejsza bonusowy zasięg
-
-                            if (element.DoAction())
-                            {
-                                playSound = true;
-                                showTip = 5;
-
-                                difficulty[0]--;
-                                if (difficulty[0] < 0)
-                                    difficulty[0] = 0;
-                                Console.WriteLine("Trudność = " + difficulty[0]);
-
-
-                                Caption handelier;
-                                handelier = (Caption)options3HUD.GetElementByID(1234);
-                                handelier.text.DisplayedString = Convert.ToString(difficulty[0]);
-                                //textDifficulty.DisplayedString = Convert.ToString(difficulty[0]);
-                            }
-                        }
-                        if (element.tekst.DisplayedString.Equals("+") && (element.id == 1))
-                        {
-                            //zwiększa bonusowy zasięg
-                            if (element.DoAction())
-                            {
-                                playSound = true;
-                                showTip = 5;
-
-                                difficulty[0]++;
-                                Console.WriteLine("Trudność = " + difficulty[0]);
-
-                                Caption handelier;
-                                handelier = (Caption)options3HUD.GetElementByID(1234);
-                                handelier.text.DisplayedString = Convert.ToString(difficulty[0]);
-                                //textDifficulty.DisplayedString = Convert.ToString(difficulty[0]);
-                            }
-                        }
-                        if (element.tekst.DisplayedString.Equals("Grawitacja") && element.DoAction())
-                        {
-                            //info
-                            playSound = true;
-                            showTip = 8;
-                        }
-                        if (element.tekst.DisplayedString.Equals("-") && (element.id == 2))
-                        {
-                            //zmiejsza siłę grawitacji
-                            if (element.DoAction())
-                            {
-                                playSound = true;
-                                showTip = 8;
-
-                                difficulty[1]--;
-                                if (difficulty[1] < 0)
-                                    difficulty[1] = 0;
-
-                                Console.WriteLine("Grawitacja = " + difficulty[1]);
-
-                                Caption handelier;
-                                handelier = (Caption)options3HUD.GetElementByID(1233);
-                                handelier.text.DisplayedString = Convert.ToString(difficulty[1]);
-                                //textGravity.DisplayedString = Convert.ToString(difficulty[1]);
-                            }
-                        }
-                        if (element.tekst.DisplayedString.Equals("+") && (element.id == 2))
-                        {
-                            //zwiększa siłę grawitacji
-                            if (element.DoAction())
-                            {
-                                playSound = true;
-                                showTip = 8;
-
-                                difficulty[1]++;
-
-                                Console.WriteLine("Grawitacja = " + difficulty[1]);
-
-                                Caption handelier;
-                                handelier = (Caption)options3HUD.GetElementByID(1233);
-                                handelier.text.DisplayedString = Convert.ToString(difficulty[1]);
-                                //textGravity.DisplayedString = Convert.ToString(difficulty[1]);
-                            }
-                        }
-                        if (element.tekst.DisplayedString.Equals("Przyciąganie") && element.DoAction())
-                        {
-                            //zmienia tryb na połykanie | włącza grawitacje
-                            playSound = true;
-                            showTip = 10;
                             enableGravity = false;
                             element.ChangeText("Połykanie");
                         }
-                        if (element.tekst.DisplayedString.Equals("Połykanie") && element.DoAction())
+                        else
                         {
                             //zmienia tryb na przyciąganie | włącza grawitację
-                            playSound = true;
-                            showTip = 10;
                             enableGravity = true;
                             element.ChangeText("Przyciąganie");
-
                         }
-                    }
+                    };
+                }
+                */
+            }
+
+            //ustawienia obrazu i ekranu, rozdzielczość i tryb wyświetlania
+
+            foreach (Button element in options4HUD.GetButtons())
+            {
+
+                if (element.id.Equals(11))
+                {
+                    element.onClick = delegate ()
+                    {
+                        //info, tylko id bo napis zmienia się w trakcie
+                        showTip = 19;
+                    };
+                }
+                if (element.tekst.DisplayedString.Equals("+"))
+                {
+                    element.onClick = delegate ()
+                    {
+                        //zwiększa rozdzielczość
+                        showTip = 19;
+                        if (configurancja.screenX.Equals("800"))
+                        {
+                            configurancja.screenX = Convert.ToString(1024);
+                            configurancja.screenY = Convert.ToString(768);
+                            foreach (Button element1 in options4HUD.GetButtons())
+                            {
+                                if (element1.id == 11)
+                                {
+                                    element1.tekst.DisplayedString = "1024x768";
+                                }
+                            }
+                        }
+                        else if (configurancja.screenX.Equals("1024"))
+                        {
+                            configurancja.screenX = Convert.ToString(1280);
+                            configurancja.screenY = Convert.ToString(720);
+                            foreach (Button element1 in options4HUD.GetButtons())
+                            {
+                                if (element1.id == 11)
+                                {
+                                    element1.tekst.DisplayedString = "1280x720";
+                                }
+                            }
+                        }
+                        else if (configurancja.screenX.Equals("1280"))
+                        {
+                            configurancja.screenX = Convert.ToString(1366);
+                            configurancja.screenY = Convert.ToString(768);
+                            foreach (Button element1 in options4HUD.GetButtons())
+                            {
+                                if (element1.id == 11)
+                                {
+                                    element1.tekst.DisplayedString = "1366x768";
+                                }
+                            }
+                        }
+                        else if (configurancja.screenX.Equals("1366"))
+                        {
+                            configurancja.screenX = Convert.ToString(1920);
+                            configurancja.screenY = Convert.ToString(1080);
+                            foreach (Button element1 in options4HUD.GetButtons())
+                            {
+                                if (element1.id == 11)
+                                {
+                                    element1.tekst.DisplayedString = "1920x1080";
+                                }
+                            }
+                        }
+                        else if (configurancja.screenX.Equals("1920"))
+                        {
+                            configurancja.screenX = Convert.ToString(800);
+                            configurancja.screenY = Convert.ToString(600);
+                            foreach (Button element1 in options4HUD.GetButtons())
+                            {
+                                if (element1.id == 11)
+                                {
+                                    element1.tekst.DisplayedString = "800x600";
+                                }
+                            }
+                        }
+                    };
                 }
 
-
-                if (enableOptions == 4)
+                if (element.tekst.DisplayedString.Equals("-"))
                 {
-                    //ustawienia obrazu i ekranu, rozdzielczość i tryb wyświetlania
-                    
-                    foreach (Button element in options4HUD.GetButtons())
+                    element.onClick = delegate ()
                     {
-
-                        if (element.id.Equals(11) && element.DoAction())
+                        //zmniejsza rozdzielczość
+                        showTip = 19;
+                        if (configurancja.screenX.Equals("800"))
                         {
-                            //info, tylko id bo napis zmienia się w trakcie
-                            playSound = true;
-                            showTip = 19;
-                        }
-                        if (element.tekst.DisplayedString.Equals("+") && element.DoAction())
-                        {
-                            //zwiększa rozdzielczość
-                            playSound = true;
-                            showTip = 19;
-                            if (configurancja.screenX.Equals("800"))
+                            configurancja.screenX = Convert.ToString(1920);
+                            configurancja.screenY = Convert.ToString(1080);
+                            foreach (Button element1 in options4HUD.GetButtons())
                             {
-                                configurancja.screenX = Convert.ToString(1024);
-                                configurancja.screenY = Convert.ToString(768);
-                                foreach (Button element1 in options4HUD.GetButtons())
+                                if (element1.id == 11)
                                 {
-                                    if (element1.id == 11)
-                                    {
-                                        element1.tekst.DisplayedString = "1024x768";
-                                    }
-                                }
-                            }
-                            else if (configurancja.screenX.Equals("1024"))
-                            {
-                                configurancja.screenX = Convert.ToString(1280);
-                                configurancja.screenY = Convert.ToString(720);
-                                foreach (Button element1 in options4HUD.GetButtons())
-                                {
-                                    if (element1.id == 11)
-                                    {
-                                        element1.tekst.DisplayedString = "1280x720";
-                                    }
-                                }
-                            }
-                            else if (configurancja.screenX.Equals("1280"))
-                            {
-                                configurancja.screenX = Convert.ToString(1366);
-                                configurancja.screenY = Convert.ToString(768);
-                                foreach (Button element1 in options4HUD.GetButtons())
-                                {
-                                    if (element1.id == 11)
-                                    {
-                                        element1.tekst.DisplayedString = "1366x768";
-                                    }
-                                }
-                            }
-                            else if (configurancja.screenX.Equals("1366"))
-                            {
-                                configurancja.screenX = Convert.ToString(1920);
-                                configurancja.screenY = Convert.ToString(1080);
-                                foreach (Button element1 in options4HUD.GetButtons())
-                                {
-                                    if (element1.id == 11)
-                                    {
-                                        element1.tekst.DisplayedString = "1920x1080";
-                                    }
-                                }
-                            }
-                            else if (configurancja.screenX.Equals("1920"))
-                            {
-                                configurancja.screenX = Convert.ToString(800);
-                                configurancja.screenY = Convert.ToString(600);
-                                foreach (Button element1 in options4HUD.GetButtons())
-                                {
-                                    if (element1.id == 11)
-                                    {
-                                        element1.tekst.DisplayedString = "800x600";
-                                    }
+                                    element1.tekst.DisplayedString = "1920x1080";
                                 }
                             }
                         }
-
-                        if (element.tekst.DisplayedString.Equals("-") && element.DoAction())
+                        else if (configurancja.screenX.Equals("1024"))
                         {
-                            //zmniejsza rozdzielczość
-                            playSound = true;
-                            showTip = 19;
-                            if (configurancja.screenX.Equals("800"))
+                            configurancja.screenX = Convert.ToString(800);
+                            configurancja.screenY = Convert.ToString(600);
+                            foreach (Button element1 in options4HUD.GetButtons())
                             {
-                                configurancja.screenX = Convert.ToString(1920);
-                                configurancja.screenY = Convert.ToString(1080);
-                                foreach (Button element1 in options4HUD.GetButtons())
+                                if (element1.id == 11)
                                 {
-                                    if (element1.id == 11)
-                                    {
-                                        element1.tekst.DisplayedString = "1920x1080";
-                                    }
-                                }
-                            }
-                            else if (configurancja.screenX.Equals("1024"))
-                            {
-                                configurancja.screenX = Convert.ToString(800);
-                                configurancja.screenY = Convert.ToString(600);
-                                foreach (Button element1 in options4HUD.GetButtons())
-                                {
-                                    if (element1.id == 11)
-                                    {
-                                        element1.tekst.DisplayedString = "800x600";
-                                    }
-                                }
-                            }
-                            else if (configurancja.screenX.Equals("1280"))
-                            {
-                                configurancja.screenX = Convert.ToString(1024);
-                                configurancja.screenY = Convert.ToString(768);
-                                foreach (Button element1 in options4HUD.GetButtons())
-                                {
-                                    if (element1.id == 11)
-                                    {
-                                        element1.tekst.DisplayedString = "1024x768";
-                                    }
-                                }
-                            }
-                            else if (configurancja.screenX.Equals("1366"))
-                            {
-                                configurancja.screenX = Convert.ToString(1280);
-                                configurancja.screenY = Convert.ToString(720);
-                                foreach (Button element1 in options4HUD.GetButtons())
-                                {
-                                    if (element1.id == 11)
-                                    {
-                                        element1.tekst.DisplayedString = "1280x720";
-                                    }
-                                }
-                            }
-                            else if (configurancja.screenX.Equals("1920"))
-                            {
-                                configurancja.screenX = Convert.ToString(1366);
-                                configurancja.screenY = Convert.ToString(768);
-                                foreach (Button element1 in options4HUD.GetButtons())
-                                {
-                                    if (element1.id == 11)
-                                    {
-                                        element1.tekst.DisplayedString = "1366x768";
-                                    }
+                                    element1.tekst.DisplayedString = "800x600";
                                 }
                             }
                         }
-                        if (element.tekst.DisplayedString.Equals("Tryb okna") && element.DoAction())
+                        else if (configurancja.screenX.Equals("1280"))
                         {
-                            //zmienia tryb wyświetlania ekranu między oknem i pełnym ekranem
-                            playSound = true;
-                            showTip = 18;
-                            if (configurancja.windowMode.Equals("full"))
+                            configurancja.screenX = Convert.ToString(1024);
+                            configurancja.screenY = Convert.ToString(768);
+                            foreach (Button element1 in options4HUD.GetButtons())
                             {
-                                configurancja.windowMode = "window";
+                                if (element1.id == 11)
+                                {
+                                    element1.tekst.DisplayedString = "1024x768";
+                                }
                             }
-                            else if (configurancja.windowMode.Equals("window"))
+                        }
+                        else if (configurancja.screenX.Equals("1366"))
+                        {
+                            configurancja.screenX = Convert.ToString(1280);
+                            configurancja.screenY = Convert.ToString(720);
+                            foreach (Button element1 in options4HUD.GetButtons())
                             {
-                                configurancja.windowMode = "full";
+                                if (element1.id == 11)
+                                {
+                                    element1.tekst.DisplayedString = "1280x720";
+                                }
                             }
-
-                            Caption handelier;
-                            handelier = (Caption)options4HUD.GetElementByID(14);
-                            handelier.text.DisplayedString = Convert.ToString(configurancja.windowMode);
                         }
-                        if (element.tekst.DisplayedString.Equals("Zapisz") && element.DoAction())
+                        else if (configurancja.screenX.Equals("1920"))
                         {
-                            //zapisuje kofigurację
-                            playSound = true;
-                            showTip = 17;
-                            configurancja.SaveConfig();
-
+                            configurancja.screenX = Convert.ToString(1366);
+                            configurancja.screenY = Convert.ToString(768);
+                            foreach (Button element1 in options4HUD.GetButtons())
+                            {
+                                if (element1.id == 11)
+                                {
+                                    element1.tekst.DisplayedString = "1366x768";
+                                }
+                            }
                         }
-                        if (element.tekst.DisplayedString.Equals("R") && element.DoAction())
+                    };
+                }
+                if (element.tekst.DisplayedString.Equals("Tryb okna"))
+                {
+                    element.onClick = delegate ()
+                    {
+                        //zmienia tryb wyświetlania ekranu między oknem i pełnym ekranem
+                        showTip = 18;
+                        if (configurancja.windowMode.Equals("full"))
                         {
-                            //uruchamia ponownie okno z nowymi ustawieniami
-                            playSound = true;
-                            startNewGame = true;
-                            window.Close();
+                            configurancja.windowMode = "window";
+                        }
+                        else if (configurancja.windowMode.Equals("window"))
+                        {
+                            configurancja.windowMode = "full";
                         }
 
+                        Caption handelier;
+                        handelier = (Caption)options4HUD.GetElementByID(14);
+                        handelier.text.DisplayedString = Convert.ToString(configurancja.windowMode);
+                    };
+                }
+                if (element.tekst.DisplayedString.Equals("Zapisz"))
+                {
+                    element.onClick = delegate ()
+                    {
+                        //zapisuje kofigurację
+                        showTip = 17;
+                        configurancja.SaveConfig();
+                    };
+                }
+                if (element.tekst.DisplayedString.Equals("R"))
+                {
+                    element.onClick = delegate ()
+                    {
+                        //uruchamia ponownie okno z nowymi ustawieniami
+                        startNewGame = true;
+                        window.Close();
+                    };
+                }
+            }
+        }
+
+        bool TickButtons()
+        {
+            //zmiennia zwracana, jeżeli zwroci true zostanie zagrany dźwięk kliknięcia.
+            bool playSound = false;
+
+            playSound = mainMenuHUD.Tick();
+
+            if (!playSound)
+            {
+                if( (enableOptions >= 1) && (!playSound))
+                {
+                    playSound = optionbarHUD.Tick();
+
+                    if (!playSound)
+                    {
+                        switch (enableOptions)
+                        {
+                            case 1:
+                                playSound = options1HUD.Tick();
+                                break;
+                            case 2:
+                                playSound = options2HUD.Tick();
+                                break;
+                            case 3:
+                                playSound = options3HUD.Tick();
+                                break;
+                            case 4:
+                                playSound = options4HUD.Tick();
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
             }
-
-            //aktualizuje ustawienia postaci względem stanu z menus
-            hero.additionalRange = difficulty[0];
-            hero.gravityStrength = difficulty[1];
-            hero.step = difficulty[2] / 10;
-            hero.enableRange = enableRangeWskaznik;
-            hero.enableGravity = enableGravity;
-
             return playSound;
         }
         

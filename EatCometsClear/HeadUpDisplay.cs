@@ -72,6 +72,12 @@ namespace EatCometsClear
             element.text.DisplayedString = newString;
         }
 
+        public void ChangeTextColorByID(int id,Color color)
+        {
+            Caption element = (Caption)this.GetElementByID(id);
+            element.text.Color = color;
+        }
+
         public void DrawIDs()
         {
             foreach (IDable elemend in elements)
@@ -81,6 +87,20 @@ namespace EatCometsClear
         public void AddElement(Drawable newElement)
         {
             elements.Add(newElement);
+        }
+
+        public bool Tick()
+        {
+            foreach (Button element in this.GetButtons())
+            {
+                element.Tick();
+                if (element.DoAction())
+                {
+                    element.OnClick();
+                    return true;
+                }
+            }
+            return false;
         }
 
         public void Draw()
