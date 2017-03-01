@@ -41,7 +41,7 @@ namespace EatCometsClear
         SFML.Audio.Sound collectSound;
         private int soundColldown;
         public bool IsPlaying;
-
+        Random randomizer;
         private Text maximumGet;
 
         public int sharedGravity;
@@ -49,6 +49,8 @@ namespace EatCometsClear
 
         public Hero(RenderWindow okienko, float x, float y, Color color, int screenX, int screenY, bool eneblemovementt, int sterowanie)
         {
+            randomizer = new Random();
+
             IsPlaying = false;
 
             this.planetsGravity = false;
@@ -173,7 +175,7 @@ namespace EatCometsClear
 
             type = "comet";
 
-            this.mass = 40;
+            this.mass = 0;
 
             this.sterowanie = sterowanie;
             this.status = 5;
@@ -235,7 +237,7 @@ namespace EatCometsClear
             }
             
             if(IsPlaying)
-                if ((this.mass + this.satelite.Count - this.status*0.5 > status) && ((type != "black_hole") && (type != "galaxy_center") ))
+                if ((this.mass + this.satelite.Count - this.status*0.5 > status) || ((type == "black_hole") || (type == "galaxy_center") ))
                     okienko.Draw(maximumGet);
 
         }
@@ -590,25 +592,8 @@ namespace EatCometsClear
         {
             soundColldown++;
 
-            int distance = 1;
-
-            foreach(Satelite element in this.satelite)
-            {
-                int pom = distance;
-                if (type == "black_hole")
-                    pom = (int)(pom * 0.95);
-                distance = element.BallLocation(this.numberofsatelites, this.position.X, this.position.Y, pom, this.kolo.Radius);
-            }
-
-            int distanceOfLastSatelite = distance;
-
             if (type == "supernova")
             {
-                int magic = satelite.Count;
-                this.kolo.Radius = new System.Random().Next(magic - 20, magic);
-                this.obwodka.Radius = this.kolo.Radius + 2;
-                this.Go('x', 0, (int)okienko.Size.X, (int)okienko.Size.Y);
-
                 if (mass > 1)
                 {
                     AddSatelite();
@@ -627,6 +612,7 @@ namespace EatCometsClear
 
                         enablemovement = false;
                         ChangeStatus(300);
+                        maximumGet.DisplayedString = "The End";
                     }
                 }
             }
@@ -641,6 +627,7 @@ namespace EatCometsClear
                 {
                     satelite.Clear();
                     type = "galaxy_center";
+                    maximumGet.DisplayedString = "The End";
                 }
 
             }
@@ -658,7 +645,7 @@ namespace EatCometsClear
                     enableGravity = true;
                  
 
-                if (Keyboard.IsKeyPressed(Keyboard.Key.Tab) && ( (this.type != "supernova") || (this.type != "black_hole")))
+                if (Keyboard.IsKeyPressed(Keyboard.Key.Tab) && ( (this.type != "supernova") && (this.type != "black_hole") && (this.type != "galaxy_center")))
                 {
                     if (enableGravity)
                         lastGravity = true;
@@ -683,13 +670,13 @@ namespace EatCometsClear
 
                     if ( (type != "black_hole") && (type != "galaxy_center"))
                     {
-                        if ( (mass + this.satelite.Count - this.status*0.5 < this.status) )
+                        if ( (mass + this.satelite.Count - this.status*0.5 - 1 < this.status) )
                         {
                             for (int i = 0; i < ball.Length; i++)
                             {
                                 if (ball[i] != null)
                                 {
-                                    if (this.Near(ball[i].position, ball[i].kolo.Radius, (uint)(distanceOfLastSatelite)))
+                                    if (this.Near(ball[i].position, ball[i].kolo.Radius, (uint)(0)))
                                     {
                                         numberofballs++;
                                         ball[i].Remake();
@@ -705,9 +692,7 @@ namespace EatCometsClear
 
                                             soundColldown = 0;
                                             this.mass++;
-                                            AddSatelite();
-                                            if (this.type == "comet")
-                                                RemoveSatelite();
+                                            CalculateRadius();
                                         }
                                     }
                                 }
@@ -738,6 +723,26 @@ namespace EatCometsClear
             }
 
 
+            if(type == "supernova")
+            {
+                int magic = numberofsatelites;
+                this.kolo.Radius = randomizer.Next(magic - 20, magic);
+                this.obwodka.Radius = this.kolo.Radius + 2;
+                this.Go('x', 0, (int)okienko.Size.X, (int)okienko.Size.Y);
+            }
+
+
+            int distance = 1;
+
+            foreach (Satelite element in this.satelite)
+            {
+                int pom = distance;
+                if (type == "black_hole")
+                    pom = (int)(pom * 0.95);
+                distance = element.BallLocation(this.numberofsatelites, this.position.X, this.position.Y, pom, this.kolo.Radius);
+            }
+
+            int distanceOfLastSatelite = distance;
 
             return 0;
         }
