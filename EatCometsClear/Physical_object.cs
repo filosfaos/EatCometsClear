@@ -16,5 +16,20 @@ namespace EatCometsClear
         public Vector2f position;
         public int gravityStrength;
         public bool enableGravity;
+        protected int minimalMass;
+        
+        public Physical_object()
+        {
+            gravityStrength = 1000;
+            minimalMass = 0;
+        }
+
+        public int GetMass()
+        {
+            if (this.mass >= minimalMass)
+                return this.mass;
+            else
+                return minimalMass;
+        }
     }
 }

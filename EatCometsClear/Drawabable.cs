@@ -11,11 +11,11 @@ namespace EatCometsClear
 {
     class Drawabable : IDable, Drawable
     {
-        bool enableDrawing;
+       // bool enableDrawing;
 
         public Drawabable()
         {
-            enableDrawing = true;
+            //enableDrawing = true;
         }
 
         public void Draw(RenderTarget target, RenderStates states)

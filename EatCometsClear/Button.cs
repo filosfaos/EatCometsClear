@@ -22,9 +22,11 @@ namespace EatCometsClear
         public bool doAction;
         Color color, activeColor;
         private int iletyczymasz;
-        private delegate void OnClickDelegate();
-        OnClickDelegate onClick;
-
+        public delegate void OnClickDelegate();
+        public OnClickDelegate onClick;
+        public OnClickDelegate onRightClick;
+        public delegate void TickDelegate();
+        public TickDelegate tick;
 
 
         public Button()
@@ -173,6 +175,13 @@ namespace EatCometsClear
                 }
                 else
                     this.iletyczymasz = -1;
+                if(Mouse.IsButtonPressed(Mouse.Button.Right))
+                {
+                    if(this.onRightClick != null)
+                    {
+                        this.onRightClick();
+                    }
+                }
             }
             else
                 this.ChangeColor(color);
@@ -198,15 +207,17 @@ namespace EatCometsClear
                     return false;
             }
         }
-        
-        public void SetOnClick( Delegate delegaterke )
-        {
-           // this.onClick = new OnClickDelegate( delegaterke );
-        }
-
+       
         public void OnClick()
         {
-            this.onClick();
+            if(this.onClick != null)
+                this.onClick();
+        }
+
+        public void Tick()
+        {
+            if(this.tick != null)
+                this.tick();
         }
 
         public void Draw()
@@ -216,7 +227,7 @@ namespace EatCometsClear
             window.Draw(tekst);
         }
 
-        public void Draw(RenderTarget target, RenderStates states)
+        public new void Draw(RenderTarget target, RenderStates states)
         {
             this.Draw();
         }
