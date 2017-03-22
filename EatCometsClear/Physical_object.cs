@@ -12,6 +12,8 @@ namespace EatCometsClear
     abstract class Physical_object
     {
 
+        public string objectName;
+
         public int mass;
         public Vector2f position;
         public int gravityStrength;
@@ -20,6 +22,7 @@ namespace EatCometsClear
         
         public Physical_object()
         {
+            this.objectName = "simple object";
             gravityStrength = 1000;
             minimalMass = 0;
         }

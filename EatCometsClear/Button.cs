@@ -39,7 +39,6 @@ namespace EatCometsClear
             
             window = okno;
             
-
             doAction = false;
             rx = posx;
             ry = posy;
@@ -64,6 +63,7 @@ namespace EatCometsClear
                 tekst.CharacterSize = textsize;
             tekst.Position = new Vector2f(rx + (rw - tekst.GetLocalBounds().Width) / 2, ry + (rh - tekst.GetLocalBounds().Height) / 2);
 
+
             if ((napis == "-"))
             {
                 //tekst.Position = new Vector2f(rx + 15, ry + 2);
@@ -86,9 +86,6 @@ namespace EatCometsClear
             prostokat.Position = new Vector2f(x, y);
             tekst.Position = new Vector2f(x + (rw - tekst.GetLocalBounds().Width) / 2, y + (rh - tekst.GetLocalBounds().Height) / 2);
             tlo.Position = new Vector2f((float)(x * 0.99), (float)(y * 0.99));
-
-
-
         }
 
         public void ChangeColor(Color coloreg)
@@ -122,9 +119,6 @@ namespace EatCometsClear
 
             this.activeColor = new Color((byte)r, (byte)g, (byte)b);
 
-
-
-
             r = activeColor.R + roznica;
             if (r > 255)
                 r = 255;
@@ -141,7 +135,6 @@ namespace EatCometsClear
                 b = 255;
             if (b < 0)
                 b = 0;
-
 
             tlo.FillColor = new Color((byte)r, (byte)g, (byte)b);
         }

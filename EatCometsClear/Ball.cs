@@ -126,5 +126,11 @@ namespace EatCometsClear
         {
             this.kolo.Position = new Vector2f( this.position.X - 6, this.position.Y - 6);
         }
+
+        public void SetXY(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+        }
     }
 }

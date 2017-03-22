@@ -125,7 +125,7 @@ namespace EatCometsClear
             if (this.kat > this.maxPosition)
                 this.kat = startPosition;
 
-            distance += (int)(this.obwodka.Radius*3);
+            distance += (int)(this.obwodka.Radius*2.5);
 
             //te gówniaki *whichball zmieniają czy poruszaja sie po okręgu czy elipsie
             float cos = Convert.ToSingle((cosinuser + distance) * Math.Cos((this.kat * Math.PI) / 180));
