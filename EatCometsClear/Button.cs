@@ -27,6 +27,8 @@ namespace EatCometsClear
         public OnClickDelegate onRightClick;
         public delegate void TickDelegate();
         public TickDelegate tick;
+        public delegate void HoverDelegate();
+        public HoverDelegate hoverAction;
 
 
         public Button()
@@ -149,6 +151,7 @@ namespace EatCometsClear
         {
             float mx = Mouse.GetPosition(window).X;
             float my = Mouse.GetPosition(window).Y;
+                        
             if (mx > rx && mx < rx + rw && my > ry && my < ry + rh)
             {
                 return true;
@@ -160,7 +163,10 @@ namespace EatCometsClear
         {
             if (IsHoovering())
             {
+                this.HoverAction();
                 this.ChangeColor(activeColor);
+
+
                 if (Mouse.IsButtonPressed(Mouse.Button.Left))
                 {
                     this.iletyczymasz++;
@@ -211,6 +217,12 @@ namespace EatCometsClear
         {
             if(this.tick != null)
                 this.tick();
+        }
+
+        public void HoverAction()
+        {
+            if (this.hoverAction != null)
+                this.hoverAction();
         }
 
         public void Draw()

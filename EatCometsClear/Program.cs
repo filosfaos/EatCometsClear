@@ -11,15 +11,14 @@ namespace EatCometsClear
     {
         static void Main(string[] args)
         {
-            string x = System.Configuration.ConfigurationManager.AppSettings["screenX"];
-            string y = System.Configuration.ConfigurationManager.AppSettings["screenY"];
-
-
             Console.Title = "Konsola żarcia komet";
+
+            Console.SetWindowSize(46, 46);
+            Console.SetWindowPosition(0, 0);
 
 
             RPG myGame;
-            myGame = new RPG(0,0);
+            myGame = new RPG();
             myGame.startNewGame = true;
 
 
@@ -29,11 +28,8 @@ namespace EatCometsClear
                 bool kupa = myGame.startNewGame;
                 if (kupa == true)
                 {
-                    myGame.CloseWindow();
                     myGame = null;
-                    x = System.Configuration.ConfigurationManager.AppSettings["screenX"];
-                    y = System.Configuration.ConfigurationManager.AppSettings["screenY"];
-                    myGame = new RPG(Convert.ToUInt32(x), Convert.ToUInt32(y));
+                    myGame = new RPG();
                     myGame.Run();
                 }
                 else

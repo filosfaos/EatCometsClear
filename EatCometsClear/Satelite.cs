@@ -19,7 +19,7 @@ namespace EatCometsClear
         private float startPosition, maxPosition;
         private int sinuser, cosinuser;
 
-        public Satelite(int i, float x, float y, int newspeed)
+        public Satelite(int i, float x, float y, int newspeed, bool showDescription)
         {
             this.kolo = new CircleShape(); // nowy obiekt: ksztalk kola w pamieci
             Random rnd;
@@ -28,7 +28,9 @@ namespace EatCometsClear
             int g = (byte)rnd.Next(0, 255);
             int b = (byte)rnd.Next(0, 255);
 
-            Console.WriteLine("    RGB " + r + " " + b + " " + g);
+            if(showDescription)
+                Console.WriteLine("    RGB " + r + " " + b + " " + g);
+
             this.kolo.FillColor = new Color((byte)r, (byte)g, (byte)b); // parametryzujemy go. New obiekt Color nie zostnaie w pamieci - brak referencji sprawi, ze zostanie usuniety
 
             if (i == 0)
@@ -70,7 +72,8 @@ namespace EatCometsClear
                 b = 0;
 
             this.obwodka.FillColor = new Color((byte)r, (byte)g, (byte)b);
-            Console.WriteLine("    RGB " + r + " " + b + " " + g);
+            if(showDescription)
+                Console.WriteLine("    RGB " + r + " " + b + " " + g);
             this.obwodka.Position = new Vector2f(this.kolo.Position.X - 1, this.kolo.Position.Y - 1);
 
 
@@ -89,7 +92,8 @@ namespace EatCometsClear
                 this.speed = -this.speed;
 
             this.speed *= 4;
-            Console.WriteLine("    prędkość " + this.speed + "'");
+            if(showDescription)
+                Console.WriteLine("    prędkość " + this.speed + "'");
 
             this.speed /= 60;
 

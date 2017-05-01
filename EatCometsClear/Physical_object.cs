@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using SFML.System;
+using SFML.Graphics;
 using SFML.Window;
 
 namespace EatCometsClear
@@ -19,7 +20,19 @@ namespace EatCometsClear
         public int gravityStrength;
         public bool enableGravity;
         protected int minimalMass;
-        
+        public Shape CollisionShape { get; set; }
+        public Vector2f SolidCollisionEffect { get; set; }
+
+        public Type GetCollisionType()
+        {
+            if (CollisionShape.GetType() == new CircleShape().GetType())
+                return new CircleShape().GetType();
+            else if (CollisionShape.GetType() == new RectangleShape().GetType())
+                return new RectangleShape().GetType();
+            else
+                return null;
+        }
+
         public Physical_object()
         {
             this.objectName = "simple object";
@@ -34,5 +47,7 @@ namespace EatCometsClear
             else
                 return minimalMass;
         }
+
+
     }
 }

@@ -5,9 +5,8 @@ using System.Text;
 
 namespace EatCometsClear
 {
-    class Enemy : Orbiter
+    class RectBlock:Physical_object
     {
-
 
     }
 }

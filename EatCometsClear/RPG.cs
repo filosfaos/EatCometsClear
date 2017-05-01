@@ -14,7 +14,7 @@ namespace EatCometsClear
     class RPG : Game
     {
         /// <summary><param name="startNewGame">określa, czy gra ma zostać uruchomiona ponownie przy kolejnym obiegu głównej pętli</param></summary>
-        public bool startNewGame;
+        public bool startNewGame { get; set; }
         /// <summary><param name="hero">obiekt reprezentujący gracza</param></summary>
         Hero hero;
         /// <summary><param name="menuhero">obiekt reprezentujący wizualizację gracza w menu głównym</param></summary>
@@ -31,10 +31,11 @@ namespace EatCometsClear
         Sound hoverSound;
         bool hoverSoundEnable;
         bool hoverSoundStop;
+        bool AdditionaInfosHero;
 
         int numberofframe;
-        public bool gamestarted;
-        int showTip;
+        public bool gamestarted { get; set; }
+        private int showTip { get; set; }
         int enableOptions;
         int lastOption;
         bool escBlock;
@@ -45,19 +46,21 @@ namespace EatCometsClear
         Text tipText;
 
         Physic physicCalc;
+        RectBlock[] windowBounds;
+
 
         bool enableRangeWskaznik;// enableGravity;
         bool enableMusic;
 
         Image ikona;
-        Texture liniaload;
+        Texture liniaload, sunGif;
 
         HeadUpDisplay mainMenuHUD, options1HUD, options2HUD, options3HUD, options4HUD, optionbarHUD;
 
         MyConfig configurancja;
 
-        public RPG(uint x, uint y)
-            : base(x, y, "Żryj komety", Color.Black)
+        public RPG()
+            : base( "Żryj komety", Color.Black)
         {
         }
 
@@ -71,7 +74,8 @@ namespace EatCometsClear
                 int pomX = (int)(window.Size.X*0.34);
                 int pomY = (int)(window.Size.Y*0.34);
                 Vector2i size = new Vector2i((int)(window.Size.X * 0.05), (int)(window.Size.Y * 0.05));
-                Console.WriteLine("liapa" + size.X + "gurwa" + size.Y);
+                
+            .WriteLine("liapa" + size.X + "gurwa" + size.Y);
                 butimg = new System.Collections.ArrayList();
                 butimg.Add(new Texture("img/1pad.jpg"  , new IntRect(pomX, pomY, 1/size.X, 1/size.Y) ));
                 butimg.Add(new Texture("img/1logo.jpg" , new IntRect(pomX, pomY, 1/size.X, 1/size.Y) ));
@@ -135,18 +139,13 @@ namespace EatCometsClear
 
         protected override void Initialize()
         {
-            //inicjalizacja zmiennych programu
+            
 
+
+            //inicjalizacja zmiennych programu
 
             configurancja = new MyConfig();
 
-            window.SetActive(true);
-            try
-            {
-                window.SetIcon(ikona.Size.X, ikona.Size.Y, ikona.Pixels);
-            }
-            catch
-            { }
 
             physicCalc = new Physic(); //on liczy fizyke fizyk jeden
             ball = new Ball[5];
@@ -174,6 +173,7 @@ namespace EatCometsClear
             enableOptions = 0;
             showTip = 0;
 
+            CreateWindow(gameTitle);
             BuidGUI();
 
             SetButtonsActions();
@@ -198,8 +198,6 @@ namespace EatCometsClear
 
         private void BuidGUI()
         {
-
-
             uint pomX = window.Size.X;
             uint pomY = window.Size.Y;
 
@@ -331,7 +329,7 @@ namespace EatCometsClear
             hudelements.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "-", window, buttonscolor, buttontextsize, 504));
             hudelements.Add(new Button((uint)(pomX * 0.44), (uint)(pomY * 0.40), (uint)(pomX * 0.17), (uint)(pomY * 0.10), "Grawitacja", window, buttonscolor, buttontextsize, 505));
             hudelements.Add(new Button((uint)(pomX * 0.62), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "+", window, buttonscolor, buttontextsize, 506));
-            //hudelements.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.55), (uint)(pomX * 0.25), (uint)(pomY * 0.10), "Połykanie", window, buttonscolor, buttontextsize,  0));
+            hudelements.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.55), (uint)(pomX * 0.25), (uint)(pomY * 0.10), "Informacje w konsoli", window, buttonscolor, buttontextsize,  508));
             hudelements.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.70), (uint)(pomX * 0.25), (uint)(pomY * 0.10), "Wskaźnik zasięgu", window, buttonscolor, buttontextsize, 507));
 
             options3HUD = new HeadUpDisplay();
@@ -380,6 +378,13 @@ namespace EatCometsClear
             hudtext.text.Position = new Vector2f((uint)(pomX * 0.66), (uint)(pomY * 0.41));
             hudtext.text.Color = new Color(Color.White);
             hudtext.text.DisplayedString = Convert.ToString(difficulty[1]);
+            options3HUD.AddElement(hudtext);
+
+            hudtext = null;
+            hudtext = new Caption(new Text("true", new Font("fonts/arial.ttf"), texttextsize), 1235, window);
+            hudtext.text.Position = new Vector2f((uint)(pomX * 0.66), (uint)(pomY * 0.55));
+            hudtext.text.Color = new Color(Color.White);
+            hudtext.text.DisplayedString = Convert.ToString(AdditionaInfosHero);
             options3HUD.AddElement(hudtext);
 
             hudtext = null;
@@ -442,6 +447,7 @@ namespace EatCometsClear
                 //menu główne
                 if (element.id == 101)
                 {
+                    element.hoverAction = delegate () { tipText.DisplayedString = "Przejdź do gry"; };
                     element.onClick = delegate ()
                         {
                             //zmienia stan gry z menu na gre
@@ -454,9 +460,14 @@ namespace EatCometsClear
                             window.SetMouseCursorVisible(false);
                             hero.Go('x', 0, 0, 0);
                         };
+                    element.onRightClick = delegate ()
+                    {
+                        tipText.DisplayedString = window.ToString();
+                    };
                 }
                 if (element.id == 102)
                 {
+                    element.hoverAction = delegate () { tipText.DisplayedString = "Rozpocznij nową grę"; };
                     element.onClick = delegate ()
                     {
                         //przycisk nowej gry
@@ -465,14 +476,11 @@ namespace EatCometsClear
                 }
                 if (element.id == 104)
                 {
-                    element.onClick = delegate ()
+                    element.hoverAction = delegate () 
                     {
-                        //pokazuje kolejne wskazowki
-                        showTip++;
-                        if (showTip > 5)
-                            showTip = 0;
 
-                        switch(showTip)
+
+                        switch (showTip)
                         {
                             case 0:
                                 {
@@ -493,7 +501,7 @@ namespace EatCometsClear
                                 break;
                             case 3:
                                 {
-                                    tipText.DisplayedString = "Prawym wyświetlasz podpowiedzi do elementów menu";
+                                    tipText.DisplayedString = "Poruszasz się myszką lub klawiszami WSAD/strzałki";
                                 }
                                 break;
                             case 4:
@@ -508,9 +516,23 @@ namespace EatCometsClear
                                 break;
                         }
                     };
+                    element.onClick = delegate ()
+                    {
+                        //pokazuje kolejne wskazowki
+                        showTip++;
+                        if (showTip > 5)
+                            showTip = 0;
+                    };
                 }
                 if (element.id == 103)
                 {
+                    element.hoverAction = delegate ()
+                    {
+                        if (enableOptions == 0)
+                            tipText.DisplayedString = "Pokaż menu opcji";
+                        else
+                            tipText.DisplayedString = "Zamknij menu opcji";
+                    };
                     element.onClick = delegate ()
                     {
                         //przycisk do włączanie menu opcji, po włączeniu zmienia się na zamknij
@@ -541,6 +563,7 @@ namespace EatCometsClear
 
                 if (element.id == 105)
                 {
+                    element.hoverAction = delegate () { tipText.DisplayedString = "Wyłącz grę"; };
                     element.onClick = delegate ()
                     {
                         //służy do wyłączania gry
@@ -553,6 +576,7 @@ namespace EatCometsClear
                 //panel wyboru podmenu opcji
                 if (element.id == 201)
                 {
+                    element.hoverAction = delegate () { tipText.DisplayedString = "Zmień ustawienia sterowania"; };
                     element.onClick = delegate ()
                     {
                         //otwiera menu sterowania
@@ -562,11 +586,17 @@ namespace EatCometsClear
 
                         lastOption = 1;
                         enableOptions = 1;
-                        tipText.DisplayedString = "Zmień ustawienia sterowania";
                     };
                 }
                 if (element.id == 202)
                 {
+                    element.hoverAction = delegate ()
+                    {
+                        if(enableMusic)
+                            tipText.DisplayedString = "Zmień ustawienia muzyki";
+                        else
+                            tipText.DisplayedString = "Nie wczytano muzyki";
+                    };
                     element.onClick = delegate ()
                     {
                         //otwiera podmenu dźwięków i muzyki
@@ -578,16 +608,12 @@ namespace EatCometsClear
 
                             lastOption = 2;
                             enableOptions = 2;
-                            tipText.DisplayedString = "Zmień ustawienia muzyki";
-                        }
-                        else
-                        {
-                            tipText.DisplayedString = "Nie wczytano muzyki";
                         }
                     };
                 }
                 if (element.id == 203)
                 {
+                    element.hoverAction = delegate () { tipText.DisplayedString = "Zmień ustawienia gry"; };
                     element.onClick = delegate ()
                     {
                         //otwiera podmenu opcji gry
@@ -598,15 +624,14 @@ namespace EatCometsClear
 
                         lastOption = 3;
                         enableOptions = 3;
-                        tipText.DisplayedString = "Zmień ustawienia gry";
                     };
                 }
                 if (element.id == 204)
                 {
+                    element.hoverAction = delegate () { tipText.DisplayedString = "Zmień ustawienia sterowania"; };
                     element.onClick = delegate ()
                     {
                         //otwiera podmenu opcji obrazu | ekranu
-                        tipText.DisplayedString = "Zmień ustawienia ekranu";
 
                         Caption handelier;
                         handelier = (Caption)optionbarHUD.GetElementByID(911);
@@ -636,30 +661,31 @@ namespace EatCometsClear
                 //podmenu sterownia
                 if (element.tekst.DisplayedString.Equals("W - A - S - D"))
                 {
+                    element.hoverAction = delegate () { tipText.DisplayedString = "Zmień ustawienia sterowania"; };
                     element.onClick = delegate ()
                     {
                         //zostawione na potem
                         element.ChangeText("Strzałki");
                         sterowanie = 0;
                         hero.Changemovement(sterowanie);
-                        tipText.DisplayedString = "Zmienia ustawienia sterowania";
                     };
                 }
 
                 if (element.tekst.DisplayedString.Equals("Strzałki"))
                 {
+                    element.hoverAction = delegate () { tipText.DisplayedString = "Zmień ustawienia sterowania"; };
                     element.onClick = delegate ()
                     {
                         //zostawione na potem
                         element.ChangeText("WSAD + Strzałki");
                         sterowanie = 2;
                         hero.Changemovement(sterowanie);
-                        tipText.DisplayedString = "Zmienia ustawienia sterowania";
                     };
                 }
 
                 if (element.id == 301)
                 {
+                    element.hoverAction = delegate () { tipText.DisplayedString = "Zmień ustawienia sterowania"; };
                     element.onClick = delegate ()
                     {
                         if (element.tekst.DisplayedString.Equals("WSAD / Strzałki"))
@@ -668,7 +694,6 @@ namespace EatCometsClear
                                 element.ChangeText("Myszka");
                                 sterowanie = 3;
                                 hero.Changemovement(sterowanie);
-                            tipText.DisplayedString = "Zmienia ustawienia sterowania";
 
                         }
                         else if (element.tekst.DisplayedString.Equals("Myszka"))
@@ -677,16 +702,15 @@ namespace EatCometsClear
                             element.ChangeText("WSAD / Strzałki");
                             sterowanie = 2;
                             hero.Changemovement(sterowanie);
-                            tipText.DisplayedString = "Zmienia ustawienia sterowania";
                         }
                     };
                 }
                 if (element.id == 303)
                 {
+                    element.hoverAction = delegate () { tipText.DisplayedString = "Zmień ustawienia sterowania"; };
                     element.onClick = delegate ()
                     {
                         //info
-                        tipText.DisplayedString = "Zmień ustawienia sterowania";
                     };
                 }
                 if (element.id == 302)
@@ -885,6 +909,13 @@ namespace EatCometsClear
 
                 if (element.id == 405)
                 {
+                    element.hoverAction = delegate ()
+                    {
+                        if (hoverSound != null)
+                            tipText.DisplayedString = "Włącz/wyłącz dźwięki";
+                        else
+                            tipText.DisplayedString = "Dźwięki nie zostały wczytane :/";
+                    };
                     element.onClick = delegate ()
                     {
 
@@ -907,10 +938,10 @@ namespace EatCometsClear
 
                 if (element.tekst.DisplayedString.Equals("Wskaźnik zasięgu"))
                 {
+                    element.hoverAction = delegate () { tipText.DisplayedString = "Pokaż / ukryj wskaźnik zasięgu połykania / przyciągania"; };
                     element.onClick = delegate ()
                     {
                         //włącza | wyłącza wskaźnik zasięgu
-                        tipText.DisplayedString = "Pokaż / ukryj wskaźnik zasięgu połykania / przyciągania";
                         if (enableRangeWskaznik)
                         {
                             enableRangeWskaznik = false;
@@ -934,19 +965,18 @@ namespace EatCometsClear
 
                 if (element.id == 502)
                 {
+                    element.hoverAction = delegate () { tipText.DisplayedString = "Dodatkowy zasięg połykania komet"; };
                     element.onClick = delegate ()
                     {
                         //info
-                        tipText.DisplayedString = "Dodatkowy zasięg połykania komet";
                     };
                 }
                 if (element.id == 501)
                 {
+                    element.hoverAction = delegate () { tipText.DisplayedString = "Dodatkowy zasięg połykania komet"; };
                     element.onClick = delegate ()
                     {
                         //zmniejsza bonusowy zasięg
-
-                        tipText.DisplayedString = "Dodatkowy zasięg połykania komet";
 
                         difficulty[0]--;
                         if (difficulty[0] < 0)
@@ -963,6 +993,7 @@ namespace EatCometsClear
                 }
                 if (element.id == 503)
                 {
+                    element.hoverAction = delegate () { tipText.DisplayedString = "Dodatkowy zasięg połykania komet"; };
                     element.onClick = delegate ()
                     {
                         //zwiększa bonusowy zasięg
@@ -979,6 +1010,7 @@ namespace EatCometsClear
                 }
                 if (element.id == 505)
                 {
+                    element.hoverAction = delegate () { tipText.DisplayedString = "Siła grawitacji"; };
                     element.onClick = delegate ()
                     {
                         //info
@@ -987,10 +1019,10 @@ namespace EatCometsClear
                 }
                 if (element.id == 504)
                 {
+                    element.hoverAction = delegate () { tipText.DisplayedString = "Siła grawitacji"; };
                     element.onClick = delegate ()
                     {
                         //zmiejsza siłę grawitacji
-                        tipText.DisplayedString = "Siła grawitacji";
 
                         difficulty[1]--;
                         if (difficulty[1] < 0)
@@ -1006,10 +1038,10 @@ namespace EatCometsClear
                 }
                 if (element.id == 506)
                 {
+                    element.hoverAction = delegate () { tipText.DisplayedString = "Siła grawitacji"; };
                     element.onClick = delegate ()
                     {
                         //zwiększa siłę grawitacji
-                        tipText.DisplayedString = "Siła grawitacji";
 
                         difficulty[1]++;
 
@@ -1019,6 +1051,17 @@ namespace EatCometsClear
                         handelier = (Caption)options3HUD.GetElementByID(1233);
                         handelier.text.DisplayedString = Convert.ToString(difficulty[1]);
                         //textGravity.DisplayedString = Convert.ToString(difficulty[1]);
+                    };
+                }
+
+                if(element.id == 508)
+                {
+                    element.hoverAction = delegate () { tipText.DisplayedString = "Pokaż / ukryj dodatkowe opisy w konsoli"; };
+                    element.onClick = delegate ()
+                    {
+                        AdditionaInfosHero = !AdditionaInfosHero;
+                        options3HUD.ChangeCaptionByID(1235, Convert.ToString(AdditionaInfosHero));
+
                     };
                 }
                 /*
@@ -1051,18 +1094,19 @@ namespace EatCometsClear
 
                 if (element.id.Equals(602))
                 {
+                    element.hoverAction = delegate () { tipText.DisplayedString = "Zmienia rozdzielczość okna gry"; };
                     element.onClick = delegate ()
                     {
                         //info, tylko id bo napis zmienia się w trakcie
-                        tipText.DisplayedString = "Zmienia rozdzielczość okna gry";
                     };
                 }
                 if (element.id == 603)
                 {
+                    element.hoverAction = delegate () { tipText.DisplayedString = "Zmienia rozdzielczość okna gry"; };
                     element.onClick = delegate ()
                     {
                         //zwiększa rozdzielczość
-                        tipText.DisplayedString = "Zmienia rozdzielczość okna gry";
+
 
 
                         if (configurancja.screenX.Equals("800"))
@@ -1135,10 +1179,10 @@ namespace EatCometsClear
                 }
                 if (element.id == 601)
                 {
+                    element.hoverAction = delegate () { tipText.DisplayedString = "Zmienia rozdzielczość okna gry"; };
                     element.onClick = delegate ()
                     {
                         //zmniejsza rozdzielczość
-                        tipText.DisplayedString = "Zmienia rozdzielczość okna gry";
 
                         if (configurancja.screenX.Equals("800"))
                         {
@@ -1211,10 +1255,13 @@ namespace EatCometsClear
                 }
                 if (element.id == 604)
                 {
+                    element.hoverAction = delegate ()
+                    {
+                        tipText.DisplayedString = "Zmienia tryb wyświetlania ekranu, w oknie lub pełny ekran";
+                    };
                     element.onClick = delegate ()
                     {
                         //zmienia tryb wyświetlania ekranu między oknem i pełnym ekranem
-                        tipText.DisplayedString = "Zmienia tryb wyświetlania ekranu, w oknie lub pełny ekran";
 
                         if (configurancja.windowMode.Equals("full"))
                         {
@@ -1239,6 +1286,17 @@ namespace EatCometsClear
                 }
                 if (element.id == 605)
                 {
+                    element.hoverAction = delegate ()
+                    {
+                        if (element.tekst.DisplayedString.Equals("Zapisz"))
+                        {
+                            tipText.DisplayedString = "Kliknij ponownie, aby zmiany weszły w życie";
+                        }
+                        else if (element.tekst.DisplayedString.Equals("Zastosuj"))
+                        {
+                            tipText.DisplayedString = "Pomyślnie wprowadzono zmiany";
+                        }
+                    };
                     element.onClick = delegate ()
                     {
                         //zapisuje kofigurację
@@ -1246,19 +1304,17 @@ namespace EatCometsClear
                         {
                             configurancja.SaveConfig();
                             element.ChangeText("Zastosuj");
-                        tipText.DisplayedString = "Kliknij ponownie, aby zmiany weszły w życie";
                         }
                         else if (element.tekst.DisplayedString.Equals("Zastosuj"))
                         {
                             ReWindow();
                             element.ChangeText("Zapisz");
-                            tipText.DisplayedString = "Pomyślnie wprowadzono zmiany";
                         }
                     };
                 }
                 if (element.id == 606)
                 {
-                    element.onRightClick = delegate ()
+                    element.hoverAction = delegate ()
                     {
                         tipText.DisplayedString = "Uruchamia ponownie grę";
                     };
@@ -1274,20 +1330,35 @@ namespace EatCometsClear
 
         private void ReWindow()
         {
-            window.Close();
+            CreateWindow(gameTitle);
 
-            string style = configurancja.WindowMode();
+            windowBounds = new RectBlock[4];
 
-            if (style.Equals("window"))
+            for (int i = 0; i < windowBounds.Length; i++)
             {
-                window = new RenderWindow(new VideoMode(configurancja.ScreenX(), configurancja.ScreenY()), "xD", Styles.Close);
-            }
-            if (style.Equals("full"))
-            {
-                window = new RenderWindow(new VideoMode(configurancja.ScreenX(), configurancja.ScreenY()), "xD", Styles.Fullscreen);
+                windowBounds[i] = new RectBlock();
+                windowBounds[i].CollisionShape = new RectangleShape(new Vector2f(3 * window.Size.X, 3 * window.Size.Y));
             }
 
-            window.SetFramerateLimit(60);
+            windowBounds[0].CollisionShape.Position = new Vector2f(-window.Size.X, -3 * window.Size.Y);
+            windowBounds[0].SolidCollisionEffect = new Vector2f(0, 1);
+            windowBounds[1].CollisionShape.Position = new Vector2f(3 * window.Size.X, -window.Size.Y);
+            windowBounds[1].SolidCollisionEffect = new Vector2f(-1, 0);
+            windowBounds[2].CollisionShape.Position = new Vector2f(-window.Size.X, 3 * window.Size.Y);
+            windowBounds[2].SolidCollisionEffect = new Vector2f(0, -1);
+            windowBounds[3].CollisionShape.Position = new Vector2f(-3 * window.Size.X, -window.Size.Y);
+            windowBounds[3].SolidCollisionEffect = new Vector2f(1, 0);
+
+            window.SetActive(true);
+
+            try
+            {
+                window.SetIcon(ikona.Size.X, ikona.Size.Y, ikona.Pixels);
+            }
+            catch
+            { }
+
+
             RebuidGUI();
             hero.RebuidGUI(window);
             foreach (Ball elebent in ball)
@@ -1296,7 +1367,6 @@ namespace EatCometsClear
                 elebent.Remake();
             }
         }    
-        
 
         private void NewGame()
         {
@@ -1354,6 +1424,7 @@ namespace EatCometsClear
                 }
 
                 physicCalc.Gravitation(objekty);
+                physicCalc.Collision(objekty);
 
                //coby position i pozycja wizualnych shajpów się pokrywała
                 this.hero.Go('x', 0, 0, 0);
@@ -1376,20 +1447,21 @@ namespace EatCometsClear
                 }
 
 
-                //kopiuje no ico?
-                menuhero = (Hero)hero.Clone();
-                menuhero.enablemovement = false;
-
+               
 
                 if (Keyboard.IsKeyPressed(Keyboard.Key.Escape))
                 {
                     if (!escBlock)
                     {
+                        hero.MenuStatistic = false;
                         hero.IsPlaying = false;
-                        menuhero.IsPlaying = false;
                         escBlock = true;
                         window.SetMouseCursorVisible(true);
                         gamestarted = false;
+                         
+                        //kopiuje no ico?
+                        menuhero = (Hero)hero.Clone();
+                        menuhero.enablemovement = false;
 
                         Vector2f newpos = new Vector2f((uint)(window.Size.X * 0.8203125), (uint)(window.Size.Y * 0.5222222));
                         menuhero.position = newpos;
@@ -1473,6 +1545,7 @@ namespace EatCometsClear
                 hero.gravityStrength = difficulty[1];
                 hero.step = difficulty[2] / 10;
                 hero.enableRange = enableRangeWskaznik;
+                hero.AdditionalInfo = AdditionaInfosHero;
                 //hero.enableGravity = enableGravity;
 
                 //coby się planety w menu kręciły
@@ -1530,6 +1603,8 @@ namespace EatCometsClear
         {
             //zmiennia zwracana, jeżeli zwroci true zostanie zagrany dźwięk kliknięcia.
             bool playSound = false;
+
+            tipText.DisplayedString = "";
 
             playSound = mainMenuHUD.Tick();
 
@@ -1623,5 +1698,9 @@ namespace EatCometsClear
 
         }
 
+        protected override void Window_resized(object sender, EventArgs e)
+        {
+            RebuidGUI();
+        }
     }
 }
