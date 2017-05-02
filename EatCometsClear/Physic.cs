@@ -6,13 +6,20 @@ using System.Threading.Tasks;
 
 using SFML.System;
 using SFML.Window;
+using SFML.Graphics;
 
 
 namespace EatCometsClear
 {
     class Physic
     {
-
+        enum Dimension{
+            Top = 0,
+            Right = 1,
+            Bottom = 2,
+            Left = 3,
+            Null = 4
+        }
 
         public void Gravitation(List<Physical_object> objects)
         {
@@ -141,6 +148,71 @@ namespace EatCometsClear
 
         }
 
+        private Dimension IsCollision(Physical_object obj1, Physical_object obj2)
+        {
+            if (obj1.GetCollisionType() == obj2.GetCollisionType())
+            {
+                if(obj1.GetCollisionType() == new RectangleShape().GetType())
+                {
+                    if (obj1.CollisionShape.GetGlobalBounds().Contains(obj2.CollisionShape.GetLocalBounds().Left, obj2.CollisionShape.GetLocalBounds().Top))
+                        return Dimension.Bottom;
+
+                }
+            }
+
+            return Dimension.Null;
+        }
+
+        public void Collision(List<Physical_object> objects)
+        {
+            foreach(Physical_object element in objects)
+            {
+                if (element.CollisionShape == null)
+                    continue;
+
+                foreach(Physical_object element2 in objects)
+                {
+                    //czy obiekty nie są tym samym obiektem i są różne od null
+                    if( (element != element2) && (element2.CollisionShape != null) )
+                    {
+                        //po której stronie koliduje obiekt
+                        Dimension dimension = IsCollision(element, element2);
+
+                        //w którą stronę ma działać kolizja
+                        switch (dimension)
+                        {
+                            case Dimension.Top:
+                                {
+
+                                }
+                                break;
+                            case Dimension.Right:
+                                {
+
+                                }
+                                break;
+                            case Dimension.Bottom:
+                                {
+                                    
+                                }
+                                break;
+                            case Dimension.Left:
+                                {
+                                    
+                                }
+                                break;
+                            case Dimension.Null:
+                                {
+
+                                }
+                                break;
+                        }
+                    }
+                    //Jeżeli obiekty są takie same nic sie nie dzieje
+                }
+
+            }
+        }
     }
 
 }

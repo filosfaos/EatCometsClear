@@ -22,9 +22,14 @@ namespace EatCometsClear
         public bool doAction;
         Color color, activeColor;
         private int iletyczymasz;
-        private delegate void OnClickDelegate();
-        OnClickDelegate onClick;
-
+        
+        public delegate void OnClickDelegate();
+        public OnClickDelegate onClick;
+        public OnClickDelegate onRightClick;
+        public delegate void TickDelegate();
+        public TickDelegate tick;
+        public delegate void HoverDelegate();
+        public HoverDelegate hoverAction;
 
 
         public Button()
@@ -37,7 +42,6 @@ namespace EatCometsClear
             
             window = okno;
             
-
             doAction = false;
             rx = posx;
             ry = posy;
@@ -62,6 +66,7 @@ namespace EatCometsClear
                 tekst.CharacterSize = textsize;
             tekst.Position = new Vector2f(rx + (rw - tekst.GetLocalBounds().Width) / 2, ry + (rh - tekst.GetLocalBounds().Height) / 2);
 
+
             if ((napis == "-"))
             {
                 //tekst.Position = new Vector2f(rx + 15, ry + 2);
@@ -84,9 +89,6 @@ namespace EatCometsClear
             prostokat.Position = new Vector2f(x, y);
             tekst.Position = new Vector2f(x + (rw - tekst.GetLocalBounds().Width) / 2, y + (rh - tekst.GetLocalBounds().Height) / 2);
             tlo.Position = new Vector2f((float)(x * 0.99), (float)(y * 0.99));
-
-
-
         }
 
         public void ChangeColor(Color coloreg)
@@ -120,9 +122,6 @@ namespace EatCometsClear
 
             this.activeColor = new Color((byte)r, (byte)g, (byte)b);
 
-
-
-
             r = activeColor.R + roznica;
             if (r > 255)
                 r = 255;
@@ -140,7 +139,6 @@ namespace EatCometsClear
             if (b < 0)
                 b = 0;
 
-
             tlo.FillColor = new Color((byte)r, (byte)g, (byte)b);
         }
 
@@ -154,6 +152,7 @@ namespace EatCometsClear
         {
             float mx = Mouse.GetPosition(window).X;
             float my = Mouse.GetPosition(window).Y;
+                        
             if (mx > rx && mx < rx + rw && my > ry && my < ry + rh)
             {
                 return true;
@@ -165,7 +164,10 @@ namespace EatCometsClear
         {
             if (IsHoovering())
             {
+                this.HoverAction();
                 this.ChangeColor(activeColor);
+
+
                 if (Mouse.IsButtonPressed(Mouse.Button.Left))
                 {
                     this.iletyczymasz++;
@@ -207,6 +209,12 @@ namespace EatCometsClear
         public void OnClick()
         {
             this.onClick();
+        }
+
+        public void HoverAction()
+        {
+            if (this.hoverAction != null)
+                this.hoverAction();
         }
 
         public void Draw()

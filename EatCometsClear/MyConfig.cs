@@ -45,5 +45,12 @@ namespace EatCometsClear
 
             System.Configuration.ConfigurationManager.RefreshSection("appSettings");
         }
+
+        public uint ScreenX() { return Convert.ToUInt32(screenX); }
+
+        public uint ScreenY() { return Convert.ToUInt32(screenY); }
+        
+        public string WindowMode() { return System.Configuration.ConfigurationManager.AppSettings["WindowMode"];}
+
     }
 }
