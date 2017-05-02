@@ -10,7 +10,7 @@ using SFML.Graphics;
 
 namespace EatCometsClear
 {
-    class Satelite:Physical_object
+    class Satelite
     {
         public CircleShape kolo;
         public CircleShape obwodka;
@@ -21,6 +21,7 @@ namespace EatCometsClear
 
         public Satelite(int i, float x, float y, int newspeed, bool showDescription)
         {
+
             this.kolo = new CircleShape(); // nowy obiekt: ksztalk kola w pamieci
             Random rnd;
             rnd = new Random();
@@ -109,12 +110,6 @@ namespace EatCometsClear
             this.kolo.FillColor = new Color(0,0, 255);
             this.obwodka.FillColor = new Color(30, 30, 255);
             */
-
-
-            this.enableGravity = true;
-            this.mass = (int)this.kolo.Radius;
-            this.gravityStrength = 1000;
-            this.position = this.kolo.Position;
         }
 
 
@@ -139,7 +134,6 @@ namespace EatCometsClear
             this.obwodka.Position = new Vector2f(this.kolo.Position.X - 1, this.kolo.Position.Y - 1);
             //this.satelite[i].Position = this.position;
 
-            this.position = kolo.Position;
             return distance;
         }
 

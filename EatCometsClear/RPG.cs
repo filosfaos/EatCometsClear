@@ -13,6 +13,7 @@ namespace EatCometsClear
 {
     class RPG : Game
     {
+    
         /// <summary><param name="startNewGame">określa, czy gra ma zostać uruchomiona ponownie przy kolejnym obiegu głównej pętli</param></summary>
         public bool startNewGame { get; set; }
         /// <summary><param name="hero">obiekt reprezentujący gracza</param></summary>
@@ -20,8 +21,9 @@ namespace EatCometsClear
         /// <summary><param name="menuhero">obiekt reprezentujący wizualizację gracza w menu głównym</param></summary>
         Hero menuhero;
         /// <summary><param name="ball">tablica obiektów reprezentująca komety</param></summary>
-        Ball[] ball;
         
+        Ball[] ball;
+
         Music music;
         bool musicEnabled;
         Sound clickSound;
@@ -47,9 +49,9 @@ namespace EatCometsClear
 
         Physic physicCalc;
         RectBlock[] windowBounds;
+        
 
-
-        bool enableRangeWskaznik;// enableGravity;
+        bool enableRangeWskaznik, enableGravity;
         bool enableMusic;
 
         Image ikona;
@@ -66,8 +68,7 @@ namespace EatCometsClear
 
         protected override void LoadContent()
         {
-            //wczytywanie plików gry
-            
+
             /*
             try
             {
@@ -139,11 +140,10 @@ namespace EatCometsClear
 
         protected override void Initialize()
         {
-            
-
+        
 
             //inicjalizacja zmiennych programu
-
+            
             configurancja = new MyConfig();
 
 
@@ -291,10 +291,12 @@ namespace EatCometsClear
             buttonscolor = new Color(69, 128, 69);
             hudelements.Clear();
             hudelements = new System.Collections.ArrayList();
+            
             hudelements.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.25), (uint)(pomX * 0.25), (uint)(pomY * 0.10), "Myszka", window, buttonscolor, buttontextsize, 301));
             hudelements.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "-", window, buttonscolor, buttontextsize, 302));
             hudelements.Add(new Button((uint)(pomX * 0.44), (uint)(pomY * 0.40), (uint)(pomX * 0.17), (uint)(pomY * 0.10), "Czułość", window, buttonscolor, buttontextsize, 303));
             hudelements.Add(new Button((uint)(pomX * 0.62), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "+", window, buttonscolor, buttontextsize, 304));
+
 
             options1HUD = new HeadUpDisplay();
             foreach (Button element in hudelements)
@@ -331,6 +333,7 @@ namespace EatCometsClear
             hudelements.Add(new Button((uint)(pomX * 0.62), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "+", window, buttonscolor, buttontextsize, 506));
             hudelements.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.55), (uint)(pomX * 0.25), (uint)(pomY * 0.10), "Informacje w konsoli", window, buttonscolor, buttontextsize,  508));
             hudelements.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.70), (uint)(pomX * 0.25), (uint)(pomY * 0.10), "Wskaźnik zasięgu", window, buttonscolor, buttontextsize, 507));
+
 
             options3HUD = new HeadUpDisplay();
             foreach (Button element in hudelements)
@@ -444,6 +447,7 @@ namespace EatCometsClear
 
             foreach (Button element in mainMenuHUD.GetButtons())
             {
+
                 //menu główne
                 if (element.id == 101)
                 {
@@ -478,7 +482,6 @@ namespace EatCometsClear
                 {
                     element.hoverAction = delegate () 
                     {
-
 
                         switch (showTip)
                         {
@@ -615,8 +618,9 @@ namespace EatCometsClear
                 {
                     element.hoverAction = delegate () { tipText.DisplayedString = "Zmień ustawienia gry"; };
                     element.onClick = delegate ()
+
                     {
-                        //otwiera podmenu opcji gry
+                        playSound = true;
 
                         Caption handelier;
                         handelier = (Caption)optionbarHUD.GetElementByID(911);
@@ -631,7 +635,7 @@ namespace EatCometsClear
                     element.hoverAction = delegate () { tipText.DisplayedString = "Zmień ustawienia sterowania"; };
                     element.onClick = delegate ()
                     {
-                        //otwiera podmenu opcji obrazu | ekranu
+                        playSound = true;
 
                         Caption handelier;
                         handelier = (Caption)optionbarHUD.GetElementByID(911);
@@ -646,6 +650,7 @@ namespace EatCometsClear
                         qwe += "x";
                         qwe += Convert.ToString(configurancja.screenY);
 
+
                         foreach (Button element1 in options4HUD.GetButtons())
                         {
                             if (element1.id == 11)
@@ -653,13 +658,12 @@ namespace EatCometsClear
                                 element1.tekst.DisplayedString = qwe;
                             }
                         }
-                    };
+
+
+                    }
+
                 }
-            }
-            foreach (Button element in options1HUD.GetButtons())
-            {
-                //podmenu sterownia
-                if (element.tekst.DisplayedString.Equals("W - A - S - D"))
+                if (enableOptions == 1)
                 {
                     element.hoverAction = delegate () { tipText.DisplayedString = "Zmień ustawienia sterowania"; };
                     element.onClick = delegate ()
@@ -694,11 +698,10 @@ namespace EatCometsClear
                                 element.ChangeText("Myszka");
                                 sterowanie = 3;
                                 hero.Changemovement(sterowanie);
-
                         }
-                        else if (element.tekst.DisplayedString.Equals("Myszka"))
+                        if (element.tekst.DisplayedString.Equals("Myszka") && element.DoAction())
                         {
-                            //po kliknieciu zmienia sterownie na klawiature
+                            playSound = true;
                             element.ChangeText("WSAD / Strzałki");
                             sterowanie = 2;
                             hero.Changemovement(sterowanie);
@@ -755,29 +758,19 @@ namespace EatCometsClear
                     {
                         //włącza|wyłącza muzykę
                         tipText.DisplayedString = "Włącz / Wyłącz  muzykę";
+                        
 
-                        if (musicEnabled)
+                        if (element.tekst.DisplayedString.Equals("Zamknij") && element.DoAction())
                         {
-                            music.Pause();
-                            musicEnabled = false;
-
-
-                            Caption handelier;
-                            handelier = (Caption)options2HUD.GetElementByID(23);
-                            handelier.text.DisplayedString = Convert.ToString(musicEnabled);
-                            //textMusicEnable.DisplayedString = Convert.ToString(musicEnabled);
-                            Console.WriteLine("Muzyka wyłączona [*]");
+                            playSound = true;
+                            enableOptions = 0;
                         }
-                        else
-                        {
-                            music.Play();
-                            musicEnabled = true;
 
-                            Caption handelier;
-                            handelier = (Caption)options2HUD.GetElementByID(23);
-                            handelier.text.DisplayedString = Convert.ToString(musicEnabled);
-                            //textMusicEnable.DisplayedString = Convert.ToString(musicEnabled);
-                            Console.WriteLine("Muzyka włączona (y)");
+
+                        if (element.tekst.DisplayedString.Equals("Czułość") && element.DoAction())
+                        {
+                            playSound = true;
+                            showTip = 14;
                         }
                     };
                 }
@@ -803,6 +796,10 @@ namespace EatCometsClear
 
                         Console.WriteLine("Głośność muzyki = " + music.Volume);
 
+                            difficulty[2]--;
+                            if (difficulty[2] < 0)
+                                difficulty[2] = 0;
+                            Console.WriteLine("Czułość = " + difficulty[2]);
 
                         Caption handelier;
                         handelier = (Caption)options2HUD.GetElementByID(24);
@@ -857,6 +854,7 @@ namespace EatCometsClear
                                 clickSound.Volume = 0;
 
 
+
                             Console.WriteLine("Głośność dźwięków = " + clickSound.Volume);
 
 
@@ -873,8 +871,9 @@ namespace EatCometsClear
                         };
                 }
                 if (element.id == 408)
+
                 {
-                    element.onClick = delegate ()
+                    foreach (Button element in options3HUD.GetButtons())
                     {
                         //zmniejsza głośność dźwięków
                         tipText.DisplayedString = "Zmienia głośność dźwięków";
@@ -886,6 +885,7 @@ namespace EatCometsClear
                             if (hoverSound.Volume > 100)
                                 hoverSound.Volume = 100;
                         }
+
 
                         if (clickSound != null)
                         {
@@ -944,24 +944,28 @@ namespace EatCometsClear
                         //włącza | wyłącza wskaźnik zasięgu
                         if (enableRangeWskaznik)
                         {
-                            enableRangeWskaznik = false;
+                            playSound = true;
+                            showTip = 9;
+                            if (enableRangeWskaznik)
+                            {
+                                enableRangeWskaznik = false;
 
-                            Caption handelier;
-                            handelier = (Caption)options3HUD.GetElementByID(1232);
-                            handelier.text.DisplayedString = Convert.ToString(enableRangeWskaznik);
-                            //textRange.DisplayedString = Convert.ToString(enableRangeWskaznik);
-                        }
-                        else
-                        {
-                            enableRangeWskaznik = true;
+                                Caption handelier;
+                                handelier = (Caption)options3HUD.GetElementByID(1232);
+                                handelier.text.DisplayedString = Convert.ToString(enableRangeWskaznik);
+                                //textRange.DisplayedString = Convert.ToString(enableRangeWskaznik);
+                            }
+                            else
+                            {
+                                enableRangeWskaznik = true;
 
-                            Caption handelier;
-                            handelier = (Caption)options3HUD.GetElementByID(1232);
-                            handelier.text.DisplayedString = Convert.ToString(enableRangeWskaznik);
-                            //textRange.DisplayedString = Convert.ToString(enableRangeWskaznik);
+                                Caption handelier;
+                                handelier = (Caption)options3HUD.GetElementByID(1232);
+                                handelier.text.DisplayedString = Convert.ToString(enableRangeWskaznik);
+                                //textRange.DisplayedString = Convert.ToString(enableRangeWskaznik);
+                            }
                         }
-                    };
-                }
+
 
                 if (element.id == 502)
                 {
@@ -984,10 +988,12 @@ namespace EatCometsClear
                         Console.WriteLine("Trudność = " + difficulty[0]);
 
 
-                        Caption handelier;
-                        handelier = (Caption)options3HUD.GetElementByID(1234);
-                        handelier.text.DisplayedString = Convert.ToString(difficulty[0]);
-                        //textDifficulty.DisplayedString = Convert.ToString(difficulty[0]);
+                                difficulty[0]--;
+                                if (difficulty[0] < 0)
+                                    difficulty[0] = 0;
+                                Console.WriteLine("Trudność = " + difficulty[0]);
+
+
 
                     };
                 }
@@ -999,8 +1005,10 @@ namespace EatCometsClear
                         //zwiększa bonusowy zasięg
                         tipText.DisplayedString = "Dodatkowy zasięg połykania komet";
 
-                        difficulty[0]++;
-                        Console.WriteLine("Trudność = " + difficulty[0]);
+
+                                difficulty[0]++;
+                                Console.WriteLine("Trudność = " + difficulty[0]);
+
 
                         Caption handelier;
                         handelier = (Caption)options3HUD.GetElementByID(1234);
@@ -1024,11 +1032,12 @@ namespace EatCometsClear
                     {
                         //zmiejsza siłę grawitacji
 
-                        difficulty[1]--;
-                        if (difficulty[1] < 0)
-                            difficulty[1] = 0;
+                                difficulty[1]--;
+                                if (difficulty[1] < 0)
+                                    difficulty[1] = 0;
 
-                        Console.WriteLine("Grawitacja = " + difficulty[1]);
+                                Console.WriteLine("Grawitacja = " + difficulty[1]);
+
 
                         Caption handelier;
                         handelier = (Caption)options3HUD.GetElementByID(1233);
@@ -1043,9 +1052,9 @@ namespace EatCometsClear
                     {
                         //zwiększa siłę grawitacji
 
-                        difficulty[1]++;
+                                difficulty[1]++;
 
-                        Console.WriteLine("Grawitacja = " + difficulty[1]);
+                                Console.WriteLine("Grawitacja = " + difficulty[1]);
 
                         Caption handelier;
                         handelier = (Caption)options3HUD.GetElementByID(1233);
@@ -1072,22 +1081,23 @@ namespace EatCometsClear
                         //zmienia tryb na połykanie | włącza grawitacje
                         showTip = 10;
                         if (enableGravity)
+
                         {
+                            playSound = true;
+                            showTip = 10;
                             enableGravity = false;
                             element.ChangeText("Połykanie");
                         }
-                        else
+                        if (element.tekst.DisplayedString.Equals("Połykanie") && element.DoAction())
                         {
-                            //zmienia tryb na przyciąganie | włącza grawitację
+                            playSound = true;
+                            showTip = 10;
                             enableGravity = true;
                             element.ChangeText("Przyciąganie");
-                        }
-                    };
-                }
-                */
-            }
 
-            //ustawienia obrazu i ekranu, rozdzielczość i tryb wyświetlania
+                        }
+                    }
+                }
 
             foreach (Button element in options4HUD.GetButtons())
             {
@@ -1110,62 +1120,64 @@ namespace EatCometsClear
 
 
                         if (configurancja.screenX.Equals("800"))
+
                         {
-                            configurancja.screenX = Convert.ToString(1024);
-                            configurancja.screenY = Convert.ToString(768);
-                            foreach (Button element1 in options4HUD.GetButtons())
+                            playSound = true;
+                            showTip = 19;
+                            if (configurancja.screenX.Equals("800"))
                             {
+
                                 if (element1.id == 602)
+
                                 {
-                                    element1.tekst.DisplayedString = "1024x768";
+                                    if (element1.id == 11)
+                                    {
+                                        element1.tekst.DisplayedString = "1024x768";
+                                    }
                                 }
                             }
-                        }
-                        else if (configurancja.screenX.Equals("1024"))
-                        {
-                            configurancja.screenX = Convert.ToString(1280);
-                            configurancja.screenY = Convert.ToString(720);
-                            foreach (Button element1 in options4HUD.GetButtons())
+                            else if (configurancja.screenX.Equals("1024"))
                             {
+
                                 if (element1.id == 602)
+
                                 {
-                                    element1.tekst.DisplayedString = "1280x720";
+                                    if (element1.id == 11)
+                                    {
+                                        element1.tekst.DisplayedString = "1280x720";
+                                    }
                                 }
                             }
-                        }
-                        else if (configurancja.screenX.Equals("1280"))
-                        {
-                            configurancja.screenX = Convert.ToString(1366);
-                            configurancja.screenY = Convert.ToString(768);
-                            foreach (Button element1 in options4HUD.GetButtons())
+                            else if (configurancja.screenX.Equals("1280"))
                             {
+
                                 if (element1.id == 602)
                                 {
-                                    element1.tekst.DisplayedString = "1366x768";
+                                    if (element1.id == 11)
+                                    {
+                                        element1.tekst.DisplayedString = "1366x768";
+                                    }
                                 }
                             }
-                        }
-                        else if (configurancja.screenX.Equals("1366"))
-                        {
-                            configurancja.screenX = Convert.ToString(1920);
-                            configurancja.screenY = Convert.ToString(1080);
-                            foreach (Button element1 in options4HUD.GetButtons())
+                            else if (configurancja.screenX.Equals("1366"))
                             {
                                 if (element1.id == 602)
                                 {
-                                    element1.tekst.DisplayedString = "1920x1080";
+                                    if (element1.id == 11)
+                                    {
+                                        element1.tekst.DisplayedString = "1920x1080";
+                                    }
                                 }
                             }
-                        }
-                        else if (configurancja.screenX.Equals("1920"))
-                        {
-                            configurancja.screenX = Convert.ToString(800);
-                            configurancja.screenY = Convert.ToString(600);
-                            foreach (Button element1 in options4HUD.GetButtons())
+                            else if (configurancja.screenX.Equals("1920"))
                             {
+
                                 if (element1.id == 602)
                                 {
-                                    element1.tekst.DisplayedString = "800x600";
+                                    if (element1.id == 11)
+                                    {
+                                        element1.tekst.DisplayedString = "800x600";
+                                    }
                                 }
                             }
                         }
@@ -1186,61 +1198,58 @@ namespace EatCometsClear
 
                         if (configurancja.screenX.Equals("800"))
                         {
-                            configurancja.screenX = Convert.ToString(1920);
-                            configurancja.screenY = Convert.ToString(1080);
-                            foreach (Button element1 in options4HUD.GetButtons())
+                            playSound = true;
+                            showTip = 19;
+                            if (configurancja.screenX.Equals("800"))
                             {
                                 if (element1.id == 602)
                                 {
-                                    element1.tekst.DisplayedString = "1920x1080";
+                                    if (element1.id == 11)
+                                    {
+                                        element1.tekst.DisplayedString = "1920x1080";
+                                    }
                                 }
                             }
-                        }
-                        else if (configurancja.screenX.Equals("1024"))
-                        {
-                            configurancja.screenX = Convert.ToString(800);
-                            configurancja.screenY = Convert.ToString(600);
-                            foreach (Button element1 in options4HUD.GetButtons())
+                            else if (configurancja.screenX.Equals("1024"))
                             {
+
                                 if (element1.id == 602)
                                 {
-                                    element1.tekst.DisplayedString = "800x600";
+                                    if (element1.id == 11)
+                                    {
+                                        element1.tekst.DisplayedString = "800x600";
+                                    }
                                 }
                             }
-                        }
-                        else if (configurancja.screenX.Equals("1280"))
-                        {
-                            configurancja.screenX = Convert.ToString(1024);
-                            configurancja.screenY = Convert.ToString(768);
-                            foreach (Button element1 in options4HUD.GetButtons())
+                            else if (configurancja.screenX.Equals("1280"))
                             {
+
                                 if (element1.id == 602)
                                 {
-                                    element1.tekst.DisplayedString = "1024x768";
+                                    if (element1.id == 11)
+                                    {
+                                        element1.tekst.DisplayedString = "1024x768";
+                                    }
                                 }
                             }
-                        }
-                        else if (configurancja.screenX.Equals("1366"))
-                        {
-                            configurancja.screenX = Convert.ToString(1280);
-                            configurancja.screenY = Convert.ToString(720);
-                            foreach (Button element1 in options4HUD.GetButtons())
+                            else if (configurancja.screenX.Equals("1366"))
                             {
                                 if (element1.id == 602)
                                 {
-                                    element1.tekst.DisplayedString = "1280x720";
+                                    if (element1.id == 11)
+                                    {
+                                        element1.tekst.DisplayedString = "1280x720";
+                                    }
                                 }
                             }
-                        }
-                        else if (configurancja.screenX.Equals("1920"))
-                        {
-                            configurancja.screenX = Convert.ToString(1366);
-                            configurancja.screenY = Convert.ToString(768);
-                            foreach (Button element1 in options4HUD.GetButtons())
+                            else if (configurancja.screenX.Equals("1920"))
                             {
                                 if (element1.id == 602)
                                 {
-                                    element1.tekst.DisplayedString = "1366x768";
+                                    if (element1.id == 11)
+                                    {
+                                        element1.tekst.DisplayedString = "1366x768";
+                                    }
                                 }
                             }
                         }
@@ -1265,9 +1274,22 @@ namespace EatCometsClear
 
                         if (configurancja.windowMode.Equals("full"))
                         {
-                            configurancja.windowMode = "window";
+                            playSound = true;
+                            showTip = 18;
+                            if (configurancja.windowMode.Equals("full"))
+                            {
+                                configurancja.windowMode = "window";
+                            }
+                            else if (configurancja.windowMode.Equals("window"))
+                            {
+                                configurancja.windowMode = "full";
+                            }
+
+                            Caption handelier;
+                            handelier = (Caption)options4HUD.GetElementByID(14);
+                            handelier.text.DisplayedString = Convert.ToString(configurancja.windowMode);
                         }
-                        else if (configurancja.windowMode.Equals("window"))
+                        if (element.tekst.DisplayedString.Equals("Zapisz") && element.DoAction())
                         {
                             configurancja.windowMode = "full";
                         }
@@ -1614,62 +1636,51 @@ namespace EatCometsClear
                 {
                     playSound = optionbarHUD.Tick();
 
-                    if (!playSound)
-                    {
-                        switch (enableOptions)
-                        {
-                            case 1:
-                                playSound = options1HUD.Tick();
-                                break;
-                            case 2:
-                                playSound = options2HUD.Tick();
-                                break;
-                            case 3:
-                                playSound = options3HUD.Tick();
-                                break;
-                            case 4:
-                                playSound = options4HUD.Tick();
-                                break;
-                            default:
-                                break;
                         }
+                        if (element.tekst.DisplayedString.Equals("R") && element.DoAction())
+                        {
+                            playSound = true;
+                            startNewGame = true;
+                            window.Close();
+                        }
+
                     }
                 }
             }
+
+            hero.additionalRange = difficulty[0];
+            hero.gravityStrength = difficulty[1];
+            hero.step = difficulty[2] / 10;
+            hero.enableRange = enableRangeWskaznik;
+            hero.enableGravity = enableGravity;
+
             return playSound;
         }
         
         protected override void Render()
         {
-            //generuje klatkę do wyświetlenia
-
             if (gamestarted == true)
             {
-                //jeżeli stan gry oznacza uruchomioną grę, wyświetla komety i gracza
+                // window.Draw(map);
+
                 for (int i = 0; i < ball.Length; i++)
                 {
                     if (ball[i] != null)
                         window.Draw(ball[i].kolo);
                 }
+                
 
                 hero.Draw();
             }
             else
             {
-                //jeży stan gry oznacza menu główne, rysuje interfejs menu
-
-                //te słoneczko po prawej
                 menuhero.Draw();
                 
-                //główne menu główne
                 mainMenuHUD.Draw();
                 
-
                 //wskazowka
                     window.Draw(tipText);
 
-
-                //jeżeli jakieś podmenu jest otwarte
                 if (enableOptions >= 1)
                 {
                     optionbarHUD.Draw();

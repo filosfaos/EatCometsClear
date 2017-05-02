@@ -19,6 +19,7 @@ namespace EatCometsClear
         public Vector2f position;
         public int gravityStrength;
         public bool enableGravity;
+      
         protected int minimalMass;
         public Shape CollisionShape { get; set; }
         public Vector2f SolidCollisionEffect { get; set; }
