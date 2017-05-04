@@ -10,7 +10,7 @@ using SFML.Graphics;
 
 namespace EatCometsClear
 {
-    class Satelite
+    class Satelite : Physical_object
     {
         public CircleShape kolo;
         public CircleShape obwodka;
@@ -21,7 +21,6 @@ namespace EatCometsClear
 
         public Satelite(int i, float x, float y, int newspeed, bool showDescription)
         {
-
             this.kolo = new CircleShape(); // nowy obiekt: ksztalk kola w pamieci
             Random rnd;
             rnd = new Random();
@@ -29,7 +28,7 @@ namespace EatCometsClear
             int g = (byte)rnd.Next(0, 255);
             int b = (byte)rnd.Next(0, 255);
 
-            if(showDescription)
+            if (showDescription)
                 Console.WriteLine("    RGB " + r + " " + b + " " + g);
 
             this.kolo.FillColor = new Color((byte)r, (byte)g, (byte)b); // parametryzujemy go. New obiekt Color nie zostnaie w pamieci - brak referencji sprawi, ze zostanie usuniety
@@ -73,7 +72,7 @@ namespace EatCometsClear
                 b = 0;
 
             this.obwodka.FillColor = new Color((byte)r, (byte)g, (byte)b);
-            if(showDescription)
+            if (showDescription)
                 Console.WriteLine("    RGB " + r + " " + b + " " + g);
             this.obwodka.Position = new Vector2f(this.kolo.Position.X - 1, this.kolo.Position.Y - 1);
 
@@ -93,7 +92,7 @@ namespace EatCometsClear
                 this.speed = -this.speed;
 
             this.speed *= 4;
-            if(showDescription)
+            if (showDescription)
                 Console.WriteLine("    prędkość " + this.speed + "'");
 
             this.speed /= 60;
@@ -110,6 +109,12 @@ namespace EatCometsClear
             this.kolo.FillColor = new Color(0,0, 255);
             this.obwodka.FillColor = new Color(30, 30, 255);
             */
+
+
+            this.enableGravity = true;
+            this.mass = (int)this.kolo.Radius;
+            this.gravityStrength = 1000;
+            this.position = this.kolo.Position;
         }
 
 
@@ -124,7 +129,7 @@ namespace EatCometsClear
             if (this.kat > this.maxPosition)
                 this.kat = startPosition;
 
-            distance += (int)(this.obwodka.Radius*2.5);
+            distance += (int)(this.obwodka.Radius * 2.5);
 
             //te gówniaki *whichball zmieniają czy poruszaja sie po okręgu czy elipsie
             float cos = Convert.ToSingle((cosinuser + distance) * Math.Cos((this.kat * Math.PI) / 180));
@@ -134,6 +139,7 @@ namespace EatCometsClear
             this.obwodka.Position = new Vector2f(this.kolo.Position.X - 1, this.kolo.Position.Y - 1);
             //this.satelite[i].Position = this.position;
 
+            this.position = kolo.Position;
             return distance;
         }
 

@@ -15,7 +15,7 @@ namespace EatCometsClear
     partial class Hero : Orbiter, ICloneable, Drawable
     {
         //static System.Collections.ArrayList heromenu;
-        private HeadUpDisplay heromenuHUD;
+        private HeadUpDisplay heromenuHUD, menuStatsHUD;
         private RenderWindow okienko;
         public bool enablemovement;
         private int numberofballs;
@@ -25,21 +25,21 @@ namespace EatCometsClear
         public int step;
         public int additionalRange;
         public bool enableRange;
-        
         private bool planetsGravity;
         private bool planetsGravityEnable;
         public bool MenuStatistic { get; set; }
         int sterowanie;
         private bool enableManipulation;
+        private bool enableManipulationBuyed;
         int density;
         private bool lastGravity;
         SFML.Audio.Sound collectSound;
         private int soundColldown;
-        
         public bool IsPlaying;
         Random randomizer;
         private Text maximumGet;
         private bool tabCooldown;
+        int addPlanets;
 
         public int sharedGravity;
 
@@ -64,8 +64,10 @@ namespace EatCometsClear
     {
         public Hero(RenderWindow okienko, float x, float y, Color color, int screenX, int screenY, bool eneblemovementt, int sterowanie)
         {
+            addPlanets = 0;
+
             randomizer = new Random();
-            
+
             tabCooldown = true;
 
             IsPlaying = false;
@@ -75,13 +77,14 @@ namespace EatCometsClear
 
             this.enableGravity = true;
             this.sharedGravity = 15;
+
             soundColldown = 0;
             this.enablemovement = eneblemovementt;
             this.okienko = okienko;
 
             lastGravity = false;
 
-            density = 1000;
+            density = 100;
             enableManipulation = false;
 
 
@@ -89,7 +92,7 @@ namespace EatCometsClear
 
             SetMenu();
 
-        
+
             this.additionalRange = 10;
 
             this.step = (int)okienko.Size.X / 180;
@@ -130,7 +133,7 @@ namespace EatCometsClear
             this.CalculateRadius();
         }
 
-        public void RebuidGUI( RenderWindow window)
+        public void RebuidGUI(RenderWindow window)
         {
             this.okienko = window;
             heromenuHUD = null;
@@ -158,35 +161,35 @@ namespace EatCometsClear
             if (this.okienko.Size.X == 1024)
                 buttontextsize = (uint)(pomX * 0.025);
             if (this.okienko.Size.X == 800)
-                buttontextsize = (uint)(pomX * 0.015);
+                buttontextsize = (uint)(pomX * 0.022);
 
             Color buttonscolor = new Color(69, 69, 0);
             Text Gamename;
             Gamename = new Text();
-            Gamename.DisplayedString = "Małe słońce";
+            Gamename.DisplayedString = "Kometa";
             Gamename.Font = new Font("fonts/arial.ttf");
             Gamename.Position = new Vector2f((uint)(pomX * 0.03), (uint)(pomY * 0.03));
-            Gamename.Color = new Color(138, 7, 7);
+            Gamename.Color = new Color(128, 128, 128);
             Gamename.CharacterSize = (uint)(pomY * 0.15);
 
             heromenu.Add(new Caption(Gamename, 1, okienko));
-            heromenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.25), (uint)(pomX * 0.15), (uint)(pomY * 0.1), "Awansuj", okienko, buttonscolor, buttontextsize, 0));
-            heromenu.Add(new Button((uint)(pomX * 0.24), (uint)(pomY * 0.25), (uint)(pomX * 0.09), (uint)(pomY * 0.1), "X", okienko, new Color(200, 128, 64), buttontextsize, 1));
-            heromenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "-", okienko, buttonscolor, buttontextsize, 2));
-            heromenu.Add(new Button((uint)(pomX * 0.12), (uint)(pomY * 0.40), (uint)(pomX * 0.17), (uint)(pomY * 0.10), "masa->planeta", okienko, buttonscolor, buttontextsize, 0));
-            heromenu.Add(new Button((uint)(pomX * 0.30), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "+", okienko, buttonscolor, buttontextsize, 2));
-            heromenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.57), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "?", okienko, buttonscolor, buttontextsize, 3));
-            heromenu.Add(new Button((uint)(pomX * 0.12), (uint)(pomY * 0.55), (uint)(pomX * 0.17), (uint)(pomY * 0.10), "odblokuj", okienko, buttonscolor, buttontextsize, 3));
-            heromenu.Add(new Button((uint)(pomX * 0.30), (uint)(pomY * 0.57), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "X", okienko, new Color(128, 0, 0), buttontextsize, 4));
-            heromenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.70), (uint)(pomX * 0.25), (uint)(pomY * 0.1), "przycisk", okienko, buttonscolor, buttontextsize, 0));
 
+            heromenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.70), (uint)(pomX * 0.25), (uint)(pomY * 0.1), "Rozszerzona grawitacja", okienko, buttonscolor, buttontextsize, 21));
+            heromenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "-", okienko, new Color(81, 91, 73), buttontextsize, 23));
+            heromenu.Add(new Button((uint)(pomX * 0.12), (uint)(pomY * 0.40), (uint)(pomX * 0.17), (uint)(pomY * 0.10), "masa->planeta", okienko, new Color(51, 61, 43), buttontextsize, 22));
+            heromenu.Add(new Button((uint)(pomX * 0.30), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "+", okienko, new Color(81, 91, 73), buttontextsize, 24));
+            heromenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.25), (uint)(pomX * 0.15), (uint)(pomY * 0.1), "Ewolucja", okienko, buttonscolor, buttontextsize, 25));
+            heromenu.Add(new Button((uint)(pomX * 0.24), (uint)(pomY * 0.25), (uint)(pomX * 0.09), (uint)(pomY * 0.1), "X", okienko, new Color(200, 128, 64), buttontextsize, 1));
+            heromenu.Add(new Button((uint)(pomX * 0.29), (uint)(pomY * 0.61), (uint)(pomX * 0.04), (uint)(pomY * 0.06), "+", okienko, new Color(81, 91, 73), buttontextsize, 28));
+            heromenu.Add(new Button((uint)(pomX * 0.13), (uint)(pomY * 0.61), (uint)(pomX * 0.15), (uint)(pomY * 0.06), "Odblokuj", okienko, buttonscolor, buttontextsize, 29));
+            heromenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.61), (uint)(pomX * 0.04), (uint)(pomY * 0.06), "-", okienko, new Color(81, 91, 73), buttontextsize, 27));
+            heromenu.Add(new Button((uint)(pomX * 0.08), (uint)(pomY * 0.53), (uint)(pomX * 0.25), (uint)(pomY * 0.06), "Gęstość", okienko, new Color(51, 61, 43), buttontextsize, 26));
             Gamename = null;
 
             Gamename = new Text("Menu postaci", new Font("fonts/arial.ttf"), (uint)(pomY * 0.022222));
             Gamename.Position = new Vector2f((uint)(pomX * 0.08), (uint)(pomY * 0.833333));
             Gamename.Color = new Color(Color.White);
             heromenu.Add(new Caption(Gamename, 31, okienko));
-
 
             heromenuHUD = new HeadUpDisplay(heromenu);
 
@@ -237,11 +240,11 @@ namespace EatCometsClear
             maximumGet.Position = new Vector2f((uint)(pomX * 0.06), (uint)(pomY * 0.9));
             maximumGet.Color = new Color(255, 255, 255, 128);
 
+
         }
 
         private void SetMenu()
         {
-
             foreach (Button element in heromenuHUD.GetButtons())
             {
                 if (element.id == 1)
@@ -289,6 +292,7 @@ namespace EatCometsClear
                     {
                         if (this.planetsGravity)
                             heromenuHUD.ChangeCaptionByID(31, "Umiejętność sprawiająca, że planety zjadają komety");
+
                         else
                             heromenuHUD.ChangeCaptionByID(31, "Umiejętność sprawiająca, że planety zjadają komety || koszt 50 masy");
                     };
@@ -380,7 +384,7 @@ namespace EatCometsClear
                 {
                     element.hoverAction = delegate ()
                     {
-                        if(enableManipulationBuyed)
+                        if (enableManipulationBuyed)
                             heromenuHUD.ChangeCaptionByID(31, "Zwiększ gęstość");
                         else
                             heromenuHUD.ChangeCaptionByID(31, "Umiejętność pozwalająca manipulować gęstością |- koszt 100 masy");
@@ -395,7 +399,7 @@ namespace EatCometsClear
                                 density = 10;
 
                             this.CalculateRadius();
-                            if(AdditionalInfo)
+                            if (AdditionalInfo)
                                 Console.WriteLine("gęstość = " + density);
                         }
                     };
@@ -404,7 +408,7 @@ namespace EatCometsClear
                 {
                     element.hoverAction = delegate ()
                     {
-                        if(enableManipulationBuyed)
+                        if (enableManipulationBuyed)
                             heromenuHUD.ChangeCaptionByID(31, "Zmniejsz gęstość");
                         else
                             heromenuHUD.ChangeCaptionByID(31, "Zmniejsz gęstość |-koszt umiejętności 100 masy");
@@ -415,7 +419,7 @@ namespace EatCometsClear
                         {
                             this.density++;
                             this.CalculateRadius();
-                            if(AdditionalInfo)   
+                            if (AdditionalInfo)
                                 Console.WriteLine("gęstość = " + density);
                         }
                     };
@@ -441,7 +445,7 @@ namespace EatCometsClear
                     };
                     element.hoverAction = delegate ()
                     {
-                        if(enableManipulation)
+                        if (enableManipulation)
                             heromenuHUD.ChangeCaptionByID(31, "Umiejętność włączona");
                         else
                             heromenuHUD.ChangeCaptionByID(31, "Umiejętność wyłączona");
@@ -476,7 +480,7 @@ namespace EatCometsClear
     }
 
     partial class Hero
-    { 
+    {
         public void Draw()
         {
             if (!MenuStatistic)
@@ -502,9 +506,9 @@ namespace EatCometsClear
                 heromenuHUD.Draw();
                 menuStatsHUD.Draw();
             }
-            
-            if(IsPlaying)
-                if ((this.mass + this.satelite.Count - this.status*0.5 > status) || ((type == "black_hole") || (type == "galaxy_center") ))
+
+            if (IsPlaying)
+                if ((this.mass + this.satelite.Count - this.status * 0.5 > status) || ((type == "black_hole") || (type == "galaxy_center")))
                     okienko.Draw(maximumGet);
 
         }
@@ -513,7 +517,7 @@ namespace EatCometsClear
         {
             if (range == 0)
                 range = (uint)this.obwodka.Radius;
-            
+
 
             if (this.enableGravity)
             {
@@ -550,11 +554,11 @@ namespace EatCometsClear
             pos1.X = 0;
             pos2.Y -= pos1.Y;
             pos1.Y = 0;
-            float c = (float)(Math.Pow(pos2.X, 2) + Math.Pow(pos2.Y, 2) - Math.Pow(radius2,2));
+            float c = (float)(Math.Pow(pos2.X, 2) + Math.Pow(pos2.Y, 2) - Math.Pow(radius2, 2));
 
             if (c < radius1)
                 return true;
-          
+
             return false;
         }
 
@@ -580,12 +584,10 @@ namespace EatCometsClear
         {
             satelite.Add(new Satelite(i, this.position.X, this.position.Y, newspeed, AdditionalInfo));
             //satelite[i] = new satelite(i, this.position.X, this.position.Y, newspeed);
-
         }
 
         public void ChangeStatus()
         {
-
             int howmuch = 5;
             switch (thisStar)
             {
@@ -601,7 +603,7 @@ namespace EatCometsClear
                         this.minimalMass = 2;
 
                         status = 10;
-                        
+
                     }
                     break;
                 case StarType.basic_sun:
@@ -689,13 +691,21 @@ namespace EatCometsClear
                         heromenuHUD.ChangeCaptionByID(1, "Supernova");
                         heromenuHUD.ChangeTextColorByID(1, new Color(255, 200, 200));
                         this.minimalMass = 200;
-                        this.mass += 50;
+                        this.mass += 10;
                         nextType = "black_hole";
                     }
                     break;
                 case StarType.supernova:
                     {
-                        nextType = "galaxy_center";
+                        this.kolo.FillColor = new Color(0, 0, 0);
+                        this.obwodka.FillColor = new Color(Color.Black);
+                        Console.WriteLine("Czorna");
+                        type = "black_hole";
+
+                        heromenuHUD.ChangeCaptionByID(1, "Czarna dziura");
+                        heromenuHUD.ChangeTextColorByID(1, new Color(131, 131, 131));
+                        this.minimalMass = 200;
+                        nextType = "black_hole";
                     }
                     break;
                 case StarType.black_hole:
@@ -707,15 +717,14 @@ namespace EatCometsClear
 
             if (thisStar != StarType.galaxy_center)
                 thisStar++;
-            
+
             this.Go('x', 0, 0, 0);
         }
 
         private void WhatsGoingOn(int numberofframe)
         {
 
-
-            if (((this.satelite.Count > 0) && Keyboard.IsKeyPressed(Keyboard.Key.Q)) || ((this.satelite.Count > 0) && this.type == "black_hole"))
+            if (((this.satelite.Count > 0) && Keyboard.IsKeyPressed(Keyboard.Key.Q)))
             {
                 if (numberofframe % 3 == 0) // Co trzecią klatkę, coby za szybko nie było
                 {
@@ -802,27 +811,38 @@ namespace EatCometsClear
 
             }
 
+            float max_radius = 100;
 
+
+            if (this.type == "comet")
+            {
+                max_radius = 5;
+            }
             if (this.type == "small_sun")
             {
-                this.kolo.Radius = (float)(this.mass * 0.001 * density);
-                this.obwodka.Radius = this.kolo.Radius + 2;
+                max_radius = 10;
             }
             if (this.type == "medium_sun")
             {
-                this.kolo.Radius = (float)(this.mass * 0.0009 * density);
-                this.obwodka.Radius = this.kolo.Radius + 2;
+                max_radius = 15;
+            }
+            if (this.type == "red_giant")
+            {
+                max_radius = 50;
+
             }
             if (this.type == "neutron_star")
             {
-                this.kolo.Radius = (float)(this.mass * 0.0005 * density);
-                this.obwodka.Radius = this.kolo.Radius + 2;
+                max_radius = 50;
             }
 
             if (this.type == "white_cancer")
             {
-                this.kolo.Radius = (float)(this.mass * 0.00005 * density);
-                this.obwodka.Radius = this.kolo.Radius + 2;
+                max_radius = 5;
+            }
+            if (this.type == "black_hole")
+            {
+                max_radius = 100;
             }
 
             this.kolo.Radius = this.mass;
@@ -830,12 +850,12 @@ namespace EatCometsClear
             if (max_radius < this.mass)
                 this.kolo.Radius = max_radius;
 
-            if(enableManipulation)
+            if (enableManipulation)
                 this.kolo.Radius = (float)(this.kolo.Radius * 0.01 * density);
 
             this.obwodka.Radius = this.kolo.Radius + 2;
 
-            if(AdditionalInfo)
+            if (AdditionalInfo)
                 Console.WriteLine("radius " + (this.kolo.Radius));
         }
 
@@ -866,8 +886,10 @@ namespace EatCometsClear
         public int Tick(bool movement, int numberofframe, Ball[] ball)
         {
             soundColldown++;
-            
+
             heromenuHUD.ChangeCaptionByID(31, "");
+
+
 
             if (type == "supernova")
             {
@@ -889,8 +911,10 @@ namespace EatCometsClear
                         this.Go('x', (int)(okienko.Size.X / 2 - this.position.X), (int)okienko.Size.X, (int)okienko.Size.Y);
                         this.Go('y', (int)(okienko.Size.Y / 2 - this.position.Y), (int)okienko.Size.X, (int)okienko.Size.Y);
 
-                        soundColldown = 600;
+                        addPlanets = 20;
+
                         enablemovement = false;
+                        MenuStatistic = false;
                         ChangeStatus();
                         maximumGet.DisplayedString = "The End";
                     }
@@ -898,32 +922,30 @@ namespace EatCometsClear
             }
             else if (type == "black_hole")
             {
-                if (satelite.Count > 0)
+                if (satelite != null)
                 {
-                    if (soundColldown > 0)
+                    if (numberofframe % 2 == 0)
                     {
                         AddSatelite();
-                    }
-                    if (numberofframe % 4 == 0)
-                    {
                         RemoveSatelite();
                     }
                 }
-                else
-                {
-                    satelite.Clear();
-                    ChangeStatus();
+
                     maximumGet.DisplayedString = "The End";
-                }
             }
 
-
+            if(addPlanets > 0)
+            {
+                addPlanets--;
+                mass++;
+                AddSatelite();
+            }
 
 
 
             if (movement)
             {
-                
+
                 if (Keyboard.IsKeyPressed(Keyboard.Key.Tab))
                 {
                     if (tabCooldown)
@@ -952,7 +974,6 @@ namespace EatCometsClear
                     else
                     {
 
-
                     }
                 }
                 else
@@ -962,39 +983,44 @@ namespace EatCometsClear
 
                 if (MenuStatistic)
                 {
-                    this.MenuTick();
+                    this.heromenuHUD.Tick();
+                    menuStatsHUD.ChangeCaptionByID(12, Convert.ToString(this.mass));
+                    menuStatsHUD.ChangeCaptionByID(16, Convert.ToString(this.status));
+                    if (satelite != null)
+                        menuStatsHUD.ChangeCaptionByID(14, Convert.ToString(this.satelite.Count - 1));
+                    else
+                        menuStatsHUD.ChangeCaptionByID(14, Convert.ToString(0));
                 }
                 else
                 {
                     WhatsGoingOn(numberofframe);
 
-                    if (type != "black_hole")
+                    if ((type != "black_hole") && (type != "galaxy_center"))
                     {
-
-                        if ( (mass + this.satelite.Count - this.status*0.5 - 1 < this.status) )
+                        if ((mass + this.satelite.Count - this.status * 0.5 - 1 < this.status))
                         {
-                            if (ball[i] != null)
+                            for (int i = 0; i < ball.Length; i++)
                             {
-                                if (this.Near(ball[i].position, ball[i].kolo.Radius, (uint)(distanceOfLastSatelite)))
+                                if (ball[i] != null)
                                 {
                                     if (this.Near(ball[i].position, ball[i].kolo.Radius, (uint)(0)))
                                     {
-                                        if (soundColldown > 120)
+                                        numberofballs++;
+                                        ball[i].Remake();
+                                        if (0 == (numberofballs % 10) && (numberofballs > 0))
                                         {
-                                            if ((collectSound != null) && (collectSound.Status == SFML.Audio.SoundStatus.Stopped))
+                                            if (soundColldown > 120)
                                             {
-                                                collectSound.Play();
+                                                if ((collectSound != null) && (collectSound.Status == SFML.Audio.SoundStatus.Stopped))
+                                                {
+                                                    collectSound.Play();
+                                                }
                                             }
-                                          
-                                          
+
                                             soundColldown = 0;
                                             this.mass++;
                                             CalculateRadius();
                                         }
-
-                                        soundColldown = 0;
-                                        this.mass++;
-                                        AddSatelite();
                                     }
                                 }
                             }
@@ -1021,36 +1047,13 @@ namespace EatCometsClear
                             }
                         }
                     }
-                    if (status == 300)
-                    {
-                        numberofballs++;
-                        if ((numberofballs / 10) == 300)
-                        {
-                            this.ChangeStatus(status);
-                            status = 400;
-                        }
-                    }
-                    else if (status == 400)
-                    {
-                        if (numberofsatelites == 0)
-                        {
-                            this.satelite.Clear();
-                            numberofsatelites--;
-                            Console.WriteLine("Wsiorbałeś cały kosmos xD");
-                            Console.WriteLine("Pozdro i papatki");
-                            ball = null;
-
-                            return 3;
-                        }
-                    }
                 }
             }
 
 
-
-            if(type == "supernova")
+            if (type == "supernova")
             {
-                int magic = this.satelite.Count+1;
+                int magic = this.satelite.Count + 1;
                 this.kolo.Radius = randomizer.Next(magic - 20, magic);
                 this.obwodka.Radius = this.kolo.Radius + 2;
                 this.Go('x', 0, (int)okienko.Size.X, (int)okienko.Size.Y);
@@ -1070,9 +1073,25 @@ namespace EatCometsClear
 
             return 0;
         }
+
+        public List<Satelite> GetSatelitesOfGravity()
+        {
+            if (this.satelite.Count == 0)
+            {
+                List<Satelite> returning = new List<Satelite>();
+
+                for (int i = 0; i < this.sharedGravity; i++)
+                {
+                    if (this.satelite[i] != null)
+                    {
+                        returning.Add(this.satelite[i]);
                     }
                 }
+
+                return returning;
             }
+
+            return new List<Satelite>();
         }
 
         public void Changemovement(int a)
@@ -1094,7 +1113,7 @@ namespace EatCometsClear
         {
             this.Draw();
         }
-        
+
     }
 
 }

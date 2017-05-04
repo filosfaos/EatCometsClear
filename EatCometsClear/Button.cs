@@ -11,7 +11,7 @@ using SFML.Audio;
 
 namespace EatCometsClear
 {
-    class Button :Drawabable, Drawable
+    class Button : Drawabable, Drawable
     {
 
         float rx, ry, rw, rh;
@@ -22,7 +22,6 @@ namespace EatCometsClear
         public bool doAction;
         Color color, activeColor;
         private int iletyczymasz;
-        
         public delegate void OnClickDelegate();
         public OnClickDelegate onClick;
         public OnClickDelegate onRightClick;
@@ -35,13 +34,13 @@ namespace EatCometsClear
         public Button()
         { }
 
-        public Button(float posx, float posy, float width, float height, string napis, RenderWindow okno, Color color, uint textsize, int id )
+        public Button(float posx, float posy, float width, float height, string napis, RenderWindow okno, Color color, uint textsize, int id)
         {
             this.iletyczymasz = 0;
             this.id = id;
-            
+
             window = okno;
-            
+
             doAction = false;
             rx = posx;
             ry = posy;
@@ -53,15 +52,15 @@ namespace EatCometsClear
             prostokat.FillColor = new Color(255, 0, 0);
 
             tlo = new RectangleShape();
-            tlo.Position = new Vector2f((float)(rx * 0.99), (float)(ry*0.99));
+            tlo.Position = new Vector2f((float)(rx * 0.99), (float)(ry * 0.99));
             tlo.Size = new Vector2f(rw, rh);
 
             this.SetColor(color);
             tekst = new Text();
             tekst.DisplayedString = napis;
             tekst.Font = new Font("fonts/arial.ttf");
-            if(tekst.DisplayedString.Length > 10)
-                tekst.CharacterSize = textsize-2;
+            if (tekst.DisplayedString.Length > 10)
+                tekst.CharacterSize = textsize - 2;
             else
                 tekst.CharacterSize = textsize;
             tekst.Position = new Vector2f(rx + (rw - tekst.GetLocalBounds().Width) / 2, ry + (rh - tekst.GetLocalBounds().Height) / 2);
@@ -152,7 +151,7 @@ namespace EatCometsClear
         {
             float mx = Mouse.GetPosition(window).X;
             float my = Mouse.GetPosition(window).Y;
-                        
+
             if (mx > rx && mx < rx + rw && my > ry && my < ry + rh)
             {
                 return true;
@@ -175,6 +174,13 @@ namespace EatCometsClear
                 }
                 else
                     this.iletyczymasz = -1;
+                if (Mouse.IsButtonPressed(Mouse.Button.Right))
+                {
+                    if (this.onRightClick != null)
+                    {
+                        this.onRightClick();
+                    }
+                }
             }
             else
                 this.ChangeColor(color);
@@ -200,15 +206,17 @@ namespace EatCometsClear
                     return false;
             }
         }
-        
-        public void SetOnClick( Delegate delegaterke )
-        {
-           // this.onClick = new OnClickDelegate( delegaterke );
-        }
 
         public void OnClick()
         {
-            this.onClick();
+            if (this.onClick != null)
+                this.onClick();
+        }
+
+        public void Tick()
+        {
+            if (this.tick != null)
+                this.tick();
         }
 
         public void HoverAction()
@@ -224,7 +232,7 @@ namespace EatCometsClear
             window.Draw(tekst);
         }
 
-        public void Draw(RenderTarget target, RenderStates states)
+        public new void Draw(RenderTarget target, RenderStates states)
         {
             this.Draw();
         }
