@@ -27,7 +27,7 @@ namespace EatCometsClear
 
             this.elements = new System.Collections.ArrayList();
 
-            foreach(Drawable element in newElements)
+            foreach (Drawable element in newElements)
             {
                 elements.Add(element);
             }
@@ -54,8 +54,8 @@ namespace EatCometsClear
 
         public IDable GetElementByID(int id)
         {
-            
-            foreach(IDable element in elements)
+
+            foreach (IDable element in elements)
             {
                 if (element.id == id)
                 {
@@ -72,7 +72,7 @@ namespace EatCometsClear
             element.text.DisplayedString = newString;
         }
 
-        public void ChangeTextColorByID(int id,Color color)
+        public void ChangeTextColorByID(int id, Color color)
         {
             Caption element = (Caption)this.GetElementByID(id);
             element.text.Color = color;
@@ -85,6 +85,11 @@ namespace EatCometsClear
         }
 
         public void AddElement(Drawable newElement)
+        {
+            elements.Add(newElement);
+        }
+
+        public void AddElement(Button newElement)
         {
             elements.Add(newElement);
         }
@@ -105,11 +110,11 @@ namespace EatCometsClear
 
         public void Draw()
         {
-            foreach(Drawable element in elements)
+            foreach (Drawable element in elements)
             {
-                element.Draw( target, new RenderStates());
+                element.Draw(target, new RenderStates());
             }
         }
-        
+
     }
 }

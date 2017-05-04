@@ -115,8 +115,8 @@ namespace EatCometsClear
                 direction = true;
 
             int x1, y1;
-            x1 = rnd.Next( (int)(x*0.01), (int)(x*0.99) );
-            y1 = rnd.Next( (int)(y*0.01), (int)(y*0.99) );
+            x1 = rnd.Next((int)(x * 0.01), (int)(x * 0.99));
+            y1 = rnd.Next((int)(y * 0.01), (int)(y * 0.99));
 
             this.position = new Vector2f(x1, y1);
             this.ReDraw();
@@ -124,7 +124,7 @@ namespace EatCometsClear
 
         public void ReDraw()
         {
-            this.kolo.Position = new Vector2f( this.position.X - 6, this.position.Y - 6);
+            this.kolo.Position = new Vector2f(this.position.X - 6, this.position.Y - 6);
         }
 
         public void SetXY(int x, int y)
