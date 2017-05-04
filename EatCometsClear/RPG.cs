@@ -21,7 +21,7 @@ namespace EatCometsClear
         Hero menuhero;
         /// <summary><param name="ball">tablica obiektów reprezentująca komety</param></summary>
         Ball[] ball;
-        
+
         Music music;
         bool musicEnabled;
         Sound clickSound;
@@ -60,14 +60,14 @@ namespace EatCometsClear
         MyConfig configurancja;
 
         public RPG()
-            : base( "Żryj komety", Color.Black)
+            : base("Żryj komety", Color.Black)
         {
         }
 
         protected override void LoadContent()
         {
             //wczytywanie plików gry
-            
+
             /*
             try
             {
@@ -88,30 +88,36 @@ namespace EatCometsClear
             }
 
             */
-            try{
+            try
+            {
                 music = new Music("content/music.ogg");
                 enableMusic = true;
             }
-            catch{
+            catch
+            {
                 enableMusic = false;
             }
 
-            try{
+            try
+            {
                 SoundBuffer xD = new SoundBuffer("sounds/click.wav");
                 clickSound = new Sound(xD);
                 clickSound.Volume = 15;
                 clickSoundEnable = true;
             }
-            catch {
+            catch
+            {
                 clickSoundEnable = false;
             }
-            try{
+            try
+            {
                 SoundBuffer xD = new SoundBuffer("sounds/collect.wav");
                 collectSound = new Sound(xD);
                 collectSound.Volume = 15;
                 collectSoundEnable = true;
             }
-            catch{
+            catch
+            {
                 collectSoundEnable = false;
             }
             try
@@ -131,7 +137,8 @@ namespace EatCometsClear
                 ikona = new Image("img/icon.png");
             }
             catch { }
-            try{
+            try
+            {
                 liniaload = new Texture("img/optionbarbg.png");
             }
             catch { }
@@ -139,7 +146,7 @@ namespace EatCometsClear
 
         protected override void Initialize()
         {
-            
+
 
 
             //inicjalizacja zmiennych programu
@@ -155,7 +162,7 @@ namespace EatCometsClear
             enableRangeWskaznik = false;
             //enableGravity = false;
 
-            
+
             sterowanie = 3;
             difficulty = new int[3] { 10, 1000, 100 };
             gamestarted = false;
@@ -329,7 +336,7 @@ namespace EatCometsClear
             hudelements.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "-", window, buttonscolor, buttontextsize, 504));
             hudelements.Add(new Button((uint)(pomX * 0.44), (uint)(pomY * 0.40), (uint)(pomX * 0.17), (uint)(pomY * 0.10), "Grawitacja", window, buttonscolor, buttontextsize, 505));
             hudelements.Add(new Button((uint)(pomX * 0.62), (uint)(pomY * 0.42), (uint)(pomX * 0.03), (uint)(pomY * 0.06), "+", window, buttonscolor, buttontextsize, 506));
-            hudelements.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.55), (uint)(pomX * 0.25), (uint)(pomY * 0.10), "Informacje w konsoli", window, buttonscolor, buttontextsize,  508));
+            hudelements.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.55), (uint)(pomX * 0.25), (uint)(pomY * 0.10), "Informacje w konsoli", window, buttonscolor, buttontextsize, 508));
             hudelements.Add(new Button((uint)(pomX * 0.40), (uint)(pomY * 0.70), (uint)(pomX * 0.25), (uint)(pomY * 0.10), "Wskaźnik zasięgu", window, buttonscolor, buttontextsize, 507));
 
             options3HUD = new HeadUpDisplay();
@@ -449,17 +456,17 @@ namespace EatCometsClear
                 {
                     element.hoverAction = delegate () { tipText.DisplayedString = "Przejdź do gry"; };
                     element.onClick = delegate ()
-                        {
-                            //zmienia stan gry z menu na gre
-                            hero.IsPlaying = true;
-                            gamestarted = true;
-                            showTip = 0;
-                            tipText.DisplayedString = "";
-                            enableOptions = 0;
+                    {
+                        //zmienia stan gry z menu na gre
+                        hero.IsPlaying = true;
+                        gamestarted = true;
+                        showTip = 0;
+                        tipText.DisplayedString = "";
+                        enableOptions = 0;
 
-                            window.SetMouseCursorVisible(false);
-                            hero.Go('x', 0, 0, 0);
-                        };
+                        window.SetMouseCursorVisible(false);
+                        hero.Go('x', 0, 0, 0);
+                    };
                     element.onRightClick = delegate ()
                     {
                         tipText.DisplayedString = window.ToString();
@@ -476,7 +483,7 @@ namespace EatCometsClear
                 }
                 if (element.id == 104)
                 {
-                    element.hoverAction = delegate () 
+                    element.hoverAction = delegate ()
                     {
 
 
@@ -496,7 +503,7 @@ namespace EatCometsClear
 
                             case 2:
                                 {
-                                    tipText.DisplayedString = "Przytrzymanie TAB wyświetla menu postaci";
+                                    tipText.DisplayedString = "Kliknięcie TAB wyświetla menu postaci";
                                 }
                                 break;
                             case 3:
@@ -592,7 +599,7 @@ namespace EatCometsClear
                 {
                     element.hoverAction = delegate ()
                     {
-                        if(enableMusic)
+                        if (enableMusic)
                             tipText.DisplayedString = "Zmień ustawienia muzyki";
                         else
                             tipText.DisplayedString = "Nie wczytano muzyki";
@@ -690,10 +697,10 @@ namespace EatCometsClear
                     {
                         if (element.tekst.DisplayedString.Equals("WSAD / Strzałki"))
                         {
-                                //po kliknieciu zmienia sterowanie na myszke
-                                element.ChangeText("Myszka");
-                                sterowanie = 3;
-                                hero.Changemovement(sterowanie);
+                            //po kliknieciu zmienia sterowanie na myszke
+                            element.ChangeText("Myszka");
+                            sterowanie = 3;
+                            hero.Changemovement(sterowanie);
 
                         }
                         else if (element.tekst.DisplayedString.Equals("Myszka"))
@@ -807,8 +814,8 @@ namespace EatCometsClear
                         Caption handelier;
                         handelier = (Caption)options2HUD.GetElementByID(24);
                         handelier.text.DisplayedString = Convert.ToString((int)music.Volume);
-                            //textMusicVolume.DisplayedString = Convert.ToString((int)music.Volume);
-                        };
+                        //textMusicVolume.DisplayedString = Convert.ToString((int)music.Volume);
+                    };
                 }
                 if (element.id == 404)
                 {
@@ -825,8 +832,8 @@ namespace EatCometsClear
                         Caption handelier;
                         handelier = (Caption)options2HUD.GetElementByID(24);
                         handelier.text.DisplayedString = Convert.ToString((int)music.Volume);
-                            //textMusicVolume.DisplayedString = Convert.ToString((int)music.Volume);
-                        };
+                        //textMusicVolume.DisplayedString = Convert.ToString((int)music.Volume);
+                    };
                 }
                 if (element.id == 407)
                 {
@@ -869,8 +876,8 @@ namespace EatCometsClear
                             tipText.DisplayedString = "Dźwięki nie zostały wczytane :/";
                         }
 
-                            //textMusicVolume.DisplayedString = Convert.ToString((int)music.Volume);
-                        };
+                        //textMusicVolume.DisplayedString = Convert.ToString((int)music.Volume);
+                    };
                 }
                 if (element.id == 408)
                 {
@@ -902,9 +909,9 @@ namespace EatCometsClear
                         {
                             tipText.DisplayedString = "Dźwięki nie zostały wczytane :/";
                         }
-                            //textMusicVolume.DisplayedString = Convert.ToString((int)music.Volume);
+                        //textMusicVolume.DisplayedString = Convert.ToString((int)music.Volume);
 
-                        };
+                    };
                 }
 
                 if (element.id == 405)
@@ -1054,7 +1061,7 @@ namespace EatCometsClear
                     };
                 }
 
-                if(element.id == 508)
+                if (element.id == 508)
                 {
                     element.hoverAction = delegate () { tipText.DisplayedString = "Pokaż / ukryj dodatkowe opisy w konsoli"; };
                     element.onClick = delegate ()
@@ -1172,8 +1179,8 @@ namespace EatCometsClear
 
                         foreach (Button elebent in options4HUD.GetButtons())
                         {
-                            if(elebent.id == 605)
-                            elebent.ChangeText("Zapisz");
+                            if (elebent.id == 605)
+                                elebent.ChangeText("Zapisz");
                         }
                     };
                 }
@@ -1361,12 +1368,13 @@ namespace EatCometsClear
 
             RebuidGUI();
             hero.RebuidGUI(window);
+
             foreach (Ball elebent in ball)
             {
                 elebent.SetXY((int)window.Size.X, (int)window.Size.Y);
                 elebent.Remake();
             }
-        }    
+        }
 
         private void NewGame()
         {
@@ -1377,7 +1385,7 @@ namespace EatCometsClear
             hero = null;
             hero = new Hero(window, (uint)(window.Size.X * 0.8203125), (uint)(window.Size.Y * 0.5222222), new Color(255, 195, 77), (int)window.Size.X, (int)window.Size.Y, true, sterowanie);
 
-            if(collectSoundEnable)
+            if (collectSoundEnable)
             {
                 hero.AddSound(collectSound);
             }
@@ -1386,7 +1394,7 @@ namespace EatCometsClear
             for (int i = 0; i < ball.Length; i++)
             {
                 ball[i] = new Ball((int)window.Size.X, (int)window.Size.Y, i);
-                ball[i].cycle = (int)( new Random().Next(0, 40) );
+                ball[i].cycle = (int)(new Random().Next(0, 40));
             }
 
             Console.Clear();
@@ -1426,7 +1434,7 @@ namespace EatCometsClear
                 physicCalc.Gravitation(objekty);
                 physicCalc.Collision(objekty);
 
-               //coby position i pozycja wizualnych shajpów się pokrywała
+                //coby position i pozycja wizualnych shajpów się pokrywała
                 this.hero.Go('x', 0, 0, 0);
 
                 for (int i = 0; i < ball.Length; i++)
@@ -1447,7 +1455,7 @@ namespace EatCometsClear
                 }
 
 
-               
+
 
                 if (Keyboard.IsKeyPressed(Keyboard.Key.Escape))
                 {
@@ -1458,7 +1466,7 @@ namespace EatCometsClear
                         escBlock = true;
                         window.SetMouseCursorVisible(true);
                         gamestarted = false;
-                         
+
                         //kopiuje no ico?
                         menuhero = (Hero)hero.Clone();
                         menuhero.enablemovement = false;
@@ -1480,9 +1488,9 @@ namespace EatCometsClear
                 //niegrywalne
 
                 //esc przełącza między grą a mainmenu
-                if(Keyboard.IsKeyPressed(Keyboard.Key.Escape))
+                if (Keyboard.IsKeyPressed(Keyboard.Key.Escape))
                 {
-                    if(!escBlock)
+                    if (!escBlock)
                     {
                         hero.IsPlaying = true;
 
@@ -1534,7 +1542,7 @@ namespace EatCometsClear
 
                 //dźwięk kliknięcia
                 //TickButtons obsługuje przyciski
-                if(this.TickButtons() && clickSoundEnable)
+                if (this.TickButtons() && clickSoundEnable)
                 {
                     if (clickSound != null)
                         clickSound.Play();
@@ -1610,7 +1618,7 @@ namespace EatCometsClear
 
             if (!playSound)
             {
-                if( (enableOptions >= 1) && (!playSound))
+                if ((enableOptions >= 1) && (!playSound))
                 {
                     playSound = optionbarHUD.Tick();
 
@@ -1638,7 +1646,7 @@ namespace EatCometsClear
             }
             return playSound;
         }
-        
+
         protected override void Render()
         {
             //generuje klatkę do wyświetlenia
@@ -1660,13 +1668,13 @@ namespace EatCometsClear
 
                 //te słoneczko po prawej
                 menuhero.Draw();
-                
+
                 //główne menu główne
                 mainMenuHUD.Draw();
-                
+
 
                 //wskazowka
-                    window.Draw(tipText);
+                window.Draw(tipText);
 
 
                 //jeżeli jakieś podmenu jest otwarte

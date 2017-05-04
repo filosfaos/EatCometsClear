@@ -69,31 +69,41 @@ namespace EatCometsClear
             {
                 uint i = 1;
 
+
+                Console.Write("Starting ");
+                string a = "/";
+
                 while (!isLoaded)
                 {
-                    string line = "Starting ";
-                    switch (i)
+                    switch (i%4)
                     {
+                        case 0:
+                            a = "/";
+                            break;
                         case 1:
-                            line += "/";
+                            a = "-";
                             break;
                         case 2:
-                            line += "-";
+                            a = "\\";
                             break;
                         case 3:
-                            line += "\\";
-                            break;
-                        case 4:
-                            line += "|";
-                            i = 0;
+                            a = "|";
                             break;
                     }
 
-                    i++;
+                    if (i == 16)
+                    {
+                        i = 0;
+                        Console.Clear();
+                        Console.Write("Starting ");
+                    }
 
-                    Console.Clear();
-                    Console.WriteLine(line);
-                    System.Threading.Thread.Sleep(40);
+                    Console.CursorLeft = 10;
+
+                    i++;
+                    
+                    Console.Write(a);
+                    System.Threading.Thread.Sleep(50);
                 }
 
                 Console.Clear();
